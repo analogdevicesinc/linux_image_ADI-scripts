@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # find the TX LO generator
 for i in $(find /sys -name name)
@@ -38,10 +38,9 @@ freq_tx() {
   echo $1 > $tx_lo_path/out_altvoltage0_frequency
 }
 
-for (( i  = $start; $i <= $end; i+=$inc));
+for i in `seq $start $inc $end`;
 do
   echo $i
   freq_tx `expr $i \\* 1000000`
   sleep $pause
 done
-
