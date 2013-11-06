@@ -8,6 +8,11 @@ for i in $(find /sys -name name)
 do
   if [ "`cat $i`" = "cf-ad9122-core-lpc" ] ; then
      dac_path=$(echo $i | sed 's:/name$::')
+     break
+  fi
+  if [ "`cat $i`" = "cf-ad9361-dds-core-lpc" ] ; then
+     dac_path=$(echo $i | sed 's:/name$::')
+     break
   fi
 done
 
