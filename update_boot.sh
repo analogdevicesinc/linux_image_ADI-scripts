@@ -1,11 +1,35 @@
 #!/bin/bash
 
-SERVER=http://wiki.analog.com
-SPATH=_media/resources/tools-software/linux-drivers/platforms
+if [ $1 == "int" ]
+then
+  SERVER=http://10.44.2.88
+  SPATH=/files/
+else
+  SERVER=http://wiki.analog.com
+  SPATH=_media/resources/tools-software/linux-drivers/platforms
+fi
+
 FILE=latest_zynq_boot.txt
 
 FAT_MOUNT=/media/boot
 CURRENT=$FAT_MOUNT/VERSION
+
+find_current_setup ()
+{
+	key=`md5sum $1/devicetree.dtb | awk '{print $1}'`
+
+	for file in $1/* ; do
+		if [ -d $file ] ; then
+			if [ -f $file/devicetree.dtb ] ; then
+				t=`md5sum $file/devicetree.dtb | awk '{print $1}'`
+				if [ "$t" = "$key" ] ; then
+					echo $file
+					exit
+				fi
+			fi
+		fi
+	done
+}
 
 if [ `id -u` != "0" ]
 then
@@ -43,7 +67,7 @@ echo NEW VERSION    : $version
 
 if [ -f $CURRENT ]
 then
-  if [ $version==$oldversion ]
+  if [ $version == $oldversion ]
   then
    echo "Already up to date"  1>&2
    umount $FAT_MOUNT
@@ -69,10 +93,22 @@ then
    exit 1
 fi
 
+# Try to restore current BOOT.BIN and devicetree.dtb
+CURRENT_CONFIG=`$FAT_MOUNT`
+echo CURRENT CONFIG: $CURRENT_CONFIG
+
 echo "Extracting - Be patient!"
 tar -C $FAT_MOUNT -xzf ./$newfile --no-same-owner --checkpoint=.1000
-echo $version >> $CURRENT
+echo $version > $CURRENT
+
+if [ "$CURRENT_CONFIG" != "" ]
+then
+  cp $CURRENT_CONFIG/devicetree.dtb $FAT_MOUNT/devicetree.dtb
+  cp $CURRENT_CONFIG/BOOT.BIN $FAT_MOUNT/BOOT.BIN
+fi
+
 sync
+
 rm $FILE
 rm $newfile
 umount $FAT_MOUNT
