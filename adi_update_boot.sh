@@ -94,7 +94,7 @@ then
 fi
 
 # Try to restore current BOOT.BIN and devicetree.dtb
-CURRENT_CONFIG=`$FAT_MOUNT`
+CURRENT_CONFIG=`find_current_setup $FAT_MOUNT`
 echo CURRENT CONFIG: $CURRENT_CONFIG
 
 echo "Extracting - Be patient!"
