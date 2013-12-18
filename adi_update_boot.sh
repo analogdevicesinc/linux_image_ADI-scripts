@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $1 == "int" ]
+if [ $# -eq 1 ]
 then
-  SERVER=http://10.44.2.88
-  SPATH=/files/
+  SERVER=http://$1
+  SPATH=files
 else
   SERVER=http://wiki.analog.com
   SPATH=_media/resources/tools-software/linux-drivers/platforms
@@ -62,8 +62,8 @@ newurl=`sed -n 2p $FILE`
 md5=`sed -n 3p $FILE | awk '{print $1}'`
 newfile=`sed -n 3p $FILE | awk '{print $2}'`
 
-echo CURRENT VERSION: $oldversion
-echo NEW VERSION    : $version
+echo "CURRENT VERSION: $oldversion"
+echo "NEW VERSION    : $version"
 
 if [ -f $CURRENT ]
 then
@@ -79,7 +79,7 @@ wget -nc $newurl
 
 if [ $? -ne 0 ]
 then
- echo "Download failed - aborting"  1>&2
+ echo "Download failed - aborting" 1>&2
  umount $FAT_MOUNT
  exit 1
 fi
@@ -88,14 +88,15 @@ key=`md5sum $newfile | awk '{print $1}'`
 
 if [ $key != $md5 ]
 then
-   echo "MD5SUM Error"  1>&2
+   echo "MD5SUM Error" 1>&2
+   rm $newfile
    umount $FAT_MOUNT
    exit 1
 fi
 
 # Try to restore current BOOT.BIN and devicetree.dtb
 CURRENT_CONFIG=`find_current_setup $FAT_MOUNT`
-echo CURRENT CONFIG: $CURRENT_CONFIG
+echo "CURRENT BOARD CONFIG: $CURRENT_CONFIG"
 
 echo "Extracting - Be patient!"
 tar -C $FAT_MOUNT -xzf ./$newfile --no-same-owner --checkpoint=.1000
