@@ -11,7 +11,7 @@ BUILDS="fmcomms1-eeprom-cal \
 do_build ()
 {
   local prj=$1
-  make && make install && echo "\n Building $prj finished Successfully\n" ||
+  make -j2 && make install && echo "\n Building $prj finished Successfully\n" ||
 	echo "Building $prj Failed\n"
 }
 
