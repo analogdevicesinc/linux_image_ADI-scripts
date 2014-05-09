@@ -7,6 +7,7 @@ BUILDS="fmcomms1-eeprom-cal \
 	fru_tools \
 	iio-cgi-netscope \
 	iio-fm-radio \
+	jesd-eye-scan-gtk \
 	linux_image_ADI-scripts"
 
 do_build ()
