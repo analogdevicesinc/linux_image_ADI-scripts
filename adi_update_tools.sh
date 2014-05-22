@@ -82,7 +82,7 @@ do
   elif [ $i = "libiio" ]
   then
     ARG2="PREFIX=/usr"
-    ARG_TARGET="libiio iiod"
+    ARG_TARGET="iiod"
   fi
 
   do_build $i $ARG2 $ARG_TARGET
