@@ -76,8 +76,8 @@ do
     cd ./server
   elif [ $i = "iio-oscilloscope" ]
   then
-    git checkout origin/multi_plot_osc
-    do_build "$i-multi_plot_osc"
+    git checkout origin/libiio-rc1
+    do_build "$i-multi_plot_osc-libiio-rc1"
     git checkout master
   elif [ $i = "libiio" ]
   then
