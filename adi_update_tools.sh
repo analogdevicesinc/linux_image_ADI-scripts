@@ -8,7 +8,7 @@ fi
 #find md5of this file
 md5_self=`md5sum $0`
 
-# Keeps the scripts as the first thing, so we can check for updated 
+# Keeps the scripts as the first thing, so we can check for updated
 # scripts ...
 BUILDS="linux_image_ADI-scripts \
 	fmcomms1-eeprom-cal \
@@ -60,11 +60,11 @@ do
   if [ $i = "linux_image_ADI-scripts" ]
   then
     new=`md5sum ./adi_update_tools.sh`
-    if [ "$new" = "$md5_self" ] 
+    if [ "$new" = "$md5_self" ]
     then
       echo ./adi_update_tools.sh script is the same, continuing
       # Now we are sure we are using the latest, make sure the pre-reqs are installed
-      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex
+      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
