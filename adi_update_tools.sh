@@ -76,11 +76,12 @@ do
     cd ./server
   elif [ $i = "iio-oscilloscope" ]
   then
-    git checkout origin/libiio-rc1
-    do_build "$i-multi_plot_osc-libiio-rc1"
+    git checkout origin/osc_iio_utils_legacy
+    do_build "$i-osc_iio_utils_legacy"
     git checkout master
   elif [ $i = "libiio" ]
   then
+    git checkout origin/v0.1
     ARG2="PREFIX=/usr"
     ARG_TARGET="iiod"
   fi
