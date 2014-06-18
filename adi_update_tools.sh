@@ -21,7 +21,8 @@ BUILDS="linux_image_ADI-scripts:origin/master \
 	fru_tools:origin/master \
 	iio-cgi-netscope:origin/master \
 	iio-fm-radio:origin/master \
-	jesd-eye-scan-gtk:origin/master"
+	jesd-eye-scan-gtk:origin/master \
+	thttpd:origin/master"
 
 do_build ()
 {
@@ -99,6 +100,9 @@ do
   then
     # Just in case an old version is still under /usr/local
     make uninstall PREFIX=/usr/local 2>/dev/null
+  elif [ $REPO = "thttpd" ]
+  then
+    ./configure
   fi
 
   do_build $REPO $TARGET
