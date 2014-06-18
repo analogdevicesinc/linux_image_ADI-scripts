@@ -95,6 +95,10 @@ do
   elif [ $REPO = "iio-cmdsrv" ]
   then
     cd ./server
+  elif [ $REPO = "libiio" ]
+  then
+    # Just in case an old version is still under /usr/local
+    make uninstall PREFIX=/usr/local 2>/dev/null
   fi
 
   do_build $REPO $TARGET
