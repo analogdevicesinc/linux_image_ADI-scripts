@@ -12,16 +12,16 @@ md5_self=`md5sum $0`
 # scripts ...
 # repository:branch:make_target
 
-BUILDS="linux_image_ADI-scripts:master \
-	fmcomms1-eeprom-cal:master \
+BUILDS="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/master \
 	libiio:origin/v0.1:iiod \
-	iio-cmdsrv:master \
-	iio-oscilloscope:master \
+	iio-cmdsrv:origin/master \
+	iio-oscilloscope:origin/master \
 	iio-oscilloscope:origin/osc_iio_utils_legacy \
-	fru_tools:master \
-	iio-cgi-netscope:master \
-	iio-fm-radio:master \
-	jesd-eye-scan-gtk:master"
+	fru_tools:origin/master \
+	iio-cgi-netscope:origin/master \
+	iio-fm-radio:origin/master \
+	jesd-eye-scan-gtk:origin/master"
 
 do_build ()
 {
@@ -48,11 +48,9 @@ do
   if [ -z $BRANCH ]
   then
     echo HERE
-    BRANCH=master
+    BRANCH=origin/master
     TARGET=""
   fi
-
-  echo $REPO $BRANCH $TARGET
 
   cd /usr/local/src
 
