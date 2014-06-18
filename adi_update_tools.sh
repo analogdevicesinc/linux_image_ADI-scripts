@@ -10,23 +10,25 @@ md5_self=`md5sum $0`
 
 # Keeps the scripts as the first thing, so we can check for updated
 # scripts ...
-BUILDS="linux_image_ADI-scripts \
-	fmcomms1-eeprom-cal \
-	libiio \
-	iio-cmdsrv \
-	iio-oscilloscope \
-	fru_tools \
-	iio-cgi-netscope \
-	iio-fm-radio \
-	jesd-eye-scan-gtk"
+# repository:branch:make_target
+
+BUILDS="linux_image_ADI-scripts:master \
+	fmcomms1-eeprom-cal:master \
+	libiio:origin/v0.1:iiod \
+	iio-cmdsrv:master \
+	iio-oscilloscope:master \
+	iio-oscilloscope:origin/osc_iio_utils_legacy \
+	fru_tools:master \
+	iio-cgi-netscope:master \
+	iio-fm-radio:master \
+	jesd-eye-scan-gtk:master"
 
 do_build ()
 {
   local prj=$1
-  local arg=$2
-  local target=$3
+  local target=$2
   make clean;
-  make -j3 $target && make install $arg && echo "\n Building $prj finished Successfully\n" ||
+  make -j3 $target && make install && echo "\n Building $prj target $target finished Successfully\n" ||
 	echo "Building $prj Failed\n"
 }
 
@@ -38,26 +40,47 @@ fi
 
 for i in $BUILDS
 do
-  cd /usr/local/src
-  ARG2=""
-  ARG_TARGET=""
+  REPO=`echo $i | cut -d':' -f1`
+  BRANCH=`echo $i | cut -s -d':' -f2`
+  TARGET=`echo $i | cut -s -d':' -f3`
 
-  if [ -d $i ]
+# slective build without branch? use master
+  if [ -z $BRANCH ]
   then
-    cd ./$i
-    echo "\n *** Updating $i ***"
-    git pull;
-    cd ..
-  else
-    echo "\n *** Cloning $i ***"
-    git clone https://github.com/analogdevicesinc/$i.git || continue
+    echo HERE
+    BRANCH=master
+    TARGET=""
   fi
 
-  echo "\n *** Building $i ***"
-  cd ./$i
+  echo $REPO $BRANCH $TARGET
+
+  cd /usr/local/src
+
+  if [ -d $REPO ]
+  then
+    cd ./$REPO
+    echo "\n *** Updating $REPO BRANCH $BRANCH ***"
+    dirty=`git diff --shortstat 2> /dev/null | tail -n1`
+    if [ "$dirty" != "" ]
+    then
+      echo "Tree is dirty - generting branch" `date +"%F"`
+      git branch `date +"%F"`
+    fi
+    git checkout -f $BRANCH
+    make uninstall 2>/dev/null
+    git fetch
+    git checkout -f $BRANCH 2>/dev/null
+    cd ..
+  else
+    echo "\n *** Cloning $REPO ***"
+    git clone https://github.com/analogdevicesinc/$REPO.git || continue
+  fi
+
+  echo "\n *** Building $REPO ***"
+  cd ./$REPO
 
 # Handle some specialties here
-  if [ $i = "linux_image_ADI-scripts" ]
+  if [ $REPO = "linux_image_ADI-scripts" ]
   then
     new=`md5sum ./adi_update_tools.sh`
     if [ "$new" = "$md5_self" ]
@@ -71,20 +94,10 @@ do
       ./adi_update_tools.sh
       exit
     fi
-  elif [ $i = "iio-cmdsrv" ]
+  elif [ $REPO = "iio-cmdsrv" ]
   then
     cd ./server
-  elif [ $i = "iio-oscilloscope" ]
-  then
-    git checkout origin/osc_iio_utils_legacy
-    do_build "$i-osc_iio_utils_legacy"
-    git checkout master
-  elif [ $i = "libiio" ]
-  then
-    git checkout origin/v0.1
-    ARG2="PREFIX=/usr"
-    ARG_TARGET="iiod"
   fi
 
-  do_build $i $ARG2 $ARG_TARGET
+  do_build $REPO $TARGET
 done
