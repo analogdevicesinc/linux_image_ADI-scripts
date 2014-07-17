@@ -106,6 +106,12 @@ if [ "$CURRENT_CONFIG" != "" ]
 then
   cp $CURRENT_CONFIG/devicetree.dtb $FAT_MOUNT/devicetree.dtb
   cp $CURRENT_CONFIG/BOOT.BIN $FAT_MOUNT/BOOT.BIN
+  if [ "$CURRENT_CONFIG" == "/media/boot/zynq-zed-mc" ]
+  then
+    cp $CURRENT_CONFIG/uImage $FAT_MOUNT/uImage
+  else
+    cp /media/boot/common/uImage $FAT_MOUNT/uImage
+  fi
 fi
 
 sync
