@@ -12,7 +12,7 @@ md5_self=`md5sum $0`
 # scripts ...
 # repository:branch:make_target
 
-BUILDS="linux_image_ADI-scripts:origin/master \
+BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/master \
 	libiio:origin/v0.1:iiod \
 	iio-cmdsrv:origin/master \
@@ -24,6 +24,18 @@ BUILDS="linux_image_ADI-scripts:origin/master \
 	jesd-eye-scan-gtk:origin/master \
 	thttpd:origin/master"
 
+BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/2014_R1 \
+	libiio:origin/2014_R1:iiod \
+	iio-cmdsrv:origin/2014_R1 \
+	iio-oscilloscope:origin/2014_R1 \
+	iio-oscilloscope:origin/osc_iio_utils_legacy \
+	fru_tools:origin/2014_R1 \
+	iio-cgi-netscope:origin/2014_R1 \
+	iio-fm-radio:origin/2014_R1 \
+	jesd-eye-scan-gtk:origin/2014_R1 \
+	thttpd:origin/2014_R1"
+
 do_build ()
 {
   local prj=$1
@@ -33,10 +45,15 @@ do_build ()
 	echo "Building $prj Failed\n"
 }
 
-# Allow selective builds
-if [ -n "$1" ]
+# Allow selective builds by default build the latest release branches
+if [ "$1" = "dev" ]
 then
-BUILDS=$1
+  BUILDS=$BUILDS_DEV
+elif [ -n "$1" ]
+then
+  BUILDS=$1
+else
+  BUILDS=$BUILDS_2014_R1
 fi
 
 for i in $BUILDS
