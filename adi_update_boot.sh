@@ -37,13 +37,16 @@ then
    exit 1
 fi
 
-mkdir $FAT_MOUNT 2>/dev/null
-mount /dev/mmcblk0p1 $FAT_MOUNT
-
-if [ $? -ne 0 ]
+mkdir -p $FAT_MOUNT 2>/dev/null
+if ! mountpoint -q $FAT_MOUNT
 then
-  echo "Mounting /dev/mmcblk0p1 failed" 1>&2
-  exit 1
+  mount /dev/mmcblk0p1 $FAT_MOUNT
+
+  if [ $? -ne 0 ]
+  then
+    echo "Mounting /dev/mmcblk0p1 failed" 1>&2
+    exit 1
+  fi
 fi
 
 rm $FILE 2>/dev/null
