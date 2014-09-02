@@ -62,7 +62,7 @@ do
   BRANCH=`echo $i | cut -s -d':' -f2`
   TARGET=`echo $i | cut -s -d':' -f3`
 
-# slective build without branch? use master
+# selective build without branch? use master
   if [ -z $BRANCH ]
   then
     echo HERE
@@ -107,7 +107,7 @@ do
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
-      ./adi_update_tools.sh
+      ./adi_update_tools.sh $@
       exit
     fi
   elif [ $REPO = "iio-cmdsrv" ]
