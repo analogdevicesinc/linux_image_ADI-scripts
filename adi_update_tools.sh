@@ -22,7 +22,8 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	iio-cgi-netscope:origin/master \
 	iio-fm-radio:origin/master \
 	jesd-eye-scan-gtk:origin/master \
-	thttpd:origin/master"
+	thttpd:origin/master \
+	mathworks_tools:origin/master"
 
 BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/2014_R1 \
@@ -34,7 +35,8 @@ BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
 	iio-cgi-netscope:origin/2014_R1 \
 	iio-fm-radio:origin/2014_R1 \
 	jesd-eye-scan-gtk:origin/2014_R1 \
-	thttpd:origin/2014_R1"
+	thttpd:origin/2014_R1 \
+	mathworks_tools:origin/master"
 
 do_build ()
 {
@@ -120,6 +122,9 @@ do
   elif [ $REPO = "thttpd" ]
   then
     ./configure
+  elif [ $REPO = "mathworks_tools" ]
+  then
+    cd ./motor_control/linux_utils/
   fi
 
   do_build $REPO $TARGET
