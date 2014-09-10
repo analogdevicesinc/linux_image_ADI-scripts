@@ -14,7 +14,7 @@ md5_self=`md5sum $0`
 
 BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/master \
-	libiio:origin/v0.1:iiod \
+	libiio:origin/master:iiod \
 	iio-cmdsrv:origin/master \
 	iio-oscilloscope:origin/master \
 	iio-oscilloscope:origin/osc_iio_utils_legacy \
