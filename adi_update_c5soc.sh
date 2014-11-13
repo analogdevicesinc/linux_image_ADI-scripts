@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$(id -u)" != "0" ] ; then
+	echo "This script must be run as root"
+	exit 1
+fi
+
 wget http://wiki.analog.com/_media/resources/tools-software/linux-software/altera_soc/altera_soc.zip
 unzip altera_soc.zip
 dd of=/dev/mmcblk0p3 bs=512 if=boot-partition.img
