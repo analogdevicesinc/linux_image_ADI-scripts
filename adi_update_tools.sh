@@ -5,6 +5,15 @@ if [ "$(id -u)" != "0" ] ; then
 	exit 1
 fi
 
+wget --spider -q http://github.com/analogdevicesinc
+EC=$?
+if [ $EC -eq 0 ];then
+   echo "Network Connection: PASS"
+else
+   echo "Network Connection: FAILED"
+   exit $EC
+fi
+
 #find md5of this file
 md5_self=`md5sum $0`
 
