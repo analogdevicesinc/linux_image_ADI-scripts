@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# initialize scale to workaround dBFS GUI reload issue
+/usr/local/bin/dds_set_scale.sh 0 >/dev/null
+
 tmpdir=$(mktemp -d --tmpdir=/tmp fmcdaq2-test.XXXXXX)
 pushd ${tmpdir} >/dev/null
 /usr/local/bin/osc -p /usr/local/lib/osc/profiles/AD-FMCDAQ2_test.ini
