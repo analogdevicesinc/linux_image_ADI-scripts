@@ -2,8 +2,9 @@
 
 for i in $(find /sys -name name)
 do
+  dev_name=$(cat $i)
   # find the DAC on FMComms1
-  if [ "`cat $i`" = "cf-ad9122-core-lpc" ] ; then
+  if [ "$dev_name" = "cf-ad9122-core-lpc" ] || [ "$dev_name" = "axi-ad9144-hpc" ] ; then
      dac_path=$(echo $i | sed 's:/name$::')
      A1=out_altvoltage0_1A_frequency
      A2=out_altvoltage2_2A_frequency
@@ -14,7 +15,7 @@ do
   fi
 
   # if that didn't work, try FMComms2/3
-  if [ "`cat $i`" = "cf-ad9361-dds-core-lpc" ] ; then
+  if [ "$dev_name" = "cf-ad9361-dds-core-lpc" ] ; then
      dac_path=$(echo $i | sed 's:/name$::')
      A1=out_altvoltage0_TX1_I_F1_frequency
      B1=out_altvoltage1_TX1_I_F2_frequency
