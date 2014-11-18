@@ -14,7 +14,8 @@ fi
 # find the DAC
 for i in $(find /sys -name name 2>/dev/null)
 do
-  if [ "`cat $i`" = "cf-ad9122-core-lpc" ] ; then
+  dev_name=$(cat $i)
+  if [ "$dev_name" = "cf-ad9122-core-lpc" ] || [ "$dev_name" = "axi-ad9144-hpc" ] ; then
      dac_path=$(echo $i | sed 's:/name$::')
      s1=out_altvoltage0_1A_scale
      s2=out_altvoltage1_1B_scale
@@ -22,7 +23,7 @@ do
      s4=out_altvoltage3_2B_scale
      break
   fi
-  if [ "`cat $i`" = "cf-ad9361-dds-core-lpc" ] ; then
+  if [ "$dev_name" = "cf-ad9361-dds-core-lpc" ] ; then
      dac_path=$(echo $i | sed 's:/name$::')
      s1=out_altvoltage0_TX1_I_F1_scale
      s2=out_altvoltage1_TX1_I_F2_scale
