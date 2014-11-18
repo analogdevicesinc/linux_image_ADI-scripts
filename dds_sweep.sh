@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for i in $(find /sys -name name)
+for i in $(find -L /sys/bus/iio/devices -maxdepth 2 -name name)
 do
   dev_name=$(cat $i)
   # find the DAC on FMComms1
@@ -10,7 +10,7 @@ do
      A2=out_altvoltage2_2A_frequency
      B1=out_altvoltage1_1B_frequency
      B2=out_altvoltage3_2B_frequency
-     sampl=`cat $dac_path/out_altvoltage_1A_sampling_frequency`
+     sampl=`cat $dac_path/out_altvoltage_sampling_frequency`
      break
   fi
 
@@ -25,7 +25,7 @@ do
      B3=out_altvoltage5_TX2_I_F2_frequency
      A4=out_altvoltage6_TX2_Q_F1_frequency
      B4=out_altvoltage7_TX2_Q_F2_frequency
-     sampl=`cat $dac_path/out_altvoltage_TX1_I_F1_sampling_frequency`
+     sampl=`cat $dac_path/out_altvoltage_sampling_frequency`
      break
   fi
 done

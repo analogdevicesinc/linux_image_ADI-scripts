@@ -4,7 +4,7 @@
 buffer_size=1024
 
 # find the DAC
-for i in $(find /sys -name name)
+for i in $(find -L /sys/bus/iio/devices -maxdepth 2 -name name)
 do
   dev_name=$(cat $i)
   if [ "$dev_name" = "cf-ad9122-core-lpc" ] || [ "$dev_name" = "axi-ad9144-hpc" ] || [ "$dev_name" = "cf-ad9361-dds-core-lpc" ] ; then

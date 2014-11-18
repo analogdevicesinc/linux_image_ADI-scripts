@@ -12,7 +12,7 @@ if [ $1 -ge 16 ] ; then
 fi
 
 # find the DAC
-for i in $(find /sys -name name 2>/dev/null)
+for i in $(find -L /sys/bus/iio/devices -maxdepth 2 -name name)
 do
   dev_name=$(cat $i)
   if [ "$dev_name" = "cf-ad9122-core-lpc" ] || [ "$dev_name" = "axi-ad9144-hpc" ] ; then
