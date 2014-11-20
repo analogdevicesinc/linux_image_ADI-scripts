@@ -5,12 +5,11 @@ if [ "$(id -u)" != "0" ] ; then
 	exit 1
 fi
 
-wget --spider -q http://github.com/analogdevicesinc
+wget --spider -nv http://github.com/analogdevicesinc
 EC=$?
-if [ $EC -eq 0 ];then
-   echo "Network Connection: PASS"
-else
-   echo "Network Connection: FAILED"
+if [ $EC -ne 0 ];then
+   ifconfig
+   echo "\n\nNetwork Connection: FAILED\n"
    exit $EC
 fi
 
