@@ -25,12 +25,9 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	libiio:origin/master:iiod \
 	iio-cmdsrv:origin/master \
 	iio-oscilloscope:origin/master \
-	iio-oscilloscope:origin/osc_iio_utils_legacy \
 	fru_tools:origin/master \
-	iio-cgi-netscope:origin/master \
 	iio-fm-radio:origin/master \
 	jesd-eye-scan-gtk:origin/master \
-	thttpd:origin/master \
 	mathworks_tools:origin/master"
 
 BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
@@ -38,12 +35,9 @@ BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2014_R1:iiod \
 	iio-cmdsrv:origin/2014_R1 \
 	iio-oscilloscope:origin/2014_R1 \
-	iio-oscilloscope:origin/osc_iio_utils_legacy \
 	fru_tools:origin/2014_R1 \
-	iio-cgi-netscope:origin/2014_R1 \
 	iio-fm-radio:origin/2014_R1 \
 	jesd-eye-scan-gtk:origin/2014_R1 \
-	thttpd:origin/2014_R1 \
 	mathworks_tools:origin/master"
 
 do_build ()
