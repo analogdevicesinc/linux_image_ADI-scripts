@@ -107,7 +107,7 @@ do
     then
       echo ./adi_update_tools.sh script is the same, continuing
       # Now we are sure we are using the latest, make sure the pre-reqs are installed
-      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev cmake
+      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
@@ -120,11 +120,7 @@ do
   elif [ $REPO = "libiio" ]
   then
     # Just in case an old version is still under /usr/local
-    rm -f /usr/local/lib/libiio.so* /usr/local/sbin/iiod \
-        /usr/local/bin/iio_* /usr/local/include/iio.h \
-        /usr/local/lib/pkgconfig/libiio.pc
-    rm -rf build ; mkdir build; cd ./build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF ..
+    make uninstall PREFIX=/usr/local 2>/dev/null
   elif [ $REPO = "thttpd" ]
   then
     ./configure
