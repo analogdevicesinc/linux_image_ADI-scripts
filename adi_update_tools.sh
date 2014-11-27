@@ -22,7 +22,7 @@ md5_self=`md5sum $0`
 
 BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/master \
-	libiio:origin/master:iiod \
+	libiio:origin/master \
 	iio-cmdsrv:origin/master \
 	iio-oscilloscope:origin/master \
 	fru_tools:origin/master \
@@ -32,7 +32,7 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 
 BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/2014_R1 \
-	libiio:origin/2014_R1:iiod \
+	libiio:origin/2014_R2 \
 	iio-cmdsrv:origin/2014_R1 \
 	iio-oscilloscope:origin/2014_R1 \
 	fru_tools:origin/2014_R1 \
@@ -107,7 +107,7 @@ do
     then
       echo ./adi_update_tools.sh script is the same, continuing
       # Now we are sure we are using the latest, make sure the pre-reqs are installed
-      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev
+      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev cmake
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
@@ -120,7 +120,16 @@ do
   elif [ $REPO = "libiio" ]
   then
     # Just in case an old version is still under /usr/local
-    make uninstall PREFIX=/usr/local 2>/dev/null
+    rm -f /usr/local/lib/libiio.so* /usr/local/sbin/iiod \
+        /usr/local/bin/iio_* /usr/local/include/iio.h \
+        /usr/local/lib/pkgconfig/libiio.pc
+
+	# Install the startup script of iiod here, as cmake won't do it
+	install -m 0755 debian/iiod.init /etc/init.d/iiod.sh
+	update-rc.d iiod.sh defaults 99 01
+
+    rm -rf build ; mkdir build; cd ./build
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF ..
   elif [ $REPO = "thttpd" ]
   then
     ./configure
