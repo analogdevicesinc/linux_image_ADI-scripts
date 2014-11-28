@@ -115,6 +115,11 @@ then
   else
     cp /media/boot/common/uImage $FAT_MOUNT/uImage
   fi
+else
+  echo -e "\n==== WARNING ====\n
+Custom devicetree detected; you will have to manually copy the boot files.
+See http://wiki.analog.com/resources/tools-software/linux-software/zynq_images#staying_up_to_date\n
+================="
 fi
 
 sync
