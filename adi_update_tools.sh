@@ -83,7 +83,7 @@ do
     dirty=`git diff --shortstat 2> /dev/null | tail -n1`
     if [ "$dirty" != "" ]
     then
-      echo "Tree is dirty - generting branch" `date +"%F"`
+      echo "Tree is dirty - generating branch" `date +"%F"`
       git branch `date +"%F"`
     fi
     git checkout -f $BRANCH
