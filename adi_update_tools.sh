@@ -30,15 +30,15 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	jesd-eye-scan-gtk:origin/master \
 	mathworks_tools:origin/master"
 
-BUILDS_2014_R1="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/2014_R1 \
+BUILDS_2014_R2="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/2014_R2 \
 	libiio:origin/2014_R2 \
 	iio-cmdsrv:origin/2014_R1 \
-	iio-oscilloscope:origin/2014_R1 \
-	fru_tools:origin/2014_R1 \
-	iio-fm-radio:origin/2014_R1 \
-	jesd-eye-scan-gtk:origin/2014_R1 \
-	mathworks_tools:origin/master"
+	iio-oscilloscope:origin/2014_R2 \
+	fru_tools:origin/2014_R2 \
+	iio-fm-radio:origin/2014_R2 \
+	jesd-eye-scan-gtk:origin/2014_R2 \
+	mathworks_tools:origin/2014_R2"
 
 do_build ()
 {
@@ -57,7 +57,7 @@ elif [ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2014_R1
+  BUILDS=$BUILDS_2014_R2
 fi
 
 for i in $BUILDS
