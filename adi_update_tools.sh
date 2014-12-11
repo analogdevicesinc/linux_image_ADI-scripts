@@ -107,7 +107,7 @@ do
     then
       echo ./adi_update_tools.sh script is the same, continuing
       # Now we are sure we are using the latest, make sure the pre-reqs are installed
-      apt-get -y install libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev cmake
+      apt-get -y install libgtk2.0-dev libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev cmake
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
