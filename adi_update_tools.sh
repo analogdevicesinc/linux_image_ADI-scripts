@@ -33,7 +33,6 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 BUILDS_2014_R2="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/2014_R2 \
 	libiio:origin/2014_R2 \
-	iio-cmdsrv:origin/2014_R1 \
 	iio-oscilloscope:origin/2014_R2 \
 	fru_tools:origin/2014_R2 \
 	iio-fm-radio:origin/2014_R2 \
