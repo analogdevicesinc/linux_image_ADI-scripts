@@ -5,8 +5,8 @@ then
   SERVER=http://$1
   SPATH=files
 else
-  SERVER=http://wiki.analog.com
-  SPATH=_media/resources/tools-software/linux-drivers/platforms
+  SERVER=http://swdownloads.analog.com
+  SPATH=update
 fi
 
 FILE=latest_zynq_boot.txt
@@ -47,6 +47,17 @@ then
     echo "Mounting /dev/mmcblk0p1 failed" 1>&2
     exit 1
   fi
+fi
+
+fatsize=`df | grep /dev/mmcblk0p1 | sed -n '1p' | awk '{print $2}'`
+if [ $fatsize -lt 300000 ];
+then
+  echo -e "\n==== WARNING ====\n
+Old SD Card Image detected. Please update!\n\n
+See http://wiki.analog.com/resources/tools-software/linux-software/zynq_images\n
+================="
+SERVER=http://wiki.analog.com
+SPATH=_media/resources/tools-software/linux-drivers/platforms
 fi
 
 rm $FILE 2>/dev/null
@@ -128,4 +139,13 @@ rm $FILE
 rm $newfile
 umount $FAT_MOUNT
 echo "DONE"
+
+if [ $fatsize -lt 300000 ];
+then
+  echo -e "\n==== WARNING ====\n
+Old SD Card Image detected. Please update!\n\n
+See http://wiki.analog.com/resources/tools-software/linux-software/zynq_images\n
+================="
+fi
+
 exit 0
