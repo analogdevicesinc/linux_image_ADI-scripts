@@ -105,8 +105,16 @@ do
     if [ "$new" = "$md5_self" ]
     then
       echo ./adi_update_tools.sh script is the same, continuing
-      # Now we are sure we are using the latest, make sure the pre-reqs are installed
-      apt-get -y install libgtk2.0-dev libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev cmake
+      # Now we are sure we are using the latest, make sure the pre-reqs
+      # are installed. If someone reports an error, fix the list.
+      apt-get -y install libgtk2.0-dev libgtkdatabox-0.9.2-0-dev libmatio-dev \
+        libfftw3-dev libxml2 libxml2-dev bison flex libavahi-common-dev \
+       	libavahi-client-dev cmake
+      if [ "$?" -ne "0" ] ; then
+        echo Catastrophic error in prerequisite packages,  please report error to:
+        echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
+        exit
+      fi
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
