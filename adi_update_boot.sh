@@ -120,12 +120,6 @@ if [ "$CURRENT_CONFIG" != "" ]
 then
   cp $CURRENT_CONFIG/devicetree.dtb $FAT_MOUNT/devicetree.dtb
   cp $CURRENT_CONFIG/BOOT.BIN $FAT_MOUNT/BOOT.BIN
-  if [ -f $CURRENT_CONFIG/uImage ]
-  then
-    cp $CURRENT_CONFIG/uImage $FAT_MOUNT/uImage
-  else
-    cp /media/boot/common/uImage $FAT_MOUNT/uImage
-  fi
 else
   echo -e "\n==== WARNING ====\n
 Custom devicetree detected; you will have to manually copy the boot files.
