@@ -131,9 +131,14 @@ do
         /usr/local/bin/iio_* /usr/local/include/iio.h \
         /usr/local/lib/pkgconfig/libiio.pc
 
-	# Install the startup script of iiod here, as cmake won't do it
-	install -m 0755 debian/iiod.init /etc/init.d/iiod.sh
-	update-rc.d iiod.sh defaults 99 01
+    # Remove old init.d links
+    rm -f /etc/init.d/iiod.sh /etc/init.d/iiod
+    update-rc.d -f iiod remove
+    update-rc.d -f iiod.sh remove
+
+    # Install the startup script of iiod here, as cmake won't do it
+    install -m 0755 debian/iiod.init /etc/init.d/iiod
+    update-rc.d iiod defaults 99 01
 
     rm -rf build ; mkdir build; cd ./build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF ..
