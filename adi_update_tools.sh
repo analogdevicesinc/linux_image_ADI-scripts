@@ -140,8 +140,14 @@ do
     install -m 0755 debian/iiod.init /etc/init.d/iiod
     update-rc.d iiod defaults 99 01
 
-    rm -rf build ; mkdir build; cd ./build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF ..
+    rm -rf build
+
+    # Apparently, under undetermined circumstances CMake will output the build
+    # files to the source directory instead of the current directory.
+    # Here we use the undocumented -B and -H options to force the directory
+    # where the build files are generated.
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+    cd build
   elif [ $REPO = "thttpd" ]
   then
     ./configure
