@@ -105,8 +105,16 @@ do
     if [ "$new" = "$md5_self" ]
     then
       echo ./adi_update_tools.sh script is the same, continuing
-      # Now we are sure we are using the latest, make sure the pre-reqs are installed
-      apt-get -y install libgtk2.0-dev libgtkdatabox-0.9.1-1-dev libmatio-dev libxml2 libxml2-dev bison flex libavahi-common-dev libavahi-client-dev cmake
+      # Now we are sure we are using the latest, make sure the pre-reqs
+      # are installed. If someone reports an error, fix the list.
+      apt-get -y install libgtk2.0-dev libgtkdatabox-dev libmatio-dev \
+        libfftw3-dev libxml2 libxml2-dev bison flex libavahi-common-dev \
+       	libavahi-client-dev cmake
+      if [ "$?" -ne "0" ] ; then
+        echo Catastrophic error in prerequisite packages,  please report error to:
+        echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
+        exit
+      fi
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
@@ -123,12 +131,23 @@ do
         /usr/local/bin/iio_* /usr/local/include/iio.h \
         /usr/local/lib/pkgconfig/libiio.pc
 
-	# Install the startup script of iiod here, as cmake won't do it
-	install -m 0755 debian/iiod.init /etc/init.d/iiod.sh
-	update-rc.d iiod.sh defaults 99 01
+    # Remove old init.d links
+    rm -f /etc/init.d/iiod.sh /etc/init.d/iiod
+    update-rc.d -f iiod remove
+    update-rc.d -f iiod.sh remove
 
-    rm -rf build ; mkdir build; cd ./build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF ..
+    # Install the startup script of iiod here, as cmake won't do it
+    install -m 0755 debian/iiod.init /etc/init.d/iiod
+    update-rc.d iiod defaults 99 01
+
+    rm -rf build
+
+    # Apparently, under undetermined circumstances CMake will output the build
+    # files to the source directory instead of the current directory.
+    # Here we use the undocumented -B and -H options to force the directory
+    # where the build files are generated.
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+    cd build
   elif [ $REPO = "thttpd" ]
   then
     ./configure
