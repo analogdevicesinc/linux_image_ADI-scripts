@@ -1,5 +1,15 @@
 #!/bin/sh
 
+find_zynq_base_gpio () {
+	for i in /sys/class/gpio/gpiochip*; do
+		if [ "zynq_gpio" = `cat $i/label` ]; then
+			return `echo $i | sed 's/^[^0-9]\+//'`
+			break
+		fi
+	done
+	return -1
+}
+
 if [ `id -u` != "0" ]
 then
    echo "This script must be run as root" 1>&2
@@ -31,22 +41,28 @@ done
 #Enable Fastlock Mode
 echo 0 > out_altvoltage1_TX_LO_fastlock_recall
 
+find_zynq_base_gpio
+GPIO_BASE=$?
+
 cd /sys/class/gpio
 
-if [ -e gpiochip138 ]
+if [ $GPIO_BASE -ge 0 ]
 then
+  GPIO_CTRL_IN1=`expr $GPIO_BASE + 97`
+  GPIO_CTRL_IN2=`expr $GPIO_BASE + 96`
+  GPIO_CTRL_IN3=`expr $GPIO_BASE + 95`
   #Export the CTRL_IN GPIOs
-  echo 235 > export 2> /dev/null
-  echo 234 > export 2> /dev/null
-  echo 233 > export 2> /dev/null
+  echo $GPIO_CTRL_IN1 > export 2> /dev/null
+  echo $GPIO_CTRL_IN2 > export 2> /dev/null
+  echo $GPIO_CTRL_IN3 > export 2> /dev/null
 else
   echo ERROR: Wrong board?
   exit
 fi
 
-CTRL_IN1=gpio233/direction
-CTRL_IN2=gpio234/direction
-CTRL_IN3=gpio235/direction
+CTRL_IN1=gpio${GPIO_CTRL_IN1}/direction
+CTRL_IN2=gpio${GPIO_CTRL_IN2}/direction
+CTRL_IN3=gpio${GPIO_CTRL_IN3}/direction
 
 for i in `seq 0 7`
 do

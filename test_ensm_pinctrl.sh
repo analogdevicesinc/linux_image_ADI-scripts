@@ -1,5 +1,15 @@
 #!/bin/sh
 
+find_zynq_base_gpio () {
+	for i in /sys/class/gpio/gpiochip*; do
+		if [ "zynq_gpio" = `cat $i/label` ]; then
+			return `echo $i | sed 's/^[^0-9]\+//'`
+			break
+		fi
+	done
+	return -1
+}
+
 fdd_pin_control_test () {
 	echo Running FDD Pin Control Test
 	while true; do
@@ -73,20 +83,25 @@ if [ "$dev_name" != "ad9361-phy" ]; then
  exit
 fi
 
+find_zynq_base_gpio
+GPIO_BASE=$?
+
 cd /sys/class/gpio
 
-if [ -e gpiochip138 ]
+if [ $GPIO_BASE -ge 0 ]
 then
+  GPIO_ENABLE=`expr $GPIO_BASE + 101`
+  GPIO_TXNRX=`expr $GPIO_BASE + 102`
   #Export the CTRL_IN GPIOs
-  echo 239 > export 2> /dev/null
-  echo 240 > export 2> /dev/null
+  echo $GPIO_ENABLE > export 2> /dev/null
+  echo $GPIO_TXNRX > export 2> /dev/null
 else
   echo ERROR: Wrong board?
   exit
 fi
 
-ENABLE=gpio239/direction
-TXNRX=gpio240/direction
+ENABLE=gpio${GPIO_ENABLE}/direction
+TXNRX=gpio${GPIO_TXNRX}/direction
 
 echo low > $ENABLE
 echo low > $TXNRX
