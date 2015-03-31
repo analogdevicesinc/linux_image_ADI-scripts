@@ -27,7 +27,7 @@ if [[ ${UID} -ne 0 ]]; then
 	exit 1
 fi
 
-if [[ ! -x $(type -P reg-dump.sh) ]]; then
+if [[ ! -x $(type -P regdump.sh) ]]; then
 	echo "Can't find the regdump.sh script!"
 	exit 1
 fi
