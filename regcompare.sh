@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Wraps the reg-dump.sh script allowing for snapshot comparisons between device
+# Wraps the regdump.sh script allowing for snapshot comparisons between device
 # register states. It can be passed the same device name and number of register
-# values that reg-dump.sh accepts since it just passes all arguments on to
-# reg-dump.sh to handle.
+# values that regdump.sh accepts since it just passes all arguments on to
+# regdump.sh to handle.
 #
 # If register values change between the two states, a side-by-side diff is
 # shown between the previous and current values. Note that the diff currently
@@ -28,18 +28,18 @@ if [[ ${UID} -ne 0 ]]; then
 fi
 
 if [[ ! -x $(type -P reg-dump.sh) ]]; then
-	echo "Can't find the reg-dump.sh script!"
+	echo "Can't find the regdump.sh script!"
 	exit 1
 fi
 
 PREVIOUS=$(mktemp)
 CURRENT=$(mktemp)
 
-reg-dump.sh $@ > "${PREVIOUS}"
+regdump.sh $@ > "${PREVIOUS}"
 
 while true; do
 	read -p "Hit enter to diff registers (and Ctrl-C to quit)"
-	reg-dump.sh $@ > "${CURRENT}"
+	regdump.sh $@ > "${CURRENT}"
 	CHANGES=$(diff --suppress-common-lines -y "${PREVIOUS}" "${CURRENT}")
 	if [[ -z ${CHANGES} ]]; then
 		echo "No register value changes"
