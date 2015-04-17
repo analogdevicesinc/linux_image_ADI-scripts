@@ -18,7 +18,7 @@ if [[ ${UID} -ne 0 ]]; then
 fi
 
 for dev in /sys/bus/iio/devices/*; do 
-	[[ $(cat "${dev}/name") == "${DEV_NAME}" ]] && DEV_NODE=$(basename ${dev})
+	[[ $(<"${dev}/name") == "${DEV_NAME}" ]] && DEV_NODE=$(basename ${dev})
 done
 
 if [[ -z ${DEV_NODE} ]]; then
@@ -37,7 +37,7 @@ fi
 for reg in $(seq 0 $((NUM_REG-1))); do
 	echo ${reg} > /sys/kernel/debug/iio/${DEV_NODE}/direct_reg_access
 	hex_addr=$(printf "%x" ${reg})
-	val=$(cat /sys/kernel/debug/iio/${DEV_NODE}/direct_reg_access)
+	val=$(</sys/kernel/debug/iio/${DEV_NODE}/direct_reg_access)
 	dec_val=$(printf "%d" ${val})
 	echo "Address: 0x${hex_addr^^} (${reg}): Value ${val} (${dec_val})"
 done
