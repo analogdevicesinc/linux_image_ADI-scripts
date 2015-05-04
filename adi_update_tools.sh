@@ -117,6 +117,8 @@ do
         echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
         exit
       fi
+      #Misc fixup:
+      sed -i 's/wiki.analog.org/wiki.analog.com/g'  /etc/update-motd.d/10-help-text
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
