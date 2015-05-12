@@ -21,9 +21,6 @@ fi
 # disable NetworkManager (assumes the config file hasn't been touched much)
 sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
 
-# backup original file
-mv /etc/network/interfaces /etc/network/interfaces.orig
-
 # set up loopback and add static IP config for ${ETH_DEV} (defaults to eth0)
 cat <<-EOF > /etc/network/interfaces
 	auto lo
