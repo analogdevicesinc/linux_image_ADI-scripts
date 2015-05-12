@@ -7,6 +7,9 @@
 #
 # Example usage:
 # enable_static_ip.sh [10.66.99.101] [eth1]
+#
+# WARNING: Do not use this script if there is a custom network configuration
+# set up in /etc/network/interfaces as it will be overwritten.
 
 set -e
 
