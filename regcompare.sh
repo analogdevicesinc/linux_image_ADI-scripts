@@ -38,10 +38,14 @@ PREVIOUS=$(mktemp)
 CURRENT=$(mktemp)
 
 regdump.sh $@ > "${PREVIOUS}"
+ret=$?
+[[ ${ret} -ne 0 ]] && exit ${ret}
 
 while true; do
 	read -p "Hit enter to diff registers (and Ctrl-C to quit)"
 	regdump.sh $@ > "${CURRENT}"
+	ret=$?
+	[[ ${ret} -ne 0 ]] && exit ${ret}
 	CHANGES=$(diff --suppress-common-lines -y "${PREVIOUS}" "${CURRENT}")
 	if [[ -z ${CHANGES} ]]; then
 		echo "No register value changes"
