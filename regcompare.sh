@@ -22,13 +22,15 @@ cleanup() {
 	exit
 }
 
+echoerr() { echo "$@" 1>&2; }
+
 if [[ ${UID} -ne 0 ]]; then
-	echo "This script must be run as root!"
+	echoerr "This script must be run as root!"
 	exit 1
 fi
 
 if [[ ! -x $(type -P regdump.sh) ]]; then
-	echo "Can't find the regdump.sh script!"
+	echoerr "Can't find the regdump.sh script!"
 	exit 1
 fi
 

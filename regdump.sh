@@ -12,8 +12,10 @@ DEV_NAME=${1:-axi-ad6676-hpc}
 NUM_REG=${2:-256}
 DEV_NODE=
 
+echoerr() { echo "$@" 1>&2; }
+
 if [[ ${UID} -ne 0 ]]; then
-	echo "This script must be run as root!"
+	echoerr "This script must be run as root!"
 	exit 1
 fi
 
@@ -22,15 +24,15 @@ for dev in /sys/bus/iio/devices/*; do
 done
 
 if [[ -z ${DEV_NODE} ]]; then
-	echo "Device node not found for iio device \"${DEV_NAME}\"!"
-	echo
-	echo "Available iio devices:"
-	echo "$(cat /sys/bus/iio/devices/*/name)"
+	echoerr "Device node not found for iio device \"${DEV_NAME}\"!"
+	echoerr
+	echoerr "Available iio devices:"
+	echoerr "$(cat /sys/bus/iio/devices/*/name)"
 	exit 1
 fi
 
 if [[ ! -f /sys/kernel/debug/iio/${DEV_NODE}/direct_reg_access ]]; then
-	echo "${DEV_NAME} lacks direct register access debugfs support!"
+	echoerr "${DEV_NAME} lacks direct register access debugfs support!"
 	exit 1
 fi
 
