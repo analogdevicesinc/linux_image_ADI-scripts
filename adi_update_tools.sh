@@ -111,7 +111,7 @@ do
       # are installed. If someone reports an error, fix the list.
       apt-get -y install libgtk2.0-dev libgtkdatabox-dev libmatio-dev \
         libfftw3-dev libxml2 libxml2-dev bison flex libavahi-common-dev \
-       	libavahi-client-dev cmake
+        libavahi-client-dev libcurl4-openssl-dev libjansson-dev cmake
       if [ "$?" -ne "0" ] ; then
         echo Catastrophic error in prerequisite packages,  please report error to:
         echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
