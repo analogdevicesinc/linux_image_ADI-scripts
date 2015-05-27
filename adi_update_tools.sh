@@ -31,6 +31,16 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/master \
 	mathworks_tools:origin/master"
 
+BUILDS_2015_R1="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/2015_R1 \
+	libiio:origin/2015_R1 \
+	iio-oscilloscope:origin/2015_R1\
+	fru_tools:origin/2015_R1 \
+	iio-fm-radio:origin/2015_R1 \
+	jesd-eye-scan-gtk:origin/2015_R1 \
+	diagnostic_report:origin/master \
+	mathworks_tools:origin/2015_R1"
+
 BUILDS_2014_R2="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/2014_R2 \
 	libiio:origin/2014_R2 \
@@ -54,6 +64,9 @@ do_build ()
 if [ "$1" = "dev" ]
 then
   BUILDS=$BUILDS_DEV
+elif [ "$1" = "2015_R1" ]
+then
+  BUILDS=$BUILDS_2015_R1
 elif [ -n "$1" ]
 then
   BUILDS=$1
