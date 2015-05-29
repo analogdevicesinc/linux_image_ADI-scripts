@@ -29,6 +29,7 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	iio-fm-radio:origin/master \
 	jesd-eye-scan-gtk:origin/master \
 	diagnostic_report:origin/master \
+	colorimeter:origin/master \
 	mathworks_tools:origin/master"
 
 BUILDS_2015_R1="linux_image_ADI-scripts:origin/master \
@@ -39,6 +40,7 @@ BUILDS_2015_R1="linux_image_ADI-scripts:origin/master \
 	iio-fm-radio:origin/2015_R1 \
 	jesd-eye-scan-gtk:origin/2015_R1 \
 	diagnostic_report:origin/master \
+	colorimeter:origin/2015_R1 \
 	mathworks_tools:origin/2015_R1"
 
 BUILDS_2014_R2="linux_image_ADI-scripts:origin/master \
@@ -49,6 +51,7 @@ BUILDS_2014_R2="linux_image_ADI-scripts:origin/master \
 	iio-fm-radio:origin/2014_R2 \
 	jesd-eye-scan-gtk:origin/2014_R2 \
 	diagnostic_report:origin/master \
+	colorimeter:origin/2015_R1 \
 	mathworks_tools:origin/2014_R2"
 
 do_build ()
