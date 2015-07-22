@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/usr/local/bin/osc -p /usr/local/lib/osc/profiles/FMComms5_test.ini
+OSC_FORCE_PLUGIN=scpi /usr/local/bin/osc -p /usr/local/lib/osc/profiles/FMComms5_test.ini
 rc=$?
 
 # save marker logs
