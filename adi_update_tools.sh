@@ -69,14 +69,14 @@ do_build ()
 if [ "$1" = "dev" ]
 then
   BUILDS=$BUILDS_DEV
-elif [ "$1" = "2015_R1" ]
+elif [ "$1" = "2014_R2" ]
 then
-  BUILDS=$BUILDS_2015_R1
+  BUILDS=$BUILDS_2014_R2
 elif [ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2014_R2
+  BUILDS=$BUILDS_2015_R1
 fi
 
 for i in $BUILDS
