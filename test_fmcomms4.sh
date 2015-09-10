@@ -6,4 +6,3 @@ rc=$?
 if [[ "$rc" = "0" ]] ; then
 	/sbin/shutdown -h now
 fi
-
