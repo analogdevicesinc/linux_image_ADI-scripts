@@ -87,6 +87,17 @@ then
    umount $FAT_MOUNT
    exit 1
   fi
+
+  oldversion_date=$(echo "$oldversion" |sed 's/\(.\{13\}\)//')
+  oldversion_date=$(echo "$oldversion_date" | sed -r 's/[_]+/-/g')
+  version_date=$(echo "$version" |sed 's/\(.\{13\}\)//')
+  version_date=$(echo "$version_date" | sed -r 's/[_]+/-/g')
+  if [ $(date -d $oldversion_date +%s) > $(date -d $version_date +%s) ]
+  then
+    echo "The current version is newer than the one that can be downloaded"
+    umount $FAT_MOUNT
+    exit 1
+  fi
 fi
 
 wget -nc $newurl
