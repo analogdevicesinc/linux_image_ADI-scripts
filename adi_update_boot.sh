@@ -98,6 +98,31 @@ then
     umount $FAT_MOUNT
     exit 1
   fi
+
+  version_2015_r1_date="2015-08-22"
+  if [ $(date -d $oldversion_date +%s) -lt $(date -d $version_2015_r1_date +%s) ]
+  then
+    echo "Old SD Card Image detected.
+The entire content of the BOOT partition will be deleted!!!"
+
+    while true
+    do
+      read -r -p 'Are you sure you want to continue? (y/n) ' answer
+      case "$answer" in
+        n)
+          umount $FAT_MOUNT
+          exit 1
+          ;;
+        y)
+          rm -rf $FAT_MOUNT/*
+          break
+          ;;
+        *)
+          echo 'Valid answers: y/n'
+          ;;
+        esac
+    done
+  fi
 fi
 
 wget -nc $newurl
