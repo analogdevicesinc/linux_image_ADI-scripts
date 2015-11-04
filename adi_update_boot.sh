@@ -110,6 +110,9 @@ newurl=`sed -n 2p $FILE`
 md5=`sed -n 3p $FILE | awk '{print $1}'`
 newfile=`sed -n 3p $FILE | awk '{print $2}'`
 compatibleversion=`sed -n 4p $FILE`
+preloaderurl=`sed -n 5p $FILE`
+preloadermd5=`sed -n 6p $FILE | awk '{print $1}'`
+preloaderfile=`sed -n 6p $FILE | awk '{print $2}'`
 
 echo "CURRENT VERSION: $oldversion"
 echo "NEW VERSION    : $version"
@@ -183,6 +186,28 @@ then
    exit 1
 fi
 
+if [ -n "$preloaderurl" ]
+then
+  wget -nc $preloaderurl
+
+  if [ $? -ne 0 ]
+  then
+   echo "Download failed - aborting" 1>&2
+   umount $FAT_MOUNT
+   exit 1
+  fi
+
+  key=`md5sum $preloaderfile | awk '{print $1}'`
+
+  if [ $key != $preloadermd5 ]
+  then
+     echo "MD5SUM Error" 1>&2
+     rm $preloaderfile
+     umount $FAT_MOUNT
+     exit 1
+  fi
+fi
+
 # Try to restore current BOOT.BIN and devicetree.dtb
 CURRENT_CONFIG=`find_current_setup $FAT_MOUNT`
 echo "CURRENT BOARD CONFIG: $CURRENT_CONFIG"
@@ -190,6 +215,16 @@ echo "CURRENT BOARD CONFIG: $CURRENT_CONFIG"
 echo "Extracting - Be patient!"
 tar -C $FAT_MOUNT -xzf ./$newfile --no-same-owner --checkpoint=.1000
 echo $version > $CURRENT
+
+if [ -n "$preloaderurl" ]
+then
+  tar -xzf ./$preloaderfile
+  preloaderimg="${preloaderfile/.tgz/.img}"
+  echo $preloaderimg
+  echo "Updating Preloader partition..."
+  dd of=/dev/mmcblk0p3 bs=512 if=$preloaderimg
+  rm $preloaderimg
+fi
 
 if [ "$CURRENT_CONFIG" != "" ]
 then
