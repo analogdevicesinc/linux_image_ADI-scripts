@@ -11,7 +11,6 @@ if [ -d $REPO ]
 then
   cd ./$REPO
   git checkout -f $BRANCH
-  make uninstall 2>/dev/null
   git fetch
   git checkout -f $BRANCH 2>/dev/null
   cd ..
@@ -91,8 +90,8 @@ then
 Old SD Card Image detected. Please update!\n\n
 See http://wiki.analog.com/resources/tools-software/linux-software/zynq_images\n
 ================="
-SERVER=http://wiki.analog.com
-SPATH=_media/resources/tools-software/linux-drivers/platforms
+  umount $FAT_MOUNT
+  exit 1
 fi
 
 rm $FILE 2>/dev/null
