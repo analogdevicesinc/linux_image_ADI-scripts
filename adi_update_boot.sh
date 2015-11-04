@@ -1,5 +1,40 @@
 #!/bin/bash
 
+REPO="linux_image_ADI-scripts"
+BRANCH="origin/master"
+
+cd /usr/local/src
+
+echo Verifying if ./adi_update_boot.sh is up to date...
+
+if [ -d $REPO ]
+then
+  cd ./$REPO
+  git checkout -f $BRANCH
+  make uninstall 2>/dev/null
+  git fetch
+  git checkout -f $BRANCH 2>/dev/null
+  cd ..
+else
+  git clone https://github.com/analogdevicesinc/$REPO.git || continue
+fi
+
+cd ./$REPO
+
+md5_self=`md5sum $0 | awk '{print $1}'`
+md5_new=`md5sum ./adi_update_boot.sh | awk '{print $1}'`
+echo $md5_self
+echo $md5_new
+if [ $md5_new != $md5_self ]
+then
+  echo ./adi_update_boot.sh has been updated, installing and switching to new one...
+  make install
+  ./adi_update_boot.sh $@
+  exit
+else
+  echo ./adi_update_boot.sh is up to date, continuing...
+fi
+
 if [ $# -eq 1 ]
 then
   SERVER=http://$1
