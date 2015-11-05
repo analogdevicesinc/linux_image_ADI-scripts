@@ -40,10 +40,10 @@ then
   SPATH=files
 else
   SERVER=http://swdownloads.analog.com
-  SPATH=update
+  SPATH=cse/fpga_sd
 fi
 
-FILE=latest_zynq_boot.txt
+FILE=latest_boot.txt
 
 FAT_MOUNT=/media/boot
 CURRENT=$FAT_MOUNT/VERSION
