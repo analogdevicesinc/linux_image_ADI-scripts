@@ -66,6 +66,8 @@ def gpib_get_freq():
 
     s.flushInput()
     s.flushOutput()
+
+    # initialize GPIB adapter
     _write('++mode 1\n')
     _write('++auto 1\n')
     _write('++addr 16\n')
@@ -74,10 +76,13 @@ def gpib_get_freq():
     if not gpib_device:
         raise GPIBError('error communicating with GPIB device')
 
+    # confirm communication with frequency counter
     _write('*CLS;*RST;*IDN?\r\n')
-    instr = s.readline().strip()
-    if not instr:
+    instrument_id = s.readline().strip()
+    if not instrument_id:
         raise GPIBError('error communicating with frequency counter')
+
+    # request the current measured frequency
     _write('*RST;*CLS;*SRE 0;*ESE 0;\r\n')
     _write(':STAT:PRES\r\n')
     _write(':DISP:CALC:MATH:STAT OFF\r\n')
@@ -85,13 +90,15 @@ def gpib_get_freq():
     # we're using channel 1
     _write(":FUNC 'FREQ 1'\r\n")
     _write(':FORM:DATA ASCII\r\n')
-    # send expected value and scale so return value is properly scaled
+    # send expected value and scale so returned value is properly scaled
     _write(':MEASURE:FREQ? 4e7 HZ, 1 HZ\r\n')
     freq = s.readline().strip()
+    # re-enable continuous mode for the frequency counter
     _write(':INIT:CONT ON\r\n')
     s.close()
     if not freq:
         raise GPIBError('error querying counter for current frequency')
+
     return int(float(freq))
 
 
@@ -162,7 +169,7 @@ def expect():
             try:
                 freq = gpib_get_freq()
             except GPIBError:
-                print('Error querying frequency counter, restarting the expect process')
+                print('\nError querying frequency counter, restarting loop...')
                 continue
             p.sendline('setenv ad9361_ext_refclk %s' % hex(freq))
             p.expect(prompt)
