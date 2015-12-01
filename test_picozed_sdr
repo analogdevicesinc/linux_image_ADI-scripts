@@ -224,8 +224,10 @@ def expect():
             p.expect(prompt)
             p.sendline('saveenv')
             p.expect(prompt)
-            print('\nBoard ready for shipping')
+            print('\n\n############################################')
+            print('Board ready for shipping')
             print('Power off and insert next module for testing')
+            print('############################################')
         except pexpect.TIMEOUT:
             print('\nTimed out waiting for u-boot output, restarting loop...')
             continue
