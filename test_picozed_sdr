@@ -30,6 +30,10 @@ class GPIBError(Exception):
     """Generic exception for errors when querying the frequency counter."""
 
 
+class UBootError(Exception):
+    """Generic exception for errors when communicating with u-boot."""
+
+
 def gpib_get_freq():
     """Get current AD9361 output clock frequency.
 
@@ -132,6 +136,21 @@ def get_mac_addr():
     return mac_addr
 
 
+def extract_bytes(l):
+    """Extract the size of the file read from u-boot output.
+
+    Returns the file size in bytes.
+    """
+    # input should consist of a list of strings similar to ['123456', 'bytes', 'read']
+    if len(l) != 3 or l[1] != 'bytes' or l[2] != 'read':
+        raise UBootError('received unexpected reply when reading file')
+
+    try:
+        return int(l[0])
+    except ValueError:
+        raise UBootError('received unexpected bytes value when reading file')
+
+
 def expect():
     """Pexpect loop to run after the tests complete successfully."""
 
@@ -151,6 +170,27 @@ def expect():
 
     # output string specifying that the u-boot command line is ready
     prompt = 'zynq-uboot> '
+
+    def _flash_file(filepath, offset, size, timeout=30, mem_location=0x1000000):
+        """Erase and write a file to a QSPI flash partition.
+
+        Parameters:
+            filepath: path to file to write to partition
+            offset: partition offset
+            size: partition size
+            timeout: time to wait while erasing partition (to avoid pexpect timeouts)
+            mem_location: external memory location to load file to and from
+        """
+        p.sendline('fatload mmc 0 0x%x %s' % (mem_location, filepath))
+        p.expect('.* bytes read')
+        filesize = extract_bytes(p.after.strip().split()[-3:])
+        p.expect(prompt)
+        p.sendline('sf erase 0x%x 0x%x' % (offset, size))
+        p.expect('SF: %d bytes @ 0x%x Erased: OK' % (size, offset), timeout=timeout)
+        p.expect(prompt)
+        p.sendline('sf write 0x%x 0x%x 0x%x' % (mem_location, offset, filesize))
+        p.expect('SF: %s bytes @ 0x%x Written: OK' % (filesize, offset))
+        p.expect(prompt)
 
     while 1:
         try:
@@ -188,34 +228,14 @@ def expect():
             # mtd3: 00a80000 00001000 "image"
             # mtd4: 01040000 00001000 "spare"
 
-            # write data to flash
             p.sendline('sf probe')
             p.expect('SF: Detected N25Q256A')
             p.expect(prompt)
-            p.sendline('fatload mmc 0 0x1000000 flash/BOOT.BIN')
-            p.expect('.* bytes read')
-            p.expect(prompt)
-            p.sendline('sf update 0x1000000 0x0 0x00500000')
-            p.expect('.* bytes written', timeout=180)
-            p.expect(prompt)
-            p.sendline('fatload mmc 0 0x1000000 uImage')
-            p.expect('.* bytes read')
-            p.expect(prompt)
-            p.sendline('sf update 0x1000000 0x00540000 0x00a80000')
-            p.expect('.* bytes written', timeout=300)
-            p.expect(prompt)
-            p.sendline('fatload mmc 0 0x1000000 Card-Filesystem-Repair/uramdisk.image.gz')
-            p.expect('.* bytes read')
-            p.expect(prompt)
-            p.sendline('sf update 0x1000000 0x00fc0000 0x01040000')
-            p.expect('.* bytes written', timeout=600)
-            p.expect(prompt)
-            #p.sendline('fatload mmc 0 0x1000000 flash/system.bit')
-            #p.expect('.* bytes read')
-            #p.expect(prompt)
-            #p.sendline('sf update 0x1000000 0x00fc0000 0x01040000')
-            #p.expect('.* bytes written', timeout=600)
-            #p.expect(prompt)
+
+            # write files to flash
+            _flash_file('flash/BOOT.BIN', 0x0, 0x00500000, 180)
+            _flash_file('uImage', 0x00540000, 0x00a80000, 300)
+            _flash_file('Card-Filesystem-Repair/uramdisk.image.gz', 0x00fc0000, 0x01040000, 600)
 
             # set MAC address
             print()
@@ -238,6 +258,9 @@ def expect():
             # restart the expect loop if the user hits Ctrl-C
             print('Got keyboard interrupt, restarting loop...')
             timed_out = True
+            continue
+        except UBootError as e:
+            print('\nError running U-Boot command: %s, restarting loop...' % str(e))
             continue
     p.close()
 
