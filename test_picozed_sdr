@@ -142,7 +142,7 @@ def expect():
 
     try:
         p = pexpect.spawn(
-            'picocom -b 115200 %s' % (UART_DEV,),
+            'picocom --nolock -b 115200 %s' % (UART_DEV,),
             encoding='utf8', logfile=sys.stdout, echo=False)
     except pexpect.exceptions.ExceptionPexpect:
         raise SystemExit('picocom is missing, please install it')
