@@ -212,7 +212,7 @@ def uboot_expect():
             except GPIBError:
                 print('\nError querying frequency counter, restarting loop...')
                 continue
-            p.sendline('setenv ad9361_ext_refclk %s' % hex(freq))
+            p.sendline('setenv ad9361_ext_refclk 0x%.8s' % (freq,))
             p.expect(prompt)
 
             # current flash layout and info
