@@ -236,6 +236,11 @@ def expect():
                 print('\nTimed out waiting for u-boot output, restarting loop...')
             timed_out = True
             continue
+        except KeyboardInterrupt:
+            # restart the expect loop if the user hits Ctrl-C
+            print('Got keyboard interrupt, restarting loop...')
+            timed_out = True
+            continue
     p.close()
 
 if __name__ == '__main__':
