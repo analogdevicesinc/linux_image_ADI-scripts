@@ -136,22 +136,7 @@ def get_mac_addr():
     return mac_addr
 
 
-def extract_bytes(l):
-    """Extract the size of the file read from u-boot output.
-
-    Returns the file size in bytes.
-    """
-    # input should consist of a list of strings similar to ['123456', 'bytes', 'read']
-    if len(l) != 3 or l[1] != 'bytes' or l[2] != 'read':
-        raise UBootError('received unexpected reply when reading file')
-
-    try:
-        return int(l[0])
-    except ValueError:
-        raise UBootError('received unexpected bytes value when reading file')
-
-
-def expect():
+def uboot_expect():
     """Pexpect loop to run after the tests complete successfully."""
 
     if not os.path.exists(UART_DEV):
@@ -171,6 +156,20 @@ def expect():
     # output string specifying that the u-boot command line is ready
     prompt = 'zynq-uboot> '
 
+    def _extract_bytes(l):
+        """Extract the size of the file read from u-boot output.
+
+        Returns the file size in bytes.
+        """
+        # input should consist of a list of strings similar to ['123456', 'bytes', 'read']
+        if len(l) != 3 or l[1] != 'bytes' or l[2] != 'read':
+            raise UBootError('received unexpected reply when reading file')
+
+        try:
+            return int(l[0])
+        except ValueError:
+            raise UBootError('received unexpected bytes value when reading file')
+
     def _flash_file(filepath, offset, size, timeout=30, mem_location=0x1000000):
         """Erase and write a file to a QSPI flash partition.
 
@@ -183,7 +182,7 @@ def expect():
         """
         p.sendline('fatload mmc 0 0x%x %s' % (mem_location, filepath))
         p.expect('.* bytes read')
-        filesize = extract_bytes(p.after.strip().split()[-3:])
+        filesize = _extract_bytes(p.after.strip().split()[-3:])
         p.expect(prompt)
         p.sendline('sf erase 0x%x 0x%x' % (offset, size))
         p.expect('SF: %d bytes @ 0x%x Erased: OK' % (size, offset), timeout=timeout)
@@ -265,4 +264,4 @@ def expect():
     p.close()
 
 if __name__ == '__main__':
-    expect()
+    uboot_expect()
