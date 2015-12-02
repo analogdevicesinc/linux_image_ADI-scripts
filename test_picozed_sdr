@@ -180,15 +180,17 @@ def uboot_expect():
             timeout: time to wait while erasing partition (to avoid pexpect timeouts)
             mem_location: external memory location to load file to and from
         """
+        # erase memory
+        p.sendline('mw 0x%x 0x0 0x%x' % (mem_location, size))
+        p.expect(prompt)
+        # load file into memory
         p.sendline('fatload mmc 0 0x%x %s' % (mem_location, filepath))
         p.expect('.* bytes read')
         filesize = _extract_bytes(p.after.strip().split()[-3:])
         p.expect(prompt)
-        p.sendline('sf erase 0x%x 0x%x' % (offset, size))
-        p.expect('SF: %d bytes @ 0x%x Erased: OK' % (size, offset), timeout=timeout)
-        p.expect(prompt)
-        p.sendline('sf write 0x%x 0x%x 0x%x' % (mem_location, offset, filesize))
-        p.expect('SF: %s bytes @ 0x%x Written: OK' % (filesize, offset))
+        # erase flash partition and write file into it
+        p.sendline('sf update 0x%x 0x%x 0x%x' % (mem_location, offset, size))
+        p.expect('.* bytes written, .* bytes skipped', timeout=timeout)
         p.expect(prompt)
 
     while 1:
