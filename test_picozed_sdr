@@ -141,15 +141,13 @@ def expect():
         raise SystemExit('GPIB serial device node to frequency counter missing')
 
     try:
-        p = pexpect.spawnu('picocom -b 115200 %s' % (UART_DEV,))
+        p = pexpect.spawn(
+            'picocom -b 115200 %s' % (UART_DEV,),
+            encoding='utf8', logfile=sys.stdout, echo=False)
     except pexpect.exceptions.ExceptionPexpect:
         raise SystemExit('picocom is missing, please install it')
 
     timed_out = False
-
-    # send output to the terminal and don't reprint input commands
-    p.logfile = sys.stdout
-    p.setecho(False)
 
     # output string specifying that the u-boot command line is ready
     prompt = 'zynq-uboot> '
