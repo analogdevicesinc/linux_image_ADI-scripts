@@ -140,16 +140,16 @@ def uboot_expect():
     """Pexpect loop to run after the tests complete successfully."""
 
     if not os.path.exists(UART_DEV):
-        raise SystemExit('UART serial device node to picozed sdr missing')
+        raise UBootError('UART serial device node to picozed sdr missing')
     if not os.path.exists(GPIB_DEV):
-        raise SystemExit('GPIB serial device node to frequency counter missing')
+        raise UBootError('GPIB serial device node to frequency counter missing')
 
     try:
         p = pexpect.spawn(
             'picocom --nolock -b 115200 %s' % (UART_DEV,),
             encoding='utf8', logfile=sys.stdout, echo=False)
     except pexpect.exceptions.ExceptionPexpect:
-        raise SystemExit('picocom is missing, please install it')
+        raise UBootError('picocom is missing, please install it')
 
     timed_out = False
 
