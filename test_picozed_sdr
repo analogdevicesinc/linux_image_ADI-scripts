@@ -254,4 +254,8 @@ def uboot_expect():
     p.close()
 
 if __name__ == '__main__':
-    uboot_expect()
+    while 1:
+        try:
+            uboot_expect()
+        except UBootError as e:
+            enter = input('Hit enter to restart after fixing the issue...')
