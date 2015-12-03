@@ -249,7 +249,7 @@ def uboot_expect():
             timed_out = True
             continue
         except UBootError as e:
-            print('\nError running U-Boot command: %s, restarting loop...' % str(e))
+            print('\nError running U-Boot command: %s, restarting loop...' % e)
             continue
     p.close()
 
@@ -258,4 +258,4 @@ if __name__ == '__main__':
         try:
             uboot_expect()
         except UBootError as e:
-            enter = input('Error: %s\nHit enter to restart after fixing the issue...')
+            enter = input('Error: %s\nHit enter to restart after fixing the issue...' % e)
