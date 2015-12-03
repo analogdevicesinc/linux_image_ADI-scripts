@@ -258,4 +258,4 @@ if __name__ == '__main__':
         try:
             uboot_expect()
         except UBootError as e:
-            enter = input('Hit enter to restart after fixing the issue...')
+            enter = input('Error: %s\nHit enter to restart after fixing the issue...')
