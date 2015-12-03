@@ -215,28 +215,16 @@ def uboot_expect():
             p.sendline('setenv ad9361_ext_refclk 0x%.8s' % (freq,))
             p.expect(prompt)
 
-            # current flash layout and info
-            # 0x000000000000-0x000000500000 : "boot"
-            # 0x000000500000-0x000000520000 : "bootenv"
-            # 0x000000520000-0x000000540000 : "config"
-            # 0x000000540000-0x000000fc0000 : "image"
-            # 0x000000fc0000-0x000002000000 : "spare"
-            #
-            # dev:    size   erasesize  name
-            # mtd0: 00500000 00001000 "boot"
-            # mtd1: 00020000 00001000 "bootenv"
-            # mtd2: 00020000 00001000 "config"
-            # mtd3: 00a80000 00001000 "image"
-            # mtd4: 01040000 00001000 "spare"
-
             p.sendline('sf probe')
             p.expect('SF: Detected N25Q256A')
             p.expect(prompt)
 
             # write files to flash
-            _flash_file('flash/BOOT.BIN', 0x0, 0x00500000, 180)
-            _flash_file('uImage', 0x00540000, 0x00a80000, 300)
-            _flash_file('Card-Filesystem-Repair/uramdisk.image.gz', 0x00fc0000, 0x01040000, 600)
+            _flash_file('flash/BOOT.BIN', 0x0, 0xE0000, 180)
+            _flash_file('uImage', 0x100000, 0x500000, 300)
+            _flash_file('devicetree.dtb', 0x600000, 0x20000)
+            _flash_file('Card-Filesystem-Repair/uramdisk.image.gz', 0x620000, 0xCE0000, 600)
+            _flash_file('flash/system.bit', 0x1300000, 0xD00000, 600)
 
             # set MAC address
             print()
