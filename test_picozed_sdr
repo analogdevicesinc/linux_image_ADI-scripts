@@ -12,15 +12,12 @@
 # frequency from the AD9361.
 
 import errno
+import glob
 import os
 import sys
 
 import pexpect
 import serial
-
-# UART and GPIB usb serial device paths
-UART_DEV = '/dev/serial/by-id/usb-Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001-if00-port0'
-GPIB_DEV = '/dev/serial/by-id/usb-Prologix_Prologix_GPIB-USB_Controller_PX93W44G-if00-port0'
 
 # manufacturer MAC address prefix (Avnet's by default)
 MAC_ADDR_OUI= '0002B5'
@@ -34,7 +31,7 @@ class UBootError(Exception):
     """Generic exception for errors when communicating with u-boot."""
 
 
-def gpib_get_freq():
+def gpib_get_freq(gpib_dev):
     """Get current AD9361 output clock frequency.
 
     Note that this currently assumes the use of a Prologix GPIB-USB controller
@@ -43,11 +40,11 @@ def gpib_get_freq():
     Returns: frequency in HZ
     """
     try:
-        s = serial.Serial(GPIB_DEV)
+        s = serial.Serial(gpib_dev)
     except OSError as e:
         if e.errno == errno.ENOENT:
-            raise GPIBError("serial device doesn't exist: %s" % GPIB_DEV)
-        raise GPIBError('issue opening serial device: %s: %s' % (GPIB_DEV, e))
+            raise GPIBError("serial device doesn't exist: %s" % gpib_dev)
+        raise GPIBError('issue opening serial device: %s: %s' % (gpib_dev, e))
 
     s.bytesize = serial.EIGHTBITS
     s.parity = serial.PARITY_NONE
@@ -139,14 +136,16 @@ def get_mac_addr():
 def uboot_expect():
     """Pexpect loop to run after the tests complete successfully."""
 
-    if not os.path.exists(UART_DEV):
-        raise UBootError('UART serial device node to picozed sdr missing')
-    if not os.path.exists(GPIB_DEV):
-        raise UBootError('GPIB serial device node to frequency counter missing')
+    # UART and GPIB usb serial device paths
+    try:
+        uart_dev = glob.glob('/dev/serial/by-id/*Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001*')[0]
+        gpib_dev = glob.glob('/dev/serial/by-id/*Prologix_Prologix_GPIB-USB_Controller_PX93W44G*')[0]
+    except IndexError:
+        raise UBootError('UART and/or GPIB serial device nodes missing')
 
     try:
         p = pexpect.spawn(
-            'picocom --nolock -b 115200 %s' % (UART_DEV,),
+            'picocom --nolock -b 115200 %s' % (uart_dev,),
             encoding='utf8', logfile=sys.stdout, echo=False)
     except pexpect.exceptions.ExceptionPexpect:
         raise UBootError('picocom is missing, please install it')
@@ -208,7 +207,7 @@ def uboot_expect():
             # run GPIB query to determine actual ad9361 reference clock
             # frequency and save it to the u-boot environment
             try:
-                freq = gpib_get_freq()
+                freq = gpib_get_freq(gpib_dev)
             except GPIBError:
                 print('\nError querying frequency counter, restarting loop...')
                 continue
