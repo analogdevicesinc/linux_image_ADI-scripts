@@ -174,27 +174,36 @@ def uboot_expect():
         except ValueError:
             raise UBootError('received unexpected bytes value when reading file')
 
-    def _flash_file(filepath, offset, size, timeout=30, mem_location=0x1000000):
+    def _flash_file(filepath, offset, size, erase=False, timeout=30, mem_location=0x1000000):
         """Erase and write a file to a QSPI flash partition.
 
         Parameters:
             filepath: path to file to write to partition
             offset: partition offset
             size: partition size
+            erase: whether to erase the flash location before writing
             timeout: time to wait while erasing partition (to avoid pexpect timeouts)
             mem_location: external memory location to load file to and from
         """
         # erase memory
         p.sendline('mw 0x%x 0x0 0x%x' % (mem_location, size))
         p.expect(prompt)
+
         # load file into memory
         p.sendline('fatload mmc 0 0x%x %s' % (mem_location, filepath))
         p.expect('.* bytes read')
         filesize = _extract_bytes(p.after.strip().split()[-3:])
         p.expect(prompt)
-        # erase flash partition and write file into it
-        p.sendline('sf update 0x%x 0x%x 0x%x' % (mem_location, offset, size))
-        p.expect('.* bytes written, .* bytes skipped', timeout=timeout)
+
+        if erase:
+            # erase flash partition and write file into it
+            p.sendline('sf update 0x%x 0x%x 0x%x' % (mem_location, offset, size))
+            p.expect('.* bytes written, .* bytes skipped', timeout=timeout)
+        else:
+            # we assume flash chips ship pre-erased (as noted in the part's datasheet)
+            p.sendline('sf write 0x%x 0x%x 0x%x' % (mem_location, offset, size))
+            p.expect('SF: %d bytes @ 0x%x Written: OK' % (size, offset), timeout=timeout)
+
         p.expect(prompt)
 
     while 1:
@@ -226,11 +235,11 @@ def uboot_expect():
             p.expect(prompt)
 
             # write files to flash
-            _flash_file('flash/BOOT.BIN', 0x0, 0xe0000, 180)
-            _flash_file('uImage', 0x100000, 0x500000, 300)
+            _flash_file('flash/BOOT.BIN', 0x0, 0xe0000)
+            _flash_file('uImage', 0x100000, 0x500000)
             _flash_file('devicetree.dtb', 0x600000, 0x20000)
-            _flash_file('Card-Filesystem-Repair/uramdisk.image.gz', 0x620000, 0xce0000, 600)
-            _flash_file('flash/system.bit', 0x1300000, 0xd00000, 600)
+            _flash_file('Card-Filesystem-Repair/uramdisk.image.gz', 0x620000, 0xce0000, timeout=60)
+            _flash_file('flash/system.bit', 0x1300000, 0xd00000, timeout=60)
 
             # set MAC address
             print()
