@@ -20,7 +20,10 @@ import pexpect
 import serial
 
 # manufacturer MAC address prefix (Avnet's by default)
-MAC_ADDR_OUI= '0002B5'
+MAC_ADDR_OUI = '0002B5'
+
+# model name added to u-boot env and written to device tree
+MODEL = 'Zynq PicoZed SDR2 Board'
 
 
 class GPIBError(Exception):
@@ -214,6 +217,8 @@ def uboot_expect():
                 print('\nError querying frequency counter, restarting loop...')
                 continue
             p.sendline('setenv ad9361_ext_refclk 0x%.8s' % (freq,))
+            p.expect(prompt)
+            p.sendline('setenv model %s' % (MODEL,))
             p.expect(prompt)
 
             p.sendline('sf probe')
