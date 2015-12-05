@@ -273,4 +273,12 @@ if __name__ == '__main__':
         try:
             uboot_expect()
         except UBootError as e:
-            enter = input('Error: %s\nHit enter to restart after fixing the issue...' % e)
+            try:
+                enter = input('Error: %s\nHit enter to restart after fixing the issue...' % e)
+            except KeyboardInterrupt:
+                print()
+                pass
+        except UnicodeDecodeError:
+            # we don't care about unicode decoding issues, e.g. if linux starts
+            # booting and dumps odd characters into the output stream
+            pass
