@@ -214,10 +214,6 @@ def uboot_expect():
                 continue
             p.expect(prompt)
 
-            # drive gpio 61 high to enable ad9361 clock out on pin 3 of the P3 fanout
-            p.sendline('gpio set 61 1')
-            p.expect(prompt)
-
             # run GPIB query to determine actual ad9361 reference clock
             # frequency and save it to the u-boot environment
             try:
