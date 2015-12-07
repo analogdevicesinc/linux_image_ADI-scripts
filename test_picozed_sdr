@@ -207,8 +207,10 @@ def uboot_expect():
         p.expect(prompt)
 
     while 1:
+        if not timed_out:
+            print('Waiting for u-boot output, please turn on device')
         try:
-            i = p.expect(['ALL TESTS PASSED', 'TESTS FAILED'])
+            i = p.expect(['ALL TESTS PASSED', 'TESTS FAILED'], timeout=1800)
             if i == 1:
                 # tests failed, restarting loop
                 continue
