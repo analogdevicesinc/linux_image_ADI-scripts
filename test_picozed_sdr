@@ -103,7 +103,15 @@ def gpib_get_freq(gpib_dev):
     if not freq:
         raise GPIBError('error querying counter for current frequency')
 
-    return int(float(freq))
+    freq = int(float(freq))
+
+    # We expect a value close to 40 MHz, error out if it's more than 5 kHz off.
+    expected_freq = 40000000
+    if abs(freq - expected_freq) > 5000:
+        raise GPIBError(
+            'Measured frequency too far away from expected frequency (40 MHz): %d Hz' % (freq,))
+
+    return freq
 
 
 def get_mac_addr():
