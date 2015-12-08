@@ -211,7 +211,7 @@ def uboot_expect():
         try:
             if not timed_out:
                 p.expect('Terminal ready')
-                print('Waiting for u-boot output, please turn on device')
+                print('Waiting for u-boot output, please power on or reset the device')
             i = p.expect(['ALL TESTS PASSED', 'TESTS FAILED'], timeout=1800)
             if i == 1:
                 time.sleep(1)
