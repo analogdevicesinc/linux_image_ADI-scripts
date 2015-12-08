@@ -15,7 +15,6 @@ import errno
 import glob
 import os
 import sys
-import time
 
 import pexpect
 import serial
@@ -214,7 +213,7 @@ def uboot_expect():
                 print('Waiting for u-boot output, please power on or reset the device')
             i = p.expect(['ALL TESTS PASSED', 'TESTS FAILED'], timeout=1800)
             if i == 1:
-                time.sleep(1)
+                p.expect('Hit any key')
                 print('Tests failed, restarting loop...')
                 continue
             p.expect(prompt)
