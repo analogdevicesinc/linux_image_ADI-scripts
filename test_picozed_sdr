@@ -274,7 +274,7 @@ if __name__ == '__main__':
             uboot_expect()
         except UBootError as e:
             try:
-                enter = input('Error: %s\nHit enter to restart after fixing the issue...' % e)
+                enter = input('Error: %s\nHit enter to restart the script after fixing the issue...' % e)
             except KeyboardInterrupt:
                 print()
                 pass
