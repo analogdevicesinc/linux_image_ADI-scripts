@@ -15,6 +15,7 @@ import errno
 import glob
 import os
 import sys
+import time
 
 import pexpect
 import serial
@@ -29,6 +30,8 @@ MODEL = 'Zynq PicoZed SDR2 Board'
 class GPIBError(Exception):
     """Generic exception for errors when querying the frequency counter."""
 
+class SerialError(Exception):
+    """Generic exception for serial device errors."""
 
 class UBootError(Exception):
     """Generic exception for errors when communicating with u-boot."""
@@ -144,26 +147,32 @@ def get_mac_addr():
     return mac_addr
 
 
-def uboot_expect():
-    """Pexpect loop to run after the tests complete successfully."""
-
+def spawn_picocom():
     # UART and GPIB usb serial device paths
     try:
         uart_dev = glob.glob('/dev/serial/by-id/*Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001*')[0]
         gpib_dev = glob.glob('/dev/serial/by-id/*Prologix_Prologix_GPIB-USB_Controller_PX93W44G*')[0]
     except IndexError:
-        raise UBootError('UART and/or GPIB serial device nodes missing')
+        raise SerialError('UART and/or GPIB serial device nodes missing, make sure cables are plugged in and devices are powered on')
 
     try:
         p = pexpect.spawnu('picocom --nolock -b 115200 %s' % (uart_dev,))
     except pexpect.exceptions.ExceptionPexpect:
-        raise UBootError('picocom is missing, please install it')
-
-    timed_out = False
+        raise SerialError('picocom is missing, please install it')
 
     # send output to the terminal and don't reprint input commands
     p.logfile = sys.stdout
     p.setecho(False)
+
+    return p, uart_dev, gpib_dev
+
+
+def uboot_expect():
+    """Pexpect loop to run after the tests complete successfully."""
+
+    spawned = False
+    timed_out = False
+    warning = False
 
     # output string specifying that the u-boot command line is ready
     prompt = 'zynq-uboot> '
@@ -216,6 +225,9 @@ def uboot_expect():
 
     while 1:
         try:
+            if not spawned:
+                p, uart_dev, gpib_dev = spawn_picocom()
+                spawned = True
             if not timed_out:
                 p.expect('Terminal ready')
                 print('Waiting for u-boot output, please power on or reset the device')
@@ -271,8 +283,21 @@ def uboot_expect():
             print('Got keyboard interrupt, restarting loop...')
             timed_out = True
             continue
+        except pexpect.exceptions.EOF as e:
+            if spawned:
+                print('\nSerial device closed, restarting loop...')
+                spawned = False
+            time.sleep(1)
+            continue
+        except SerialError as e:
+            if not warning:
+                print(e)
+                warning = True
+            time.sleep(1)
+            continue
         except UBootError as e:
             print('\nError running U-Boot command: %s, restarting loop...' % e)
+            time.sleep(1)
             continue
     p.close()
 
@@ -280,12 +305,9 @@ if __name__ == '__main__':
     while 1:
         try:
             uboot_expect()
-        except UBootError as e:
-            try:
-                enter = input('Error: %s\nHit enter to restart the script after fixing the issue...' % e)
-            except KeyboardInterrupt:
-                print()
-                pass
+        except KeyboardInterrupt:
+            print()
+            pass
         except UnicodeDecodeError:
             # we don't care about unicode decoding issues, e.g. if linux starts
             # booting and dumps odd characters into the output stream
