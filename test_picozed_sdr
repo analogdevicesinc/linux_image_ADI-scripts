@@ -21,7 +21,7 @@ import pexpect
 import serial
 
 # manufacturer MAC address prefix (Avnet's by default)
-MAC_ADDR_OUI = '0002B5'
+MAC_ADDR_OUI = '0002B501'
 
 # model name added to u-boot env and written to device tree
 MODEL = 'Zynq PicoZed SDR2 Board'
@@ -126,7 +126,7 @@ def get_mac_addr():
     """
     suffix = None
     while suffix is None:
-        orig_suffix = input('Enter the MAC address suffix (e.g. 0afa34): ')
+        orig_suffix = input('Enter the remaining 4 character MAC address suffix (e.g. fa34): ')
         # remove all character spacers
         strip_spacers = orig_suffix.maketrans({x: None for x in ':-.'})
         suffix = orig_suffix.translate(strip_spacers)
@@ -138,7 +138,7 @@ def get_mac_addr():
         except ValueError:
             invalid_hex = True
 
-        if len(suffix) != 6 or invalid_hex:
+        if len(suffix) != 4 or invalid_hex:
             print('Invalid MAC address suffix: %s' % orig_suffix)
             suffix = None
 
