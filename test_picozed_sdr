@@ -28,7 +28,7 @@ MODEL = 'Zynq PicoZed SDR2 Board'
 
 # serial device paths
 UART = '/dev/serial/by-id/*Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001*'
-GPIB = '/dev/serial/by-id/*Prologix_Prologix_GPIB-USB_Controller_PX93W44G*'
+GPIB = '/dev/serial/by-id/*Prologix_Prologix_GPIB-USB_Controller_*'
 
 
 class GPIBError(Exception):
