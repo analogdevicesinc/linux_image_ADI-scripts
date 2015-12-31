@@ -26,6 +26,10 @@ MAC_ADDR_OUI = '0002B501'
 # model name added to u-boot env and written to device tree
 MODEL = 'Zynq PicoZed SDR2 Board'
 
+# serial device paths
+UART = '/dev/serial/by-id/*Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001*'
+GPIB = '/dev/serial/by-id/*Prologix_Prologix_GPIB-USB_Controller_PX93W44G*'
+
 
 class GPIBError(Exception):
     """Generic exception for errors when querying the frequency counter."""
@@ -150,8 +154,8 @@ def get_mac_addr():
 def spawn_picocom():
     # UART and GPIB usb serial device paths
     try:
-        uart_dev = glob.glob('/dev/serial/by-id/*Silicon_Labs_CP2103_USB_to_UART_Bridge_Controller_0001*')[0]
-        gpib_dev = glob.glob('/dev/serial/by-id/*Prologix_Prologix_GPIB-USB_Controller_PX93W44G*')[0]
+        uart_dev = glob.glob(UART)[0]
+        gpib_dev = glob.glob(GPIB)[0]
     except IndexError:
         raise SerialError('UART and/or GPIB serial device nodes missing, make sure cables are plugged in and devices are powered on')
 
