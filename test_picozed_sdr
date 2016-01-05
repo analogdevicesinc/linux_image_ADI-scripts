@@ -262,7 +262,7 @@ def uboot_expect():
             _flash_file('flash/BOOT.BIN', 0x0, 0xe0000)
             _flash_file('uImage', 0x100000, 0x500000)
             _flash_file('devicetree.dtb', 0x600000, 0x20000)
-            _flash_file('Card-Filesystem-Repair/uramdisk.image.gz', 0x620000, 0xce0000, timeout=60)
+            _flash_file('flash/uramdisk.image.gz', 0x620000, 0xce0000, timeout=60)
             _flash_file('flash/system.bit', 0x1300000, 0xd00000, timeout=60)
 
             # set MAC address
