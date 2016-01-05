@@ -287,7 +287,7 @@ def uboot_expect():
             print('Got keyboard interrupt, restarting loop...')
             timed_out = True
             continue
-        except pexpect.exceptions.EOF as e:
+        except pexpect.EOF as e:
             if spawned:
                 print('\nSerial device closed, restarting loop...')
                 spawned = False
