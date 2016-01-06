@@ -161,7 +161,7 @@ def spawn_picocom():
 
     try:
         p = pexpect.spawnu('picocom --nolock -b 115200 %s' % (uart_dev,))
-    except pexpect.exceptions.ExceptionPexpect:
+    except pexpect.ExceptionPexpect:
         raise SerialError('picocom is missing, please install it')
 
     # send output to the terminal and don't reprint input commands
