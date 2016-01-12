@@ -16,6 +16,8 @@ if [[ ${UID} -ne 0 ]]; then
 	exit 1
 fi
 
+echo "Re-enabling DHCP via NetworkManager for all network interfaces"
+
 cat <<-EOF > /etc/network/interfaces
 	# interfaces(5) file used by ifup(8) and ifdown(8)
 	# Include files from /etc/network/interfaces.d:

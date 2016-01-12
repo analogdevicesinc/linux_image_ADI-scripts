@@ -21,6 +21,8 @@ if [[ ${UID} -ne 0 ]]; then
 	exit 1
 fi
 
+echo "Enabling the static IP address ${IP_ADDR} on ${ETH_DEV}"
+
 # disable NetworkManager (assumes the config file hasn't been touched much)
 sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
 
