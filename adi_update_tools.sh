@@ -45,16 +45,17 @@ BUILDS_2015_R1="linux_image_ADI-scripts:origin/master \
 	colorimeter:origin/2015_R1 \
 	mathworks_tools:origin/2015_R1"
 
-BUILDS_2014_R2="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/2014_R2 \
-	libiio:origin/2014_R2 \
-	iio-oscilloscope:origin/2014_R2 \
-	fru_tools:origin/2014_R2 \
-	iio-fm-radio:origin/2014_R2 \
-	jesd-eye-scan-gtk:origin/2014_R2 \
+BUILDS_2015_R2="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/2015_R2 \
+	libiio:origin/2015_R2 \
+	libad9361-iio:origin/master \
+	iio-oscilloscope:origin/2015_R2\
+	fru_tools:origin/2015_R1 \
+	iio-fm-radio:origin/2015_R2 \
+	jesd-eye-scan-gtk:origin/2015_R2 \
 	diagnostic_report:origin/master \
 	colorimeter:origin/2015_R1 \
-	mathworks_tools:origin/2014_R2"
+	mathworks_tools:origin/2015_R1"
 
 do_build ()
 {
@@ -69,14 +70,14 @@ do_build ()
 if [ "$1" = "dev" ]
 then
   BUILDS=$BUILDS_DEV
-elif [ "$1" = "2014_R2" ]
+elif [ "$1" = "2015_R1" ]
 then
-  BUILDS=$BUILDS_2014_R2
+  BUILDS=$BUILDS_2015_R1
 elif [ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2015_R1
+  BUILDS=$BUILDS_2015_R2
 fi
 
 for i in $BUILDS
