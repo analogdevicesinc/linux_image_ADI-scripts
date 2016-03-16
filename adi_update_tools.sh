@@ -54,7 +54,7 @@ BUILDS_2015_R2="linux_image_ADI-scripts:origin/master \
 	iio-fm-radio:origin/2015_R2 \
 	jesd-eye-scan-gtk:origin/2015_R2 \
 	diagnostic_report:origin/master \
-	colorimeter:origin/2015_R1 \
+	colorimeter:origin/2015_R2 \
 	mathworks_tools:origin/2015_R1"
 
 do_build ()
