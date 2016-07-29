@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#rsync the files in the background
+rsync -azr -e ssh /root/osc-logs test_results@romlx1:~/AD9371-N &
+
 OSC_FORCE_PLUGIN=scpi /usr/local/bin/osc -p /usr/local/lib/osc/profiles/ADRV9371_test.ini 2&>1 > osc_run.txt
 rc=$?
 
