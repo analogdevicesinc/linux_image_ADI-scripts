@@ -159,6 +159,10 @@ do
     update-rc.d -f iiod remove
     update-rc.d -f iiod.sh remove
 
+    # New libiio versions install to /usr/lib/arm-linux-gnueabihf;
+    # remove the old ones that might still be inside /usr/lib
+    rm -f /usr/lib/libiio.so*
+
     # Install the startup script of iiod here, as cmake won't do it
     if [ -f iiod/init/iiod.init ] ; then
         install -m 0755 iiod/init/iiod.init /etc/init.d/iiod
