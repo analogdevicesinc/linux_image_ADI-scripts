@@ -160,7 +160,11 @@ do
     update-rc.d -f iiod.sh remove
 
     # Install the startup script of iiod here, as cmake won't do it
-    install -m 0755 debian/iiod.init /etc/init.d/iiod
+    if [ -f iiod/init/iiod.init ] ; then
+        install -m 0755 iiod/init/iiod.init /etc/init.d/iiod
+    else
+        install -m 0755 debian/iiod.init /etc/init.d/iiod
+    fi
     update-rc.d iiod defaults 99 01
 
     rm -rf build
