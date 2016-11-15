@@ -138,6 +138,7 @@ do
       fi
       #Misc fixup:
       sed -i 's/wiki.analog.org/wiki.analog.com/g'  /etc/update-motd.d/10-help-text
+      sed -i 's/ analog.com/ www.wiki.analog.com www.analog.com/g' /etc/network/if-up.d/htpdate
     else
       # run the new one instead, and then just quit
       echo ./adi_update_tools.sh has been updated, switching to new one
