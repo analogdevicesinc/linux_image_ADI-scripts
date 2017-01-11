@@ -1,0 +1,55 @@
+#!/bin/sh
+
+for i in $(find -L /sys/bus/iio/devices -maxdepth 2 -name name)
+do
+  dev_name=$(cat $i)
+  if [ "$dev_name" = "ad9361-phy" ] ; then
+    ad9361=$(echo $i | sed 's:/name$::')
+    break
+  fi
+done
+
+if [ "x$ad9361" = "x" ] ; then
+  echo can not find ad9361 in /sys
+  exit
+fi
+
+cd $ad9361
+avg=$(cat in_temp0_input)
+max=`expr $avg + 2000`
+min=`expr $avg - 2000`
+echo "found $ad9361, starting temp ${avg} "
+start=`date +%s`
+last_err=-1
+while [ 1 ]
+do
+   sleep .5
+   temp=$(cat in_temp0_input)
+#   echo checking $temp against $max and $min, avg  $avg
+   if [ $temp -gt $max ] ; then
+      if [ $last_err -ne $temp ] ; then
+        last_err=$temp
+        echo -n "read $temp, exceeds max of $max, avg = $avg "
+        err=`date +%s`
+        min=`expr '(' $err - $start ')' / 60`
+	sec=`expr '(' $err - $start ')' % 60`
+        printf "%d:%02d elapsed\n" $min $sec
+     fi
+   else
+     if [ $temp -lt $min ] ; then
+       if [ $last_err -ne $temp ] ; then
+         last_err=$temp
+         echo -n "read $temp, under min of $min, avg = $avg "
+         err=`date +%s`
+         min=`expr '(' $err - $start ')' / 60`
+         sec=`expr '(' $err - $start ')' % 60`
+         printf "%d:%02d elapsed\n" $min $sec
+       fi
+     else
+       avg=`expr '('  $avg + $temp ')' / 2`
+       max=`expr $avg + 2000`
+       min=`expr $avg - 2000`
+     fi
+   fi
+done
+
