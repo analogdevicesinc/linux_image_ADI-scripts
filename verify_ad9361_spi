@@ -1,0 +1,72 @@
+#!/bin/sh
+
+#finds the AD9361 device
+for i in $(find -L /sys/bus/iio/devices -maxdepth 2 -name name)
+do
+  dev_name=$(cat $i)
+  if [ "$dev_name" = "ad9361-phy" ] ; then
+    ad9361=$(echo $i | sed 's:/name$::')
+    break
+  fi
+done
+
+if [ "x$ad9361" = "x" ] ; then
+  echo can not find ad9361 in /sys
+  exit
+fi
+
+# does a walking ones/zeros on the SPI bus.
+# register 0x28 is 'GPO0 Rx delay'
+cd $ad9361
+expect=0x1
+up=1
+reg=0x28
+echo $reg $expect > ./direct_reg_access
+echo $reg > ./direct_reg_access
+i=0
+k=0
+echo "preforming walking one/zero tests on SPI register $reg"
+trap 'printf "\nread %d times\n" $k; exit 0' 2
+echo -n 1
+while [ 1 ]
+do
+#   sleep .5
+   i=`expr $i + 1`
+   k=`expr $k + 1`
+   foo=$(cat ./direct_reg_access)
+   #echo $i $expect $foo
+   if [ "$foo" != "$expect" ] ; then
+      echo -n "$foo is not equal to '$expect' "
+      date
+   fi
+   if [ $i -gt 999 ] ; then
+      #echo 1000 reads of $expect worked
+      j=`printf "%d" $expect`
+      if [ $up -eq 1 ] ; then
+        if [ $j -eq 0 ] ; then
+           up=0;
+           echo -n 0
+        fi
+        if [ $j -eq 255 ] ; then
+          j=1
+        else
+          j=`expr '(' $j '*' 2 ')' % 256`
+        fi
+        expect=`printf "0x%X" $j`
+      else
+        if [ $j -eq 255 ] ; then
+          up=1
+          echo -n 1
+        fi
+	if [ $j -eq 0 ] ; then
+          j=127
+        else
+          j=`expr '(' $j '/' 2 ')' + 128`
+        fi
+        expect=`printf "0x%X" $j`
+      fi
+      echo $reg $expect > ./direct_reg_access
+      i=0
+   fi
+done
+
