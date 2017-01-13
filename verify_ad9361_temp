@@ -29,8 +29,10 @@ len=$(expr '(' $len '/' 2 ')' '*' 5905580032 '/' $bbpll)
 len=$(printf "%d.%d\n" `expr $len '/' 10`  `expr $len - '(' $len '/' 10 '*' 10 ')'`)
 
 avg=$(cat in_temp0_input)
-max=`expr $avg + 2000`
-min=`expr $avg - 2000`
+# tolerance of the temp sensor is +/- 3C
+tolerance=3000
+max=`expr $avg + $tolerance`
+min=`expr $avg - $tolerance`
 echo "found $ad9361, starting temp ${avg}, reading every $len seconds"
 start=`date +%s`
 last_err=-1
@@ -44,9 +46,11 @@ do
         last_err=$temp
         echo -n "read $temp, exceeds max of $max, avg = $avg "
         err=`date +%s`
-        min=`expr '(' $err - $start ')' / 60`
-	sec=`expr '(' $err - $start ')' % 60`
-        printf "%d:%02d elapsed\n" $min $sec
+	sec=`expr $err - $start`
+	hrs=`expr $sec / 3600`
+        min=`expr '(' $sec - '(' $hrs '*' 60 ')' ')' / 60`
+        sec=`expr $sec % 60`
+        printf "%d:%d:%02d elapsed\n" $hrs $min $sec
      fi
    else
      if [ $temp -lt $min ] ; then
@@ -54,14 +58,16 @@ do
          last_err=$temp
          echo -n "read $temp, under min of $min, avg = $avg "
          err=`date +%s`
-         min=`expr '(' $err - $start ')' / 60`
-         sec=`expr '(' $err - $start ')' % 60`
-         printf "%d:%02d elapsed\n" $min $sec
+	 sec=`expr $err - $start`
+	 hrs=`expr $sec / 3600`
+         min=`expr '(' $sec - '(' $hrs '*' 60 ')' ')' / 60`
+         sec=`expr $sec % 60`
+         printf "%d:%d:%02d elapsed\n" $hrs $min $sec
        fi
      else
        avg=`expr '('  $avg + $temp ')' / 2`
-       max=`expr $avg + 2000`
-       min=`expr $avg - 2000`
+       max=`expr $avg + $tolerance`
+       min=`expr $avg - $tolerance`
      fi
    fi
 done
