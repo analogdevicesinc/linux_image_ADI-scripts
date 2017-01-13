@@ -15,15 +15,28 @@ if [ "x$ad9361" = "x" ] ; then
 fi
 
 cd $ad9361
+bbpll=$(cat rx_path_rates | sed -e 's|^BBPLL:||' -e 's| .*$||')
+device=$(echo $ad9361 | awk -F '/' '{print $NF}')
+# determine the time for new temperatures to be added - can't get something faster than I should
+if [ -d /sys/kernel/debug/iio/$device ] ; then
+   echo 0x00D > /sys/kernel/debug/iio/$device/direct_reg_access
+   len=$(printf "%d" `cat /sys/kernel/debug/iio/$device/direct_reg_access`)
+else
+   len=127
+fi
+# (2^29 + 10%) = 5905580032
+len=$(expr '(' $len '/' 2 ')' '*' 5905580032 '/' $bbpll)
+len=$(printf "%d.%d\n" `expr $len '/' 10`  `expr $len - '(' $len '/' 10 '*' 10 ')'`)
+
 avg=$(cat in_temp0_input)
 max=`expr $avg + 2000`
 min=`expr $avg - 2000`
-echo "found $ad9361, starting temp ${avg} "
+echo "found $ad9361, starting temp ${avg}, reading every $len seconds"
 start=`date +%s`
 last_err=-1
 while [ 1 ]
 do
-   sleep .5
+   sleep $len
    temp=$(cat in_temp0_input)
 #   echo checking $temp against $max and $min, avg  $avg
    if [ $temp -gt $max ] ; then
