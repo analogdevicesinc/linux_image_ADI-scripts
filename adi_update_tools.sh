@@ -24,7 +24,6 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/master \
 	libiio:origin/master \
 	libad9361-iio:origin/master \
-	iio-cmdsrv:origin/master \
 	iio-oscilloscope:origin/master \
 	fru_tools:origin/master \
 	iio-fm-radio:origin/master \
