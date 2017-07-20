@@ -134,6 +134,20 @@ do
         echo Catastrophic error in prerequisite packages,  please report error to:
         echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
         exit
+      else
+	if [ -d ./input-event-daemon ] ; then
+	  cd ./input-event-daemon
+	  git pull
+	else
+	  git clone https://github.com/gandro/input-event-daemon.git
+	fi
+	make clean
+	make input-event-daemon
+	make install
+	if [ "$(grep input-event-daemon /etc/rc.local | wc -l)" -eq "0" ] ; then
+	  # add /usr/bin/input-event-daemon to /etc/rc.local
+	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/bin\/input-event-daemon\n&/' /etc/rc.local
+	fi
       fi
       #Misc fixup:
       sed -i 's/wiki.analog.org/wiki.analog.com/g'  /etc/update-motd.d/10-help-text
