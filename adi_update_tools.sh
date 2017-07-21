@@ -135,6 +135,9 @@ do
         echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
         exit
       else
+	# Non-essential applications, which help out sometime
+	apt-get -y gpsd gpsd-clients
+
 	p=$(pwd)
 	cd ../
 	if [ -d "input-event-daemon" ] ; then
