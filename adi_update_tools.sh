@@ -135,11 +135,14 @@ do
         echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
         exit
       else
-	if [ -d ./input-event-daemon ] ; then
+	p=$(pwd)
+	cd ../
+	if [ -d "input-event-daemon" ] ; then
 	  cd ./input-event-daemon
 	  git pull
 	else
 	  git clone https://github.com/gandro/input-event-daemon.git
+	  cd ./input-event-daemon
 	fi
 	make clean
 	make input-event-daemon
@@ -148,6 +151,8 @@ do
 	  # add /usr/bin/input-event-daemon to /etc/rc.local
 	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/bin\/input-event-daemon\n&/' /etc/rc.local
 	fi
+	# go back to orginal directory
+	cd $p
       fi
       #Misc fixup:
       sed -i 's/wiki.analog.org/wiki.analog.com/g'  /etc/update-motd.d/10-help-text
