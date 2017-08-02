@@ -143,6 +143,15 @@ do
 	  cp ./fw_env.config /etc/
 	fi
 
+	REFCLK=$(fw_printenv -n ad9361_ext_refclk)
+	if [ $? -eq 0 ]; then
+	  echo $REFCLK | grep '^<.*>$'
+	  if [ $? -ne 0 ]; then
+	    REFCLK="<${REFCLK}>"
+	    fw_setenv ad9361_ext_refclk ${REFCLK}
+	  fi
+	fi
+
 	p=$(pwd)
 	cd ../
 	if [ -d "input-event-daemon" ] ; then
