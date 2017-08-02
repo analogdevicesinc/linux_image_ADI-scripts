@@ -136,7 +136,12 @@ do
         exit
       else
 	# Non-essential applications, which help out sometime
-	apt-get -y gpsd gpsd-clients
+	apt-get -y gpsd gpsd-clients u-boot-tools
+
+	if [ ! -f /etc/fw_env.config ]
+	then
+	  cp ./fw_env.config /etc/
+	fi
 
 	p=$(pwd)
 	cd ../
