@@ -4,7 +4,7 @@
 #
 
 [Global]
-listen = /dev/input/event1
+listen = /dev/input/event2
 
 [Keys]
 # connect the LTC2955 INTterupt pin
