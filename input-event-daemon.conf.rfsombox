@@ -13,7 +13,6 @@ listen = /dev/input/by-path/platform-fpga-axi@0:pzsdr_sound-event
 # The LTC2955 asserts the INT pin low when it receives the turn-off command
 # from the pushbutton, so power things off.
 POWER         = poweroff
-# MEDIA         = amixer sset 'Headphone' toggle
-VOLUMEDOWN    = amixer sset 'Headphone' -3 unmute
-VOLUMEUP      = amixer sset 'Headphone' +3 unmute
-# VOICECOMMAND  =
+MEDIA         = amixer sset 'Capture' toggle
+VOLUMEDOWN    = amixer sset 'Headphone' 3- unmute
+VOLUMEUP      = amixer sset 'Headphone' 3+ unmute
