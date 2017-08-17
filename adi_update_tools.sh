@@ -96,6 +96,7 @@ rfsom_box ()
 	  git clean -f -d -x
 	  git fetch
 	  git checkout -f master
+	  git pull
 	else
 	  git clone https://github.com/analogdevicesinc/rfsom-box-gui.git
 	  cd ./rfsom-box-gui
