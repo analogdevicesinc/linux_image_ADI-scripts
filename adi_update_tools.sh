@@ -65,6 +65,53 @@ do_build ()
 	echo "Building $prj Failed\n"
 }
 
+rfsom_box ()
+{
+	cd /usr/local/src
+
+	if [ -d "input-event-daemon" ] ; then
+	  cd ./input-event-daemon
+	  git pull
+	else
+	  git clone https://github.com/gandro/input-event-daemon.git
+	  cd ./input-event-daemon
+	fi
+	make clean
+	make input-event-daemon
+	make install
+	if [ "$(grep input-event-daemon /etc/rc.local | wc -l)" -eq "0" ] ; then
+	  # add /usr/bin/input-event-daemon to /etc/rc.local
+	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/bin\/input-event-daemon\n&/' /etc/rc.local
+	fi
+
+	cp $1/input-event-daemon.conf.rfsombox /etc/input-event-daemon.conf
+
+	cd /usr/local/src
+
+	sudo apt-get -y install qt5-default
+
+	if [ -d "rfsom-box-gui" ] ; then
+	  cd ./rfsom-box-gui
+	  make uninstall 2>/dev/null
+	  git clean -f -d -x
+	  git fetch
+	  git checkout -f master
+	else
+	  git clone https://github.com/analogdevicesinc/rfsom-box-gui.git
+	  cd ./rfsom-box-gui
+	fi
+
+	qmake .
+	make
+	make install
+
+	if [ "$(grep rfsom-box-gui-start /etc/rc.local | wc -l)" -eq "0" ] ; then
+	  # add /usr/local/bin/rfsom-box-gui-start.sh to /etc/rc.local
+	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/local\/bin\/rfsom-box-gui-start.sh\n&/' /etc/rc.local
+	fi
+
+}
+
 # Allow selective builds by default build the latest release branches
 if [ "$1" = "dev" ]
 then
@@ -153,22 +200,7 @@ do
 	fi
 
 	p=$(pwd)
-	cd ../
-	if [ -d "input-event-daemon" ] ; then
-	  cd ./input-event-daemon
-	  git pull
-	else
-	  git clone https://github.com/gandro/input-event-daemon.git
-	  cd ./input-event-daemon
-	fi
-	make clean
-	make input-event-daemon
-	make install
-	if [ "$(grep input-event-daemon /etc/rc.local | wc -l)" -eq "0" ] ; then
-	  # add /usr/bin/input-event-daemon to /etc/rc.local
-	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/bin\/input-event-daemon\n&/' /etc/rc.local
-	fi
-	# go back to orginal directory
+	 grep -q "RFSOM-BOX" /sys/firmware/devicetree/base/model && rfsom_box $p
 	cd $p
       fi
       #Misc fixup:
