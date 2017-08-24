@@ -88,7 +88,12 @@ rfsom_box ()
 
 	cd /usr/local/src
 
-	sudo apt-get -y install qt5-default
+	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin
+
+	curl -L http://github.com/micha/jsawk/raw/master/jsawk > /tmp/jsawk
+	mv /tmp/jsawk /usr/bin/jsawk
+	chmod 777 /usr/bin/jsawk
+	ln -s /usr/bin/js24 /usr/bin/js
 
 	if [ -d "rfsom-box-gui" ] ; then
 	  cd ./rfsom-box-gui
@@ -110,7 +115,6 @@ rfsom_box ()
 	  # add /usr/local/bin/rfsom-box-gui-start.sh to /etc/rc.local
 	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/local\/bin\/rfsom-box-gui-start.sh\n&/' /etc/rc.local
 	fi
-
 }
 
 # Allow selective builds by default build the latest release branches
