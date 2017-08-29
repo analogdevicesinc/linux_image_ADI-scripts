@@ -188,7 +188,7 @@ do
         exit
       else
 	# Non-essential applications, which help out sometime
-	apt-get -y install gpsd gpsd-clients u-boot-tools
+	apt-get -y install gpsd gpsd-clients u-boot-tools evtest
 
 	if [ ! -f /etc/fw_env.config ]
 	then
