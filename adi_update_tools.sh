@@ -115,6 +115,14 @@ rfsom_box ()
 	  # add /usr/local/bin/rfsom-box-gui-start.sh to /etc/rc.local
 	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/local\/bin\/rfsom-box-gui-start.sh\n&/' /etc/rc.local
 	fi
+
+	cd fft-plot
+ 	cmake .
+ 	make
+ 	make install
+	cd ..
+
+
 }
 
 # Allow selective builds by default build the latest release branches
