@@ -11,7 +11,7 @@ make install
 #install libnl
 cd /usr/local/src
 wget https://github.com/thom311/libnl/releases/download/libnl3_3_0/libnl-3.3.0.tar.gz
-tar –xvf libnl-3.3.0.tar.gz
+tar -xvf libnl-3.3.0.tar.gz
 cd libnl-3.3.0
 ./configure
 make
