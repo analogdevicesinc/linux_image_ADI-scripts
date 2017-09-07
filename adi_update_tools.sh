@@ -148,7 +148,12 @@ rfsom_box ()
 	make install
 	
 	rm /usr/local/src/fim-0.6-trunk.tar.gz
-
+	
+	#install plutosdr-scripts
+	git clone https://github.com/analogdevicesinc/plutosdr_scripts 
+	cd plutosdr_scripts
+	make
+	cp cal_ad9361 /usr/local/bin
 
 }
 
