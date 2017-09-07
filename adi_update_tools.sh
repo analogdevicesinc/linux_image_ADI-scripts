@@ -88,7 +88,7 @@ rfsom_box ()
 
 	cd /usr/local/src
 
-	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin mplayer
+	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin mplayer libx264-142
 
 	curl -L http://github.com/micha/jsawk/raw/master/jsawk > /tmp/jsawk
 	mv /tmp/jsawk /usr/bin/jsawk
@@ -109,7 +109,6 @@ rfsom_box ()
 
 	qmake .
 	make
-	make install
 
 	if [ "$(grep rfsom-box-gui-start /etc/rc.local | wc -l)" -eq "0" ] ; then
 	  # add /usr/local/bin/rfsom-box-gui-start.sh to /etc/rc.local
@@ -121,6 +120,34 @@ rfsom_box ()
  	make
  	make install
 	cd ..
+	
+	cd tun_tap
+	make
+	cd ..
+
+	make install
+
+	#install ffmpeg	
+	cd /usr/local/src
+	wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-32bit-static.tar.xz
+	mkdir ffmpeg-release-armhf-32bit
+	cd ffmpeg-release-armhf-32bit	
+	# skip first level
+	tar xvf ../ffmpeg-release-armhf-32bit-static.tar.xz --strip 1
+	rm ../ffmpeg-release-armhf-32bit-static.tar.xz
+	ln -s /usr/local/src/ffmpeg-release-armhf-32bit/ffmpeg /usr/local/bin/ffmpeg
+	cd /
+
+	#install fim
+	cd /usr/local/src
+	wget http://download.savannah.nongnu.org/releases/fbi-improved/fim-0.6-trunk.tar.gz
+	tar xvf fim-0.6-trunk.tar.gz
+	cd fim-0.6-trunk.tar.gz
+	./configure
+	make
+	make install
+	
+	rm /usr/local/src/fim-0.6-trunk.tar.gz
 
 
 }
