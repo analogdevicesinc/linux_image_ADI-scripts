@@ -155,9 +155,15 @@ rfsom_box ()
 	make
 	cp cal_ad9361 /usr/local/bin
     
-	#install wpa_supplicant from plutosdr-scripts
-	cp crypto/* /usr/local/bin
-	/usr/local/bin/install_wpa_supplicant.sh
+    #install wpa_supplicant
+    cd /usr/local/src
+    mkdir crypto
+    cd crypto
+    rm -rf /wpa_supplicant
+    git clone https://github.com/emaclean-adi/wpa_supplicant.git
+    cd wpa_supplicant
+    cp enc-onoff.sh /usr/local/bin/
+	./install_wpa_supplicant.sh
 }
 
 # Allow selective builds by default build the latest release branches
