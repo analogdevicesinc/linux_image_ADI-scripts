@@ -88,7 +88,7 @@ rfsom_box ()
 
 	cd /usr/local/src
 
-	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin mplayer libx264-142
+	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin mplayer libx264-142 libncurses5 libreadline5 libreadline-dev libexif12 libexif-dev
 
 	curl -L http://github.com/micha/jsawk/raw/master/jsawk > /tmp/jsawk
 	mv /tmp/jsawk /usr/bin/jsawk
@@ -142,7 +142,7 @@ rfsom_box ()
 	cd /usr/local/src
 	wget http://download.savannah.nongnu.org/releases/fbi-improved/fim-0.6-trunk.tar.gz
 	tar xvf fim-0.6-trunk.tar.gz
-	cd fim-0.6-trunk.tar.gz
+	cd fim-0.6-trunk
 	./configure
 	make
 	make install
