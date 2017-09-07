@@ -155,8 +155,8 @@ rfsom_box ()
 	make
 	cp cal_ad9361 /usr/local/bin
 
-	
-	install_wpa_supplicant.sh
+	#install the tools needed by macsec
+	#install_wpa_supplicant.sh
 
 }
 
