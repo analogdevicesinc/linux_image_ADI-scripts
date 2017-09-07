@@ -2,7 +2,7 @@
 
 #install iproute2
 cd /usr/local/src
-git clone –depth 1 git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git
+git clone --depth 1 git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git
 cd iproute2/
 ./configure
 make
