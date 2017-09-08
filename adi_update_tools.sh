@@ -123,6 +123,7 @@ rfsom_box ()
 	
 	cd tun_tap
 	make
+	make install
 	cd ..
 
 	make install
