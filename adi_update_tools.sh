@@ -155,9 +155,9 @@ rfsom_box ()
 	cd plutosdr_scripts
 	make
 	cp cal_ad9361 /usr/local/bin
+	
+	/usr/local/src/rfsom-box-gui/wpa-supplicant/install.sh
 
-	#install the tools needed by macsec
-	#install_wpa_supplicant.sh
 
 }
 
