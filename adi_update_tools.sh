@@ -158,6 +158,16 @@ rfsom_box ()
 	
 #	/usr/local/src/rfsom-box-gui/wpa-supplicant/install.sh
 
+	# install a low end terminal (bterm) for /dev/fb
+	apt-get -y install libbogl-dev bogl-bterm fonts-droid otf2bdf
+	# create a bitmap font, from the true-type font
+	otf2bdf -p 8 -d 140 \
+		-o /usr/share/fonts/truetype/droid/DroidSansMono.bdf \
+		/usr/share/fonts/truetype/droid/DroidSansMono.ttf
+	# create a font for the terminal
+	# https://manpages.debian.org/jessie/libbogl-dev/bdftobogl.1.en.html
+	bdftobogl -b /usr/share/fonts/truetype/droid/DroidSansMono.bdf > \
+		/usr/share/fonts/truetype/droid/DroidSansMono.bgf
 
 }
 
