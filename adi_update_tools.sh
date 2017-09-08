@@ -156,7 +156,7 @@ rfsom_box ()
 	make
 	cp cal_ad9361 /usr/local/bin
 	
-	/usr/local/src/rfsom-box-gui/wpa-supplicant/install.sh
+#	/usr/local/src/rfsom-box-gui/wpa-supplicant/install.sh
 
 
 }
