@@ -45,7 +45,10 @@ case "$1" in
 				mkdir ${GADGET}/configs/c.1/strings/0x409
 				echo "IIO" > ${GADGET}/configs/c.1/strings/0x409/configuration
 
+				mkdir -p ${GADGET}/functions/acm.usb0
+
 				ln -s ${GADGET}/functions/ffs.iio_ffs ${GADGET}/configs/c.1/ffs.iio_ffs
+				ln -s ${GADGET}/functions/acm.usb0 ${GADGET}/configs/c.1
 			fi
 
 			if [ ! -d /dev/iio_ffs ] ; then
