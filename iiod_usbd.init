@@ -1,0 +1,100 @@
+#!/bin/sh
+#
+### BEGIN INIT INFO
+# Provides:          iiod
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: IIO Daemon
+### END INIT INFO
+# Debian init.d script for the IIO Daemon
+# Copyright (C) 2016 Analog Devices Inc.
+
+. /lib/lsb/init-functions
+
+# Server-side demuxing by default
+IIOD_OPTS=-D
+
+if test -f /etc/default/iiod; then
+    . /etc/default/iiod
+fi
+
+UDC_NAME="$(ls -1 /sys/class/udc | head -n1)"
+GADGET=/sys/kernel/config/usb_gadget/ffs
+
+case "$1" in
+	start)
+		log_daemon_msg "Starting IIO Daemon" "iiod" || true
+
+		if [ ${#UDC_NAME} -ne 0 ] ; then
+			if [ ! -d /sys/kernel/config/usb_gadget ] ; then
+				mount configfs -t configfs /sys/kernel/config
+				mkdir ${GADGET}
+
+				echo 0x0456 > ${GADGET}/idVendor
+				echo 0xb671 > ${GADGET}/idProduct
+
+				mkdir ${GADGET}/strings/0x409
+				echo "Analog Devices Inc." > ${GADGET}/strings/0x409/manufacturer
+				echo "Generic USB IIOD" > ${GADGET}/strings/0x409/product
+				echo 00000000 > ${GADGET}/strings/0x409/serialnumber
+
+				mkdir ${GADGET}/functions/ffs.iio_ffs
+				mkdir ${GADGET}/configs/c.1
+				mkdir ${GADGET}/configs/c.1/strings/0x409
+				echo "IIO" > ${GADGET}/configs/c.1/strings/0x409/configuration
+
+				ln -s ${GADGET}/functions/ffs.iio_ffs ${GADGET}/configs/c.1/ffs.iio_ffs
+			fi
+
+			if [ ! -d /dev/iio_ffs ] ; then
+				mkdir /dev/iio_ffs
+				mount iio_ffs -t functionfs /dev/iio_ffs
+			fi
+		fi
+
+		grep -q iio_ffs /proc/mounts && IIOD_OPTS="${IIOD_OPTS} -F /dev/iio_ffs";START_UDC=1 || START_UDC=0
+
+		if start-stop-daemon -S -b -q -m -p /var/run/iiod.pid -x /usr/sbin/iiod -- $IIOD_OPTS; then
+			if [ $START_UDC -eq 1 ] ; then
+				sleep 0.1
+				echo $UDC_NAME > ${GADGET}/UDC
+			fi
+			log_end_msg 0 || true
+		else
+			log_end_msg 1 || true
+		fi
+		;;
+
+	stop)
+		log_daemon_msg "Stopping IIO Daemon" "iiod" || true
+
+		[ -e ${GADGET}/UDC ] && echo "" > ${GADGET}/UDC
+
+		if start-stop-daemon -K -q -p /var/run/iiod.pid; then
+			log_end_msg 0 || true
+		else
+			log_end_msg 1 || true
+		fi
+		;;
+
+	restart|force-reload)
+		$0 stop
+		$0 start
+		;;
+
+	status)
+		if [ -f /var/run/iiod.pid ] ; then
+			status_of_proc -p /var/run/iiod.pid /usr/sbin/iiod iiod && exit 0 || exit $?
+		else
+			status_of_proc /usr/sbin/iiod iiod && exit 0 || exit $?
+		fi
+		;;
+
+	*)
+		log_action_msg "Usage: /etc/init.d/iiod.sh {start|stop|restart|status}" || true
+		exit 1
+esac
+
+exit 0

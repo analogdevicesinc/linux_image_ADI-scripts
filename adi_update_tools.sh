@@ -290,11 +290,18 @@ do
     # remove the old ones that might still be inside /usr/lib
     rm -f /usr/lib/libiio.so*
 
-    # Install the startup script of iiod here, as cmake won't do it
-    if [ -f iiod/init/iiod.init ] ; then
-        install -m 0755 iiod/init/iiod.init /etc/init.d/iiod
+    grep -i -q -e 'ZYNQ' -e 'Analog Devices' /sys/firmware/devicetree/base/model
+    if [ $? -eq 0 ] ; then
+        # Get a more recent version of functionfs.h, allowing libiio to build the IIOD USB backend
+        wget -O /usr/include/linux/usb/functionfs.h http://raw.githubusercontent.com/torvalds/linux/master/include/uapi/linux/usb/functionfs.h
+        install -m 0755 $(dirname $0/iiod_usbd.init) /etc/init.d/iiod
     else
-        install -m 0755 debian/iiod.init /etc/init.d/iiod
+	# Install the startup script of iiod here, as cmake won't do it
+	if [ -f iiod/init/iiod.init ] ; then
+		install -m 0755 iiod/init/iiod.init /etc/init.d/iiod
+	else
+		install -m 0755 debian/iiod.init /etc/init.d/iiod
+	fi
     fi
     update-rc.d iiod defaults 99 01
 
