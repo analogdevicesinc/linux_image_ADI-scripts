@@ -294,7 +294,7 @@ do
     if [ $? -eq 0 ] ; then
         # Get a more recent version of functionfs.h, allowing libiio to build the IIOD USB backend
         wget -O /usr/include/linux/usb/functionfs.h http://raw.githubusercontent.com/torvalds/linux/master/include/uapi/linux/usb/functionfs.h
-        install -m 0755 $(dirname $0)/iiod_usbd.init /etc/init.d/iiod
+        install -m 0755 /usr/local/src/linux_image_ADI-scripts/iiod_usbd.init /etc/init.d/iiod
     else
 	# Install the startup script of iiod here, as cmake won't do it
 	if [ -f iiod/init/iiod.init ] ; then
