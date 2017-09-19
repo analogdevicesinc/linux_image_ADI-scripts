@@ -57,7 +57,8 @@ case "$1" in
 			fi
 		fi
 
-		grep -q iio_ffs /proc/mounts && IIOD_OPTS="${IIOD_OPTS} -F /dev/iio_ffs";START_UDC=1 || START_UDC=0
+		START_UDC=0
+		grep -q iio_ffs /proc/mounts && IIOD_OPTS="${IIOD_OPTS} -F /dev/iio_ffs" && START_UDC=1
 
 		if start-stop-daemon -S -b -q -m -p /var/run/iiod.pid -x /usr/sbin/iiod -- $IIOD_OPTS; then
 			if [ $START_UDC -eq 1 ] ; then
