@@ -1,0 +1,88 @@
+#!/bin/sh 
+# swap_to a different image on the SD Card, while keeping a backup
+# usage:
+# swap_to directory_name
+
+if [ `id -u` != "0" ] ; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+if [ "$(grep mmcblk0p1 /proc/mounts | wc -l)" -eq "0" ] ; then
+	mount /dev/mmcblk0p1 /media/boot
+fi
+
+DIR=$(grep mmcblk0p1 /proc/mounts | awk '{print $2}')
+
+if [ $(cat /proc/cpuinfo | grep -i zynq | wc -l) -gt 0 ] ; then
+	ZYNQ=1
+fi
+
+if [ -z ${1} ] ; then
+	if [ "${ZYNQ}" = "1" ] ; then
+		ls -d ${DIR}/zynq*
+	else
+		ls -d ${DIR}/
+	fi
+fi
+
+find_match () {
+	needle=$(basename $1)
+	match=$(md5sum -b $1|awk '{print $1}')
+	haystack_dir=$(dirname $1)
+	for i in $(find ${haystack_dir} -mindepth 2 -name ${needle}) ; do
+		temp=$(md5sum -b $i|awk '{print $1}')
+		if [ "${temp}" = "${match}" ] ; then
+			echo not backing up ${needle}, match ${i}
+			return
+		fi
+	done
+	echo making backup of $1 in ${DIR}/backup_swap_from
+	mkdir -p ${DIR}/backup_swap_from
+	cp ${1} ${DIR}/backup_swap_from/
+}
+
+missing_file() {
+	echo missing file $1
+	echo SD card may not be bootable
+	exit
+}
+
+if [ ! -z ${1} ] ; then
+	if [ -d ${DIR}/${1} ] ; then
+		# if they are not on the drive, back them up
+		echo "### backing up existing files ###"
+		find_match ${DIR}/BOOT.BIN
+		find_match ${DIR}/devicetree.dtb
+		find_match ${DIR}/uImage
+
+		echo
+		echo "### copying files to BOOT partion ###"
+
+		if [ -f ${DIR}/${1}/BOOT.BIN ] ; then
+			echo copying ${DIR}/${1}/BOOT.BIN
+			cp ${DIR}/${1}/BOOT.BIN ${DIR}/
+		else
+			missing_file BOOT.BIN
+		fi
+		if [ -f ${DIR}/${1}/devicetree.dtb ] ; then
+			echo copying ${DIR}/${1}/devicetree.dtb
+			cp ${DIR}/${1}/devicetree.dtb ${DIR}/
+		else
+			missing_file devicetree.dtb
+		fi
+		if [ -f ${DIR}/${1}/uImage ] ; then
+			echo copying ${DIR}/${1}/uImage
+			cp ${DIR}/${1}/uImage ${DIR}/
+		else
+			if [ "${ZYNQ}" = "1" ] ; then
+				echo copying ${DIR}/zynq-common/uImage
+				cp ${DIR}/zynq-common/uImage ${DIR}/
+			fi
+		fi
+	else
+		echo could not find ${DIR}/${1}
+	fi
+fi
+umount $DIR
+
