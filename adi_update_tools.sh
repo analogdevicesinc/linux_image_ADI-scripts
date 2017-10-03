@@ -32,23 +32,23 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	colorimeter:origin/master \
 	mathworks_tools:origin/master"
 
-BUILDS_2016_R1="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/2015_R2 \
-	libiio:origin/2016_R1 \
-	libad9361-iio:origin/master \
-	iio-oscilloscope:origin/2016_R1\
-	fru_tools:origin/2016_R1 \
-	iio-fm-radio:origin/2015_R2 \
-	jesd-eye-scan-gtk:origin/2015_R2 \
-	diagnostic_report:origin/master \
-	colorimeter:origin/2016_R1 \
-	mathworks_tools:origin/2015_R1"
-
 BUILDS_2016_R2="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/2015_R2 \
 	libiio:origin/2016_R2 \
 	libad9361-iio:origin/master \
 	iio-oscilloscope:origin/2016_R2\
+	fru_tools:origin/2016_R1 \
+	iio-fm-radio:origin/2015_R2 \
+	jesd-eye-scan-gtk:origin/2015_R2 \
+	diagnostic_report:origin/master \
+	colorimeter:origin/2016_R2 \
+	mathworks_tools:origin/2015_R1"
+
+BUILDS_2017_R1="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/2015_R2 \
+	libiio:origin/2017_R1 \
+	libad9361-iio:origin/master \
+	iio-oscilloscope:origin/2017_R1\
 	fru_tools:origin/2016_R1 \
 	iio-fm-radio:origin/2015_R2 \
 	jesd-eye-scan-gtk:origin/2015_R2 \
@@ -120,7 +120,7 @@ rfsom_box ()
  	make
  	make install
 	cd ..
-	
+
 	cd tun_tap
 	make
 	make install
@@ -128,11 +128,11 @@ rfsom_box ()
 
 	make install
 
-	#install ffmpeg	
+	#install ffmpeg
 	cd /usr/local/src
 	wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-32bit-static.tar.xz
 	mkdir ffmpeg-release-armhf-32bit
-	cd ffmpeg-release-armhf-32bit	
+	cd ffmpeg-release-armhf-32bit
 	# skip first level
 	tar xvf ../ffmpeg-release-armhf-32bit-static.tar.xz --strip 1
 	rm ../ffmpeg-release-armhf-32bit-static.tar.xz
@@ -147,15 +147,15 @@ rfsom_box ()
 	./configure
 	make
 	make install
-	
+
 	rm /usr/local/src/fim-0.6-trunk.tar.gz
-	
+
 	#install plutosdr-scripts
-	git clone https://github.com/analogdevicesinc/plutosdr_scripts 
+	git clone https://github.com/analogdevicesinc/plutosdr_scripts
 	cd plutosdr_scripts
 	make
 	cp cal_ad9361 /usr/local/bin
-	
+
 	/usr/local/src/rfsom-box-gui/wpa-supplicant/install.sh
 
 	# install a low end terminal (bterm) for /dev/fb
@@ -175,14 +175,14 @@ rfsom_box ()
 if [ "$1" = "dev" ]
 then
   BUILDS=$BUILDS_DEV
-elif [ "$1" = "2016_R1" ]
+elif [ "$1" = "2016_R2" ]
 then
-  BUILDS=$BUILDS_2016_R1
+  BUILDS=$BUILDS_2016_R2
 elif [ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2016_R2
+  BUILDS=$BUILDS_2017_R1
 fi
 
 for i in $BUILDS
