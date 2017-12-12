@@ -49,7 +49,7 @@ BUILDS_2017_R1="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2017_R1 \
 	libad9361-iio:origin/master \
 	iio-oscilloscope:origin/2017_R1\
-	fru_tools:origin/2016_R1 \
+	fru_tools:origin/2017_R1 \
 	iio-fm-radio:origin/2015_R2 \
 	jesd-eye-scan-gtk:origin/2015_R2 \
 	diagnostic_report:origin/master \
