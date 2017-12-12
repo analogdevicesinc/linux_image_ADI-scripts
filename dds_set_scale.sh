@@ -15,7 +15,7 @@ fi
 for i in $(find -L /sys/bus/iio/devices -maxdepth 2 -name name)
 do
   dev_name=$(cat $i)
-  if [ "$dev_name" = "cf-ad9122-core-lpc" ] || [ "$dev_name" = "axi-ad9144-hpc" ] ; then
+  if [ "$dev_name" = "cf-ad9122-core-lpc" ] || [ "$dev_name" = "axi-ad9144-hpc" ] || [ "$dev_name" = "axi-ad9152-hpc" ]; then
     dac_path=$(echo $i | sed 's:/name$::')
     attrs="out_altvoltage0_1A_scale \
       out_altvoltage1_1B_scale \
