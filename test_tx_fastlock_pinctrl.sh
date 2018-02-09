@@ -39,6 +39,7 @@ do
 done
 
 #Enable Fastlock Mode
+iio_attr -D ad9361-phy adi,tx-fastlock-pincontrol-enable 1
 echo 0 > out_altvoltage1_TX_LO_fastlock_recall
 
 find_zynq_base_gpio
@@ -48,9 +49,9 @@ cd /sys/class/gpio
 
 if [ $GPIO_BASE -ge 0 ]
 then
-  GPIO_CTRL_IN1=`expr $GPIO_BASE + 97`
+  GPIO_CTRL_IN1=`expr $GPIO_BASE + 95`
   GPIO_CTRL_IN2=`expr $GPIO_BASE + 96`
-  GPIO_CTRL_IN3=`expr $GPIO_BASE + 95`
+  GPIO_CTRL_IN3=`expr $GPIO_BASE + 97`
   #Export the CTRL_IN GPIOs
   echo $GPIO_CTRL_IN1 > export 2> /dev/null
   echo $GPIO_CTRL_IN2 > export 2> /dev/null
