@@ -115,6 +115,8 @@ rfsom_box ()
 	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/local\/bin\/rfsom-box-gui-start.sh\n&/' /etc/rc.local
 	fi
 
+	make install	
+	
 	cd fft-plot
  	cmake .
  	make
@@ -125,8 +127,6 @@ rfsom_box ()
 	make
 	make install
 	cd ..
-
-	make install
 
 	#install ffmpeg
 	cd /usr/local/src
