@@ -133,9 +133,8 @@ rfsom_box ()
 	cd ./build_fft
 	cmake ../fft-plot
 	make && make install
-	cd ..
 
-	cd tun_tap
+	cd ../tun_tap
 	make && make install
 	cd ..
 
