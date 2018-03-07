@@ -97,7 +97,14 @@ rfsom_box ()
 
 	if [ -d "rfsom-box-gui" ] ; then
 	  cd ./rfsom-box-gui
-	  make uninstall 2>/dev/null
+	  for i in $(find ./ -name Makefile -exec -exec dirname {}  \; ) ; do
+		pushd $(pwd)
+		cd ${i}
+		if [ $(grep "uninstall:" Makefile | wc -l) -ne "0" ] ; then
+			make uninstall 2>/dev/null
+		fi
+		popd
+	  done
 	  git clean -f -d -x
 	  git fetch
 	  git checkout -f master
@@ -107,49 +114,60 @@ rfsom_box ()
 	  cd ./rfsom-box-gui
 	fi
 
-	qmake .
-	make
+	if [ ! -d ./build_packrf ] ; then
+		mkdir ./build_packrf
+	fi
+	cd ./build_packrf
+	qmake ..
+	make && make install
+	cd ..
 
 	if [ "$(grep rfsom-box-gui-start /etc/rc.local | wc -l)" -eq "0" ] ; then
 	  # add /usr/local/bin/rfsom-box-gui-start.sh to /etc/rc.local
 	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/local\/bin\/rfsom-box-gui-start.sh\n&/' /etc/rc.local
 	fi
 
-	make install	
-	
-	cd fft-plot
- 	cmake .
- 	make
- 	make install
+	if [ ! -d ./build_fft ] ; then
+		mkdir ./build_fft
+	fi
+	cd ./build_fft
+	cmake ../fft-plot
+	make && make install
+
+	cd ../tun_tap
+	make && make install
 	cd ..
 
-	cd tun_tap
-	make
-	make install
-	cd ..
-
-	#install ffmpeg
-	cd /usr/local/src
-	wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-32bit-static.tar.xz
-	mkdir ffmpeg-release-armhf-32bit
-	cd ffmpeg-release-armhf-32bit
-	# skip first level
-	tar xvf ../ffmpeg-release-armhf-32bit-static.tar.xz --strip 1
-	rm ../ffmpeg-release-armhf-32bit-static.tar.xz
-	ln -s /usr/local/src/ffmpeg-release-armhf-32bit/ffmpeg /usr/local/bin/ffmpeg
-	cd /
+	#install ffmpeg, if needed
+	if [ $(which ffmpeg | wc -l) -eq "0" ] ; then
+		if [ "$(arch)" = "armv7l" ] ; then
+			cd /usr/local/src
+			wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-32bit-static.tar.xz
+			mkdir ffmpeg-release-armhf-32bit
+			cd ffmpeg-release-armhf-32bit
+			# skip first level
+			tar xvf ../ffmpeg-release-armhf-32bit-static.tar.xz --strip 1
+			rm ../ffmpeg-release-armhf-32bit-static.tar.xz
+			ln -s /usr/local/src/ffmpeg-release-armhf-32bit/ffmpeg \
+				 /usr/local/bin/ffmpeg
+		fi
+		# should support 64-bit, but not yet
+	fi
 
 	#install fim
-	cd /usr/local/src
-	wget http://download.savannah.nongnu.org/releases/fbi-improved/fim-0.6-trunk.tar.gz
-	tar xvf fim-0.6-trunk.tar.gz
-	cd fim-0.6-trunk
-	./configure
-	make
-	make install
+	# FIM (Fbi IMproved) image viewer program
+	if [ $(which fim | wc -l) -eq "0" ] ; then
+		cd /usr/local/src
+		wget http://download.savannah.nongnu.org/releases/fbi-improved/fim-0.6-trunk.tar.gz
+		tar xvf fim-0.6-trunk.tar.gz
+		cd fim-0.6-trunk
+		./configure
+		make && make install
 
-	rm /usr/local/src/fim-0.6-trunk.tar.gz
+		rm /usr/local/src/fim-0.6-trunk.tar.gz
+	fi
 
+	cd /usr/local/src/
 	#install plutosdr-scripts
 	git clone https://github.com/analogdevicesinc/plutosdr_scripts
 	cd plutosdr_scripts
