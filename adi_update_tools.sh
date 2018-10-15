@@ -51,7 +51,7 @@ BUILDS_2018_R1="linux_image_ADI-scripts:origin/master \
 	iio-oscilloscope:origin/2018_R1\
 	fru_tools:origin/2018_R1 \
 	iio-fm-radio:origin/2015_R2 \
-	jesd-eye-scan-gtk:origin/2015_R2 \
+	jesd-eye-scan-gtk:origin/2018_R2 \
 	diagnostic_report:origin/master \
 	colorimeter:origin/2016_R2 \
 	mathworks_tools:origin/2015_R1"
