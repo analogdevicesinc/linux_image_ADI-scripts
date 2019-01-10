@@ -29,8 +29,7 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	iio-fm-radio:origin/master \
 	jesd-eye-scan-gtk:origin/master \
 	diagnostic_report:origin/master \
-	colorimeter:origin/master \
-	mathworks_tools:origin/master"
+	colorimeter:origin/master"
 
 BUILDS_2018_R1="linux_image_ADI-scripts:origin/master \
 	fmcomms1-eeprom-cal:origin/2015_R2 \
