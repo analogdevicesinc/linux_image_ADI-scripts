@@ -86,7 +86,9 @@ rfsom_box ()
 
 	cd /usr/local/src
 
-	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin mplayer libx264-142 libncurses5 libreadline5 libreadline-dev libexif12 libexif-dev
+	sudo apt-get -y install qt5-default gpsd python-gps gpsd-clients libmozjs-24-bin \
+		mplayer libx264-142 libncurses5 libreadline5 libreadline-dev libexif12 \
+		libexif-dev python3-scipy sox
 
 	curl -L http://github.com/micha/jsawk/raw/master/jsawk > /tmp/jsawk
 	mv /tmp/jsawk /usr/bin/jsawk
