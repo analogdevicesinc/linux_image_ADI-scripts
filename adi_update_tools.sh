@@ -54,6 +54,17 @@ BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/master \
 	colorimeter:origin/2018_R2"
 
+BUILDS_2019_R1="linux_image_ADI-scripts:origin/master \
+	fmcomms1-eeprom-cal:origin/2015_R2 \
+	libiio:origin/2019_R1 \
+	libad9361-iio:origin/master \
+	iio-oscilloscope:origin/2019_R1\
+	fru_tools:origin/2019_R1 \
+	iio-fm-radio:origin/2015_R2 \
+	jesd-eye-scan-gtk:origin/2019_R1 \
+	diagnostic_report:origin/master \
+	colorimeter:origin/2019_R1"
+
 do_build ()
 {
   local prj=$1
