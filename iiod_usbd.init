@@ -22,10 +22,17 @@ fi
 
 UDC_NAME="$(ls -1 /sys/class/udc | head -n1)"
 GADGET=/sys/kernel/config/usb_gadget/ffs
+SYSID="$(dmesg | grep axi_sysid | cut -d " " -f 3-)"
 
 case "$1" in
 	start)
 		log_daemon_msg "Starting IIO Daemon" "iiod" || true
+
+		if [ ${#SYSID} -ne 0 ] ; then
+			grep -v '^hdl_system_id' /etc/libiio.ini > /tmp/libiio.ini && mv /tmp/libiio.ini /etc/libiio.ini
+			grep -q '\[Context Attributes\]' /etc/libiio.ini || echo "[Context Attributes]" >> /etc/libiio.ini
+			echo hdl_system_id=${SYSID} >> /etc/libiio.ini
+		fi
 
 		if [ ${#UDC_NAME} -ne 0 ] ; then
 			if [ ! -d /sys/kernel/config/usb_gadget ] ; then
