@@ -11,6 +11,7 @@ do
      B1=out_altvoltage1_1B_frequency
      B2=out_altvoltage3_2B_frequency
      sampl=`cat $dac_path/out_altvoltage_sampling_frequency`
+     init=`cat $dac_path/out_altvoltage0_1A_frequency`
      break
   fi
 
@@ -26,6 +27,7 @@ do
      A4=out_altvoltage6_TX2_Q_F1_frequency
      B4=out_altvoltage7_TX2_Q_F2_frequency
      sampl=`cat $dac_path/out_altvoltage_sampling_frequency`
+     init=`cat $dac_path/out_altvoltage0_TX1_I_F1_frequency`
      break
   fi
 done
@@ -36,9 +38,6 @@ if [ -z $dac_path ] ; then
 fi
 
 ny=`expr $sampl / 2`
-
-#save the current settings
-init=`cat $dac_path/out_altvoltage0_1A_frequency`
 
 # Set DDSn_A
 freq_A(){
