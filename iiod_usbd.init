@@ -69,8 +69,12 @@ case "$1" in
 
 		if start-stop-daemon -S -b -q -m -p /var/run/iiod.pid -x /usr/sbin/iiod -- $IIOD_OPTS; then
 			if [ $START_UDC -eq 1 ] ; then
-				sleep 0.1
-				echo $UDC_NAME > ${GADGET}/UDC
+				for _ in $(seq 1 10) ; do
+					sleep 1
+					if echo $UDC_NAME > ${GADGET}/UDC ; then
+						break
+					fi
+				done
 			fi
 			log_end_msg 0 || true
 		else
