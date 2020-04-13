@@ -22,7 +22,7 @@ fi
 
 UDC_NAME="$(ls -1 /sys/class/udc | head -n1)"
 GADGET=/sys/kernel/config/usb_gadget/ffs
-SYSID="$(dmesg | grep axi_sysid | cut -d " " -f 3-)"
+SYSID="$(dmesg | grep axi_sysid | cut -d " " -f 3- | sed -e 's/</[/' -e 's/>/]/')"
 
 case "$1" in
 	start)
