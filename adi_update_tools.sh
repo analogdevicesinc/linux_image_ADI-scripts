@@ -314,7 +314,8 @@ do
         install -m 0755 /usr/local/src/linux_image_ADI-scripts/iiod_usbd.init /etc/init.d/iiod
         install -m 0644 /usr/local/src/linux_image_ADI-scripts/ttyGS0.conf /etc/init/
     else
-	# Install the startup script of iiod here, as cmake won't do it
+	# Install the startup script of iiod here, as cmake only does it with
+	# extra CMAKE flags WITH_SYSTEMD or WITH_SYSVINIT or WITH_UPSTART
 	if [ -f iiod/init/iiod.init ] ; then
 		install -m 0755 iiod/init/iiod.init /etc/init.d/iiod
 	else
@@ -329,7 +330,10 @@ do
     # files to the source directory instead of the current directory.
     # Here we use the undocumented -B and -H options to force the directory
     # where the build files are generated.
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+    if [ -f libini/libini.c ] ; then
+	EXTRA_CMAKE="-DWITH_LOCAL_CONFIG=ON"
+    fi
+    cmake ${EXTRA_CMAKE} -DPYTHON_BINDINGS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
     cd build
   elif [ $REPO = "libad9361-iio" ]
   then
