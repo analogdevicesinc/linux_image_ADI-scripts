@@ -348,6 +348,11 @@ do
   elif [ $REPO = "mathworks_tools" ]
   then
     cd ./motor_control/linux_utils/
+  elif [ $REPO = "iio-oscilloscope" ]
+  then
+	rm -rf build
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+	cd build
   fi
 
   do_build $REPO $TARGET
