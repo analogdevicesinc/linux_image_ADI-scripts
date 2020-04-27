@@ -298,6 +298,9 @@ do
         /usr/local/bin/iio_* /usr/local/include/iio.h \
         /usr/local/lib/pkgconfig/libiio.pc
 
+    # Remove old services file
+    rm -f /etc/avahi/services/iio.service
+
     # Remove old init.d links
     rm -f /etc/init.d/iiod.sh /etc/init.d/iiod
     update-rc.d -f iiod remove
