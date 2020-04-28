@@ -336,6 +336,17 @@ do
     if [ -f libini/libini.c ] ; then
 	EXTRA_CMAKE="-DWITH_LOCAL_CONFIG=ON"
     fi
+
+    if grep -Fxq "/lib/systemd" /sbin/init
+    then
+	EXTRA_CMAKE=$EXTRA_CMAKE" -DWITH_SYSTEMD"
+    elif grep -Fxq "upstart" /sbin/init
+    then
+	EXTRA_CMAKE=$EXTRA_CMAKE" -DWITH_UPSTART"
+    else
+	EXTRA_CMAKE=$EXTRA_CMAKE" -DWITH_SYSVINIT"
+    fi
+
     cmake ${EXTRA_CMAKE} -DPYTHON_BINDINGS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
     cd build
   elif [ $REPO = "libad9361-iio" ]
