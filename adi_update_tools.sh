@@ -29,6 +29,7 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	iio-fm-radio:origin/master \
 	jesd-eye-scan-gtk:origin/master \
 	diagnostic_report:origin/master \
+	wiki-scripts:origin/master \
 	colorimeter:origin/master"
 
 BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
@@ -364,6 +365,12 @@ do
     cd ./motor_control/linux_utils/
   elif [ $REPO = "iio-oscilloscope" ]
   then
+	rm -rf build
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+	cd build
+  elif [ $REPO = "wiki-scripts" ]
+  then
+	cd iio/iio_jesd204_fsm_sync
 	rm -rf build
 	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
 	cd build
