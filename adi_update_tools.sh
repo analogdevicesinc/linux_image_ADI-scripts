@@ -365,7 +365,7 @@ do
   elif [ $REPO = "iio-oscilloscope" ]
   then
 	rm -rf build
-	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+	cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
 	cd build
   fi
 
