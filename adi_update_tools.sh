@@ -249,8 +249,11 @@ do
     git checkout -f $BRANCH 2>/dev/null
     cd ..
   else
-    echo "\n *** Cloning $REPO ***"
+    echo "\n *** Cloning $REPO/$BRANCH ***"
     git clone https://github.com/analogdevicesinc/$REPO.git || continue
+    cd ./$REPO
+    git checkout $BRANCH || continue
+    cd ..
   fi
 
   echo "\n *** Building $REPO ***"
