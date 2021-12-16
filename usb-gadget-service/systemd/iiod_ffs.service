@@ -1,0 +1,23 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+# iiod - Systemd init script
+#
+# Copyright (C) 2021 Analog Devices Inc.
+
+[Unit]
+Description=IIO Daemon with USB FFS support
+ConditionPathExists=/sys/bus/iio
+ConditionPathIsMountPoint=/dev/iio_ffs
+Requires=dev-iio_ffs.mount
+After=dev-iio_ffs.mount
+Before=gt-start.service
+
+[Service]
+EnvironmentFile=-/etc/default/iiod
+ExecStartPre=/bin/sh -c 'systemctl -q is-active iiod.service && systemctl stop iiod.service'
+ExecStart=/usr/sbin/iiod $IIOD_EXTRA_OPTS $IIOD_EXTRA_FFS_OPTS
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=gt.target

@@ -1,0 +1,20 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+# gt-start - Systemd init script
+#
+# Copyright (C) 2021 Analog Devices Inc.
+
+[Unit]
+Description=Start USB gadget scheme
+Requires=iiod_ffs.service
+After=iiod_ffs.service
+
+[Service]
+ExecStartPre=/bin/sleep 2
+ExecStart=/usr/local/bin/gt enable adi_usb_gadget
+RemainAfterExit=yes
+ExecStop=/usr/local/bin/gt disable adi_usb_gadget
+Type=oneshot
+
+[Install]
+WantedBy=gt.target

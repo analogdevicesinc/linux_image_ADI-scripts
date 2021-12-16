@@ -1,0 +1,22 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+# dev-iio_ffs.mount - Systemd init script
+#
+# Copyright (C) 2021 Analog Devices Inc.
+
+[Unit]
+Description=Mount FunctionFS instance
+Requires=gt.service
+After=gt.service
+Before=iiod_ffs.service
+
+[Mount]
+# "device" name (FunctionFS instance name)
+What=iio_ffs
+Where=/dev/iio_ffs
+Type=functionfs
+Options=defaults
+TimeoutSec=5
+
+[Install]
+WantedBy=gt.target
