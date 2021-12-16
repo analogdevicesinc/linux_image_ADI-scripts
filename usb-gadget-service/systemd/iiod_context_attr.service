@@ -1,0 +1,18 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+# iiod Context Attribute - Systemd init script
+#
+# Copyright (C) 2021 Analog Devices Inc.
+
+[Unit]
+Description=Creating IIOD Context Attributes...
+ConditionPathExists=/sys/bus/iio
+Before=iiod.service iiod_ffs.service
+
+[Service]
+ExecStart=/bin/sh /usr/local/bin/iiod_context.sh clean
+RemainAfterExit=yes
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target

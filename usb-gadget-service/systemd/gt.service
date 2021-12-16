@@ -1,0 +1,20 @@
+#  SPDX-License-Identifier: LGPL-2.1+
+#
+# gt.service - Systemd init script
+#
+# Copyright (C) 2021 Analog Devices Inc.
+
+[Unit]
+Description=Load USB gadget scheme
+Requires=sys-kernel-config.mount
+After=sys-kernel-config.mount network.target
+
+[Service]
+EnvironmentFile=-/etc/default/usb_gadget
+ExecStart=/usr/local/bin/gt load -o $GT_DEFAULT_SCHEME adi_usb_gadget
+RemainAfterExit=yes
+ExecStop=/usr/local/bin/gt rm -rf adi_usb_gadget
+Type=oneshot
+
+[Install]
+WantedBy=gt.target

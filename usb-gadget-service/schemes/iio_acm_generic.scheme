@@ -1,0 +1,40 @@
+attrs :
+{
+    idVendor = 0x0456;
+    idProduct = 0xb671;
+};
+strings = (
+ {
+    lang = 0x409;
+    manufacturer = "Analog Devices Inc.";
+    product = "IIO-USB-CDC-ACM";
+ }
+);
+functions :
+{
+ iio_ffs :
+        {
+            instance = "iio_ffs";
+            type = "ffs";
+        };
+
+ acm_usb0 :
+        {
+            instance = "usb0";
+            type = "acm";
+        };
+};
+configs = (
+ {
+    id = 1;
+    name = "c";
+    functions = (
+        {
+            name = "ffs.iio_ffs";
+            function = "iio_ffs";
+        },
+        {
+            name = "acm.usb0";
+            function = "acm_usb0";
+        } );
+ } );
