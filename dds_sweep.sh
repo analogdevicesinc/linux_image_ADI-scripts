@@ -38,7 +38,7 @@ fi
 ny=`expr $sampl / 2`
 
 #save the current settings
-init=`cat $dac_path/out_altvoltage0_1A_frequency`
+init=`cat $dac_path/$A1`
 
 # Set DDSn_A
 freq_A(){
