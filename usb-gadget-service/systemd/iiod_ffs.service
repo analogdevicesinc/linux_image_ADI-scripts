@@ -8,8 +8,8 @@
 Description=IIO Daemon with USB FFS support
 ConditionPathExists=/sys/bus/iio
 ConditionPathIsMountPoint=/dev/iio_ffs
-Requires=dev-iio_ffs.mount
-After=dev-iio_ffs.mount
+Requires=dev-iio_ffs.mount systemd-udev-settle.service
+After=dev-iio_ffs.mount systemd-udev-settle.service
 Before=gt-start.service
 
 [Service]
