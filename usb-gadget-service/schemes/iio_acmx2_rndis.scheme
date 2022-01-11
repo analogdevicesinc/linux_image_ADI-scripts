@@ -1,0 +1,65 @@
+attrs :
+{
+    idVendor = 0x0456;
+    idProduct = 0xb678;
+};
+strings = (
+ {
+    lang = 0x409;
+    manufacturer = "Analog Devices Inc.";
+    product = "ADI Linux Platform";
+ }
+);
+functions :
+{
+ iio_ffs :
+        {
+            instance = "iio_ffs";
+            type = "ffs";
+        };
+
+ acm_usb0 :
+        {
+            instance = "usb0";
+            type = "acm";
+        };
+ acm_usb1 :
+        {
+            instance = "usb1";
+            type = "acm";
+        };
+ rndis_usb0 :
+        {
+            instance = "usb0";
+            type = "rndis";
+            os_descs = (
+             {
+		interface = "rndis";
+		compatible_id = "RNDIS";
+		sub_compatible_id = "5162001";
+	     } );
+        };
+};
+configs = (
+ {
+    id = 1;
+    name = "c";
+    functions = (
+	    {
+            name = "rndis.usb0";
+            function = "rndis_usb0";
+        },
+        {
+            name = "acm.usb0";
+            function = "acm_usb0";
+        },
+        {
+            name = "acm.usb1";
+            function = "acm_usb1";
+        },
+        {
+            name = "ffs.iio_ffs";
+            function = "iio_ffs";
+        } );
+ } );
+
