@@ -21,7 +21,6 @@ md5_self=`md5sum $0`
 # repository:branch:make_target
 
 BUILDS_DEV="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/master \
 	libiio:origin/master \
 	libad9361-iio:origin/master \
 	iio-oscilloscope:origin/master \
@@ -33,7 +32,6 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	colorimeter:origin/master"
 
 BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/2015_R2 \
 	libiio:origin/2018_R2 \
 	libad9361-iio:origin/master \
 	iio-oscilloscope:origin/2018_R2\
@@ -44,7 +42,6 @@ BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
 	colorimeter:origin/2018_R2"
 
 BUILDS_2019_R1="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/2015_R2 \
 	libiio:origin/2019_R1 \
 	libad9361-iio:origin/master \
 	iio-oscilloscope:origin/2019_R1\
@@ -55,7 +52,6 @@ BUILDS_2019_R1="linux_image_ADI-scripts:origin/master \
 	colorimeter:origin/2019_R1"
 
 BUILDS_2019_R2="linux_image_ADI-scripts:origin/master \
-	fmcomms1-eeprom-cal:origin/2015_R2 \
 	libiio:origin/2019_R2 \
 	libad9361-iio:origin/2019_R2 \
 	iio-oscilloscope:origin/2019_R2\
