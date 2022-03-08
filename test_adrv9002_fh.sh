@@ -294,9 +294,9 @@ do_tbl_hop() {
 		echo 1 > "/sys/class/gpio/gpio${port_en}/value"
 		# trigger the hop signal. the frame should start on the next hop edge
 		echo 1 > "/sys/class/gpio/gpio${hop_en}/value"
+		sleep 0.1
 		echo 0 > "/sys/class/gpio/gpio${port_en}/value"
 		echo 0 > "/sys/class/gpio/gpio${hop_en}/value"
-		sleep 0.1
 	done
 }
 
