@@ -52,6 +52,7 @@ install -D -m 0644 -C defaults/iiod /etc/default/
 install -d /usr/local/etc/gt/adi/
 install -D -m 0644 schemes/iio_acm_generic.scheme /usr/local/etc/gt/adi/
 install -D -m 0644 schemes/iio_ncm.scheme /usr/local/etc/gt/adi/
+install -D -m 0644 schemes/iio_acmx2_rndis.scheme /usr/local/etc/gt/adi/
 
 install -D -m 0744 scripts/iiod_context.sh /usr/local/bin/
 install -D -m 0744 scripts/usb_gadget.sh /usr/local/bin/
