@@ -5,12 +5,16 @@ REPO="linux_image_ADI-scripts"
 BRANCH="origin/master"
 SERVER="http://swdownloads.analog.com"
 SPATH="cse/boot_partition_files"
+RPI_SPATH="cse/linux_rpi"
 ARCHIVE_NAME="latest_boot_partition.tar.gz"
 
 # Whenever 'latest' and 'previous' are updated, need to update also conditions from next if
 LATEST_RELEASE="2019_r2"
 RELEASE=$LATEST_RELEASE
+LATEST_RPI_BRANCH="rpi-5.10.y"
+RPI_BRANCH=$LATEST_RPI_BRANCH
 FILE="latest_boot.txt"
+RPI_FILE="rpi_archives_properties.txt"
 
 ### Allow selective builds. By default use the latest release
 if [ "$1" = "help" -o "$1" = "-h" ]; then
@@ -21,12 +25,16 @@ if [ "$1" = "help" -o "$1" = "-h" ]; then
   exit 0
 elif [ "$1" = "dev"  -o "$1" = "master" ]; then
   RELEASE="master"
+  RPI_BRANCH="rpi-5.10.y"
 elif [ "$1" = "2019_R1" -o "$1" = "2019_r1" ]; then
   RELEASE="2019_r1"
+  RPI_BRANCH="rpi-4.9.y"
 elif [ "$1" = "2019_R2" -o "$1" = "2019_r2" ]; then
   release="2019_r2"
+  RPI_BRANCH="rpi-5.4.y"
 elif [ "$1" = "2021_R1" -o "$1" = "2021_r1" ]; then
   release="2021_r1"
+  RPI_BRANCH="rpi-5.10.y"
 fi
 
 ### Verify if current script is latest version
@@ -179,7 +187,6 @@ if [ "$current_release" != "$new_release" ]; then
   done
 fi
 
-
 # Transform current and new versions in 'date' datatype and compare them
 current_version_date=$(date -d $(echo "$current_version" | sed 's/_/-/g') +"%Y%m%d")
 new_version_date=$(date -d $(echo "$new_version" | sed 's/_/-/g') +"%Y%m%d")
@@ -205,6 +212,65 @@ else
     echo "MD5SUM Error" 1>&2
     rm -rf $ARCHIVE_NAME
     rm -f $FILE
+    umount $FAT_MOUNT
+    exit 1
+  fi
+fi
+
+### Download RPI boot files (kernels and modules) and check md5
+
+rm -rf $RPI_FILE
+wget "$SERVER/$RPI_SPATH/$RPI_BRANCH/$RPI_FILE"
+if [ $? -ne 0 ]; then
+  echo -e "\nDownloading $SERVER/$RPI_SPATH/$RPI_BRANCH/$RPI_FILE failed - Aborting."  1>&2
+  umount $FAT_MOUNT
+  exit 1
+fi
+
+### Extract information from RPI_FILE:
+#  line #2 is path to rpi_modules.tar.gz
+#  line #3 is path to rpi_latest_boot.tar.gz
+#  line #4 is checksum of modules archive
+#  line #5 is checksum of boot archive
+
+rpi_modules_url=$(sed -n 2p $RPI_FILE)
+rpi_boot_url=$(sed -n 3p $RPI_FILE)
+rpi_modules_key=$(sed -n 4p $RPI_FILE | cut -d'=' -f2)
+rpi_boot_key=$(sed -n 5p $RPI_FILE | cut -d'=' -f2)
+
+RPI_MODULES_ARCHIVE_NAME="rpi_modules.tar.gz"
+echo -e "\nStart downloading $RPI_MODULES_ARCHIVE_NAME..."
+rm -rf $RPI_MODULES_ARCHIVE_NAME
+wget -nc $rpi_modules_url
+if [ $? -ne 0 ]; then
+  echo "Download failed - aborting" 1>&2
+  rm -rf $FILE $RPI_FILE $RPI_MODULES_ARCHIVE_NAME
+  umount $FAT_MOUNT
+  exit 1
+else
+  key=`md5sum $RPI_MODULES_ARCHIVE_NAME | awk '{print $1}'`
+  if [ $key != $rpi_modules_key ]; then
+    echo "MD5SUM Error" 1>&2
+    rm -rf $FILE $RPI_FILE $RPI_MODULES_ARCHIVE_NAME
+    umount $FAT_MOUNT
+    exit 1
+  fi
+fi
+
+RPI_BOOT_ARCHIVE_NAME="rpi_latest_boot.tar.gz"
+echo -e "\nStart downloading $RPI_BOOT_ARCHIVE_NAME..."
+rm -rf $RPI_BOOT_ARCHIVE_NAME
+wget -nc $rpi_boot_url
+if [ $? -ne 0 ]; then
+  echo "Download failed - aborting" 1>&2
+  rm -rf $FILE $RPI_FILE $RPI_BOOT_ARCHIVE_NAME
+  umount $FAT_MOUNT
+  exit 1
+else
+  key=`md5sum $RPI_BOOT_ARCHIVE_NAME | awk '{print $1}'`
+  if [ $key != $rpi_boot_key ]; then
+    echo "MD5SUM Error" 1>&2
+    rm -rf $FILE $RPI_FILE $RPI_BOOT_ARCHIVE_NAME
     umount $FAT_MOUNT
     exit 1
   fi
@@ -485,9 +551,24 @@ while true
         ### Remove boot partition
         echo "Removing boot partition files..."
         rm -rf $FAT_MOUNT/*
+
         ### Extract new files
-        echo -e "\nExtracting new files in boot partition... be patient!"
+        echo -e "\nExtracting files from $ARCHIVE_NAME in boot partition... be patient!"
         tar -C $FAT_MOUNT -xzf ./$ARCHIVE_NAME --no-same-owner --checkpoint=.1000
+        if [ $? -ne 0 ]; then
+          echo "Extraction failed - aborting" 1>&2
+          umount $FAT_MOUNT
+          exit 1
+        fi
+        echo -e "\nExtracting files from $RPI_BOOT_ARCHIVE_NAME in boot partition... be patient!"
+        tar -C $FAT_MOUNT -xvf ./$RPI_BOOT_ARCHIVE_NAME --no-same-owner --checkpoint=.1000
+        if [ $? -ne 0 ]; then
+          echo "Extraction failed - aborting" 1>&2
+          umount $FAT_MOUNT
+          exit 1
+        fi
+        echo -e "\nExtracting files from $RPI_MODULES_ARCHIVE_NAME in /lib/modules... be patient!"
+        tar -C /lib/modules -xvf ./$RPI_MODULES_ARCHIVE_NAME --no-same-owner --checkpoint=.1000
         if [ $? -ne 0 ]; then
           echo "Extraction failed - aborting" 1>&2
           umount $FAT_MOUNT
@@ -534,8 +615,8 @@ fi
 echo -e "\nRemoving temporary files..."
 sync
 
-rm $FILE
-rm $ARCHIVE_NAME
+rm -rf $FILE $RPI_FILE
+rm -rf $ARCHIVE_NAME $RPI_BOOT_ARCHIVE_NAME $RPI_MODULES_ARCHIVE_NAME
 umount $FAT_MOUNT
 echo -e "\nDONE"
 exit 0
