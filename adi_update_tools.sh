@@ -66,7 +66,7 @@ do_build ()
   local prj=$1
   local target=$2
   make clean;
-  make -j3 $target && make install && echo "\n Building $prj target $target finished Successfully\n" ||
+  make -j $(nproc) $target && make install && echo "\n Building $prj target $target finished Successfully\n" ||
 	echo "Building $prj Failed\n"
 }
 
@@ -266,7 +266,8 @@ do
       # are installed. If someone reports an error, fix the list.
       apt-get -y install libgtk2.0-dev libgtkdatabox-dev libmatio-dev \
         libfftw3-dev libxml2 libxml2-dev bison flex libavahi-common-dev \
-        libavahi-client-dev libcurl4-openssl-dev libjansson-dev cmake libaio-dev ncurses-dev
+        libavahi-client-dev libcurl4-openssl-dev libjansson-dev cmake libaio-dev ncurses-dev \
+        libserialport-dev libcdk5-dev
       if [ "$?" -ne "0" ] ; then
         echo Catastrophic error in prerequisite packages,  please report error to:
         echo https://ez.analog.com/community/linux-device-drivers/linux-software-drivers
@@ -347,10 +348,6 @@ do
     # files to the source directory instead of the current directory.
     # Here we use the undocumented -B and -H options to force the directory
     # where the build files are generated.
-    if [ -f libini/libini.c ] ; then
-	EXTRA_CMAKE="-DWITH_LOCAL_CONFIG=ON"
-    fi
-
     if grep -Fxq "/lib/systemd" /sbin/init
     then
 	EXTRA_CMAKE=$EXTRA_CMAKE" -DWITH_SYSTEMD=ON"
@@ -361,7 +358,8 @@ do
 	EXTRA_CMAKE=$EXTRA_CMAKE" -DWITH_SYSVINIT=ON"
     fi
 
-    cmake ${EXTRA_CMAKE} -DPYTHON_BINDINGS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+    cmake ${EXTRA_CMAKE} -DWITH_HWMON=ON -DWITH_SERIAL_BACKEND=ON -DWITH_MAN=ON -DWITH_EXAMPLES=ON \
+	    -DPYTHON_BINDINGS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
     cd build
   elif [ $REPO = "libad9361-iio" ]
   then
