@@ -316,31 +316,26 @@ do
     # Remove old services file
     rm -f /etc/avahi/services/iio.service
 
-    # Remove old init.d links
-    rm -f /etc/init.d/iiod.sh /etc/init.d/iiod
-    update-rc.d -f iiod remove
-    update-rc.d -f iiod.sh remove
+    # Remove old init.d links if they exist
+    if [ -f /etc/init.d/iiod.sh ] ; then
+	rm -f /etc/init.d/iiod.sh
+	update-rc.d -f iiod.sh remove
+    fi
+    if [ -f /etc/init.d/iiod ] ; then
+	rm -f /etc/init.d/iiod
+	update-rc.d -f iiod remove
+    fi
 
     # New libiio versions install to /usr/lib/arm-linux-gnueabihf;
     # remove the old ones that might still be inside /usr/lib
     rm -f /usr/lib/libiio.so*
 
-    grep -i -q -e 'ZYNQ' -e 'Analog Devices' /sys/firmware/devicetree/base/model
-    if [ $? -eq 0 ] ; then
-        # Get a more recent version of functionfs.h, allowing libiio to build the IIOD USB backend
+    grep -q usb_functionfs_descs_head_v2 /usr/include/linux/usb/functionfs.h
+    if [ "$?" -eq "1" ] ; then
+        # Get a more recent version of functionfs.h, allowing libiio to build
+	# the IIOD USB backend
         wget -O /usr/include/linux/usb/functionfs.h http://raw.githubusercontent.com/torvalds/linux/master/include/uapi/linux/usb/functionfs.h
-        install -m 0755 /usr/local/src/linux_image_ADI-scripts/iiod_usbd.init /etc/init.d/iiod
-        install -m 0644 /usr/local/src/linux_image_ADI-scripts/ttyGS0.conf /etc/init/
-    else
-	# Install the startup script of iiod here, as cmake only does it with
-	# extra CMAKE flags WITH_SYSTEMD or WITH_SYSVINIT or WITH_UPSTART
-	if [ -f iiod/init/iiod.init ] ; then
-		install -m 0755 iiod/init/iiod.init /etc/init.d/iiod
-	else
-		install -m 0755 debian/iiod.init /etc/init.d/iiod
-	fi
     fi
-    update-rc.d iiod defaults 99 01
 
     rm -rf build
 
