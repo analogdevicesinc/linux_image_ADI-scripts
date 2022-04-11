@@ -50,12 +50,29 @@ do
 	fi
 done
 
+# remove this from the file, to make sure stale data isn't hanging around
+remove() {
+	# If this is called with something that is blank, don't do anything.
+	if [ ${#1} -eq 0 ] ; then
+		return
+	fi
+	if [ ! -f ${INI_FILE} ] ; then
+		return
+	fi
+	if ! grep -q $1 ${INI_FILE} ; then
+		return
+	fi
+	rep=$(grep -e "^$1=" ${INI_FILE})
+	sed -i "/^${1}=/d" ${INI_FILE}
+}
+
 # build up ${INI_FILE} or add to it if it is not there
 replace_or_add() {
 	if [ ${#1} -eq 0 ] ; then
 		return
 	fi
 	if [ ${#2} -eq 0 ] ; then
+		remove $1
 		return
 	fi
 	if [ ! -f ${INI_FILE} ] ; then
