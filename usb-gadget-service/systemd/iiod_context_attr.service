@@ -10,7 +10,7 @@ ConditionPathExists=/sys/bus/iio
 Before=iiod.service iiod_ffs.service
 
 [Service]
-ExecStart=/bin/sh /usr/local/bin/iiod_context.sh clean
+ExecStart=/bin/sh /usr/local/bin/iiod_context.sh
 RemainAfterExit=yes
 Type=oneshot
 
