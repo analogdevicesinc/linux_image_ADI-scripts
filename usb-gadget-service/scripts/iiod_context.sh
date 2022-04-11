@@ -18,16 +18,21 @@ SELF=$0
 	exit 1
 ) && SELF=$(readlink -e -- "$SELF") || SELF=unknown
 
+#some systems have null in the device tree, so replace those with spaces
+sanitize() {
+	cat $1 | tr '\0' ' ' | sed 's/ $//'
+}
+
 #run on x86 and ARM
 MODEL="/proc/device-tree/model"
 DMI="/sys/class/dmi/id/board_vendor"
 if [ -f "${MODEL}" ] ; then
 	# Most ARM systems will fill /sys/firmware;
-	BASE=$(cat $MODEL)
+	BASE=$(sanitize $MODEL)
 elif [ -f "${DMI}" ] ; then
 	# most x86 will fill out Desktop Management Interface
-	BASE=$(cat "/sys/class/dmi/id/product_name")
-	VENDOR=$(cat "${DMI}")
+	BASE=$(sanitize "/sys/class/dmi/id/product_name")
+	VENDOR=$(sanitize "${DMI}")
 fi
 
 SYSID=$(dmesg | grep axi_sysid | grep git | head -1 | cut -f2- -d":" | sed -e 's/^[[:space:]]*//' | sed -e 's/</[/g' -e 's/>/]/g')
@@ -53,10 +58,10 @@ fi
 
 # If you are a Raspberry Pi HAT, add that
 if [ -d "/sys/firmware/devicetree/base/hat" ] ; then
-	BOARD=$(cat "/sys/firmware/devicetree/base/hat/product_id")
-	SERIAL=$(cat "/sys/firmware/devicetree/base/hat/uuid")
-	NAME=$(cat "/sys/firmware/devicetree/base/hat/product")
-	VENDOR=$(cat "/sys/firmware/devicetree/base/hat/vendor")
+	BOARD=$(sanitize "/sys/firmware/devicetree/base/hat/product_id")
+	SERIAL=$(sanitize "/sys/firmware/devicetree/base/hat/uuid")
+	NAME=$(sanitize "/sys/firmware/devicetree/base/hat/product")
+	VENDOR=$(sanitize "/sys/firmware/devicetree/base/hat/vendor")
 fi
 
 #Find the overlays that are added
