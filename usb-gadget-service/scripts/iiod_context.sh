@@ -50,6 +50,21 @@ do
 	fi
 done
 
+# If you are a Raspberry Pi HAT, add that
+if [ -d "/sys/firmware/devicetree/base/hat" ] ; then
+	BOARD=$(cat "/sys/firmware/devicetree/base/hat/product_id")
+	SERIAL=$(cat "/sys/firmware/devicetree/base/hat/uuid")
+	NAME=$(cat "/sys/firmware/devicetree/base/hat/product")
+	VENDOR=$(cat "/sys/firmware/devicetree/base/hat/vendor")
+fi
+
+#Find the overlays that are added
+if [ "$(echo ${BASE} | grep Raspberry | wc -c)" -gt "1" ] ; then
+	OVERLAY=$(grep ^dtoverlay /boot/config.txt | \
+		sed -e 's/,.*$//' -e 's/^.*=//' | \
+		tr '\n' ',' | sed 's/,$/\n/g')
+fi
+
 # remove this from the file, to make sure stale data isn't hanging around
 remove() {
 	# If this is called with something that is blank, don't do anything.
@@ -103,5 +118,6 @@ replace_or_add hw_name "${NAME}"
 replace_or_add hw_vendor "${VENDOR}"
 replace_or_add hw_serial "${SERIAL}"
 replace_or_add unique_id "${UNIQUE_ID}"
+replace_or_add dtoverlay "${OVERLAY}"
 
 exit 0
