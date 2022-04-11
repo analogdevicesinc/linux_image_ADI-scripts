@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 
 INI_FILE=/etc/libiio.ini
 
@@ -45,7 +44,7 @@ command fru-dump -h >/dev/null 2>&1
 if [ "$?" = "0" ] ; then
 	for i in $(find /sys/ -name eeprom)
 	do
-		fru-dump $i > /dev/null
+		fru-dump $i > /dev/null 2>&1
 		if [ $? -eq "0" ] ; then
 			BOARD=$(fru-dump $i -b | grep "Part Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
 			SERIAL=$(fru-dump $i -b | grep "Serial Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
@@ -117,7 +116,9 @@ if [ "$1" = "clean" ] ; then
 fi
 
 replace_or_add hdl_system_id "${SYSID}"
-replace_or_add hw_model "${BOARD} on ${BASE}"
+if [ "${BOARD+x}x" != "x" -a "${BASE}x" != "x" ] ; then
+	replace_or_add hw_model "${BOARD} on ${BASE}"
+fi
 replace_or_add hw_carrier "${BASE}"
 replace_or_add hw_mezzanine "${BOARD}"
 replace_or_add hw_name "${NAME}"
