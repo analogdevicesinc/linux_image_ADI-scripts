@@ -1,6 +1,17 @@
 #!/bin/sh
 
-BASE=$(strings /proc/device-tree/model)
+#run on x86 and ARM
+MODEL="/proc/device-tree/model"
+DMI="/sys/class/dmi/id/board_vendor"
+if [ -f "${MODEL}" ] ; then
+	# Most ARM systems will fill /sys/firmware;
+	BASE=$(cat $MODEL)
+elif [ -f "${DMI}" ] ; then
+	# most x86 will fill out Desktop Management Interface
+	BASE=$(cat "/sys/class/dmi/id/product_name")
+	VENDOR=$(cat "${DMI}")
+fi
+
 SYSID=$(dmesg | grep axi_sysid | grep git | head -1 | cut -f2- -d":" | sed -e 's/^[[:space:]]*//' | sed -e 's/</[/g' -e 's/>/]/g')
 
 UNIQUE_ID=$(dmesg | grep SPI-NOR-UniqueID | head -1)
@@ -9,18 +20,17 @@ UNIQUE_ID=${UNIQUE_ID#*SPI-NOR-UniqueID }
 # If this is an FMC Board, capture the data
 for i in $(find /sys/ -name eeprom)
 do
-        if [ `stat -c %s $i` -ne "256" ] ; then
-                continue;
-        fi
-        fru-dump $i > /dev/null
-        if [ $? -eq "0" ] ; then
-                BOARD=$(fru-dump $i -b | grep "Part Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-                SERIAL=$(fru-dump $i -b | grep "Serial Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-                NAME=$(fru-dump $i -b | grep "Product Name" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-                VENDOR=$(fru-dump $i -b | grep "Manufacturer" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-                break
-        fi
-
+	if [ `stat -c %s $i` -ne "256" ] ; then
+		continue;
+	fi
+	fru-dump $i > /dev/null
+	if [ $? -eq "0" ] ; then
+		BOARD=$(fru-dump $i -b | grep "Part Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+		SERIAL=$(fru-dump $i -b | grep "Serial Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+		NAME=$(fru-dump $i -b | grep "Product Name" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+		VENDOR=$(fru-dump $i -b | grep "Manufacturer" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+		break
+	fi
 done
 
 # build up /etc/libiio.ini or add to it if it is not there
@@ -42,9 +52,8 @@ replace_or_add() {
 	fi
 }
 
-if [ "$1" = "clean" ]
-then
-    rm /etc/libiio.ini
+if [ "$1" = "clean" ] ; then
+	rm /etc/libiio.ini
 fi
 
 replace_or_add hdl_system_id "${SYSID}"
