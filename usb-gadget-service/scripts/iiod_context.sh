@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 
 INI_FILE=/etc/libiio.ini
 
@@ -35,20 +36,20 @@ UNIQUE_ID=$(dmesg | grep SPI-NOR-UniqueID | head -1)
 UNIQUE_ID=${UNIQUE_ID#*SPI-NOR-UniqueID }
 
 # If this is an FMC Board, capture the data
-for i in $(find /sys/ -name eeprom)
-do
-	if [ `stat -c %s $i` -ne "256" ] ; then
-		continue;
-	fi
-	fru-dump $i > /dev/null
-	if [ $? -eq "0" ] ; then
-		BOARD=$(fru-dump $i -b | grep "Part Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-		SERIAL=$(fru-dump $i -b | grep "Serial Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-		NAME=$(fru-dump $i -b | grep "Product Name" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-		VENDOR=$(fru-dump $i -b | grep "Manufacturer" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-		break
-	fi
-done
+command fru-dump -h >/dev/null 2>&1
+if [ "$?" = "0" ] ; then
+	for i in $(find /sys/ -name eeprom)
+	do
+		fru-dump $i > /dev/null
+		if [ $? -eq "0" ] ; then
+			BOARD=$(fru-dump $i -b | grep "Part Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+			SERIAL=$(fru-dump $i -b | grep "Serial Number" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+			NAME=$(fru-dump $i -b | grep "Product Name" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+			VENDOR=$(fru-dump $i -b | grep "Manufacturer" | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
+			break
+		fi
+	done
+fi
 
 # If you are a Raspberry Pi HAT, add that
 if [ -d "/sys/firmware/devicetree/base/hat" ] ; then
