@@ -129,10 +129,9 @@ rfsom_box ()
 	make && make install
 	cd ..
 
-	if [ "$(grep rfsom-box-gui-start /etc/rc.local | wc -l)" -eq "0" ] ; then
-	  # add /usr/local/bin/rfsom-box-gui-start.sh to /etc/rc.local
-	  sed -i '0,/^exit 0$/s/^exit 0.*/\/usr\/local\/bin\/rfsom-box-gui-start.sh\n&/' /etc/rc.local
-	fi
+	sudo systemctl daemon-reload
+	#auto-start packrf
+	sudo systemctl enable packrf.service
 
 	if [ ! -d ./build_fft ] ; then
 		mkdir ./build_fft
