@@ -18,8 +18,12 @@ SELF=$0
 ) && SELF=$(readlink -e -- "$SELF") || SELF=unknown
 
 #some systems have null in the device tree, so replace those with spaces
+#some systems include non-printable chars, or color codes so also remove those.
+sanitize_str() {
+	echo "$@" |  tr '\0' ' ' | sed -e 's/ $//g' -e 's/\x1b\[[0-9;]*m//g' | tr -cd '[:print:]\n'
+}
 sanitize() {
-	cat $1 | tr '\0' ' ' | sed 's/ $//'
+	cat $1 | tr '\0' ' ' | sed -e 's/ $//g' -e 's/\x1b\[[0-9;]*m//g' | tr -cd '[:print:]\n'
 }
 
 #run on x86 and ARM
@@ -34,9 +38,9 @@ elif [ -f "${DMI}" ] ; then
 	VENDOR=$(sanitize "${DMI}")
 fi
 
-SYSID=$(dmesg | grep axi_sysid | grep git | head -1 | cut -f2- -d":" | sed -e 's/^[[:space:]]*//' | sed -e 's/</[/g' -e 's/>/]/g')
+SYSID=$(sanitize_str $(dmesg | grep axi_sysid | grep git | head -1 | cut -f2- -d":" | sed -e 's/^[[:space:]]*//' | sed -e 's/</[/g' -e 's/>/]/g'))
 
-UNIQUE_ID=$(dmesg | grep SPI-NOR-UniqueID | head -1)
+UNIQUE_ID=$(sanitize_str $(dmesg | grep SPI-NOR-UniqueID | head -1))
 UNIQUE_ID=${UNIQUE_ID#*SPI-NOR-UniqueID }
 
 # If this is an FMC Board, capture the data
