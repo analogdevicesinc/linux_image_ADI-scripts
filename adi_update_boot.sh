@@ -95,7 +95,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ### Convert any windows characters from descriptor file in unix format
-vim $FILE '+set ff=unix' +wq
+sed -i 's/\r$//' $FILE
 
 ### Extract version and release from downloaded file (latest_boot.txt)
 # First line can be boot_master_<timestamp> or boot_<release>_<timestamp>
