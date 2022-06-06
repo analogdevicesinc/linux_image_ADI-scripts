@@ -538,8 +538,37 @@ else
   echo -e "Current configuration: $CURRENT_CONFIG\n"
 fi
 
-### Replace files on boot partition
 default_files="fixup*.dat|start*.elf|bootcode.bin|cmdline.txt|config.txt|LICENCE.*|COPYING.linux|issue.txt"
+
+# Before proceeding with deleting files from /boot, check if unpacked files will fit
+
+# Size, in bytes, of uncompressed files from latest_boot_partition.tar.gz
+extracted_boot_files_size=$(echo $(gzip -l $ARCHIVE_NAME) | cut -d' ' -f'6')
+
+# Size, in bytes, of uncompressed files from rpi_latest_boot.tar.gz
+extracted_rpi_files_size=$(echo $(gzip -l $RPI_BOOT_ARCHIVE_NAME) | cut -d' ' -f'6')
+
+# Size, in bytes, of files that won't be deleted from /boot
+cd $FAT_MOUNT
+# Next line replace '|' with space in variable 'default_files', run 'du -cs' on the list of files then cut the total size from command output
+kuiper_rpi_files_size=$(echo $(du -cs $(echo $default_files | sed 's/|/ /g')) | rev | cut -d' ' -f'2' | rev)
+cd -
+
+# Computing required size by adding all previous values plus a buffer of 100 MB
+required_space=$(( $extracted_boot_files_size + $extracted_rpi_files_size + $kuiper_rpi_files_size + 104857600 ))
+
+# Computing size of /boot in bytes using 'df -B1'
+boot_partition_size=$(echo $(df -B1 $MOUNT_POINT) | cut -d' ' -f'9')
+
+if [[ ${required_space} -ge ${boot_partition_size} ]]; then
+  echo "Downloaded archives cannot be extracted on $MOUNT_POINT because there is not enough space."
+  echo "Please update whole SD card by following steps from http://wiki.analog.com/resources/tools-software/linux-software/zynq_images"
+  rm -rf $FILE $RPI_FILE $ARCHIVE_NAME $RPI_BOOT_ARCHIVE_NAME $RPI_MODULES_ARCHIVE_NAME
+  umount $FAT_MOUNT
+  exit 0
+fi
+
+### Replace files on boot partition
 echo -e "\n\nATTENTION!\nNext step will delete files from /boot. Make sure you backup modified files on another partition (rootfs for example) before proceeding next!!!\n"
 while true
   do
