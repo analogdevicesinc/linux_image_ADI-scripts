@@ -307,7 +307,7 @@ find_current_setup ()
 ### Define "restoring_boot_bin" method - try to restore BOOT.BIN
 restoring_boot_bin()
 {
-  if [[ "$1" == *"zynq-"* ]] || [[ "$1" == *"zynqmp"* ]]; then
+  if [[ "$1" == *"zynq-"* ]] || [[ "$1" == *"zynqmp"* ]] || [[ "$1" == *"versal"* ]]; then
     echo -e "\nRestoring BOOT.BIN..."
     if [ -e "$1/BOOT.BIN" ]; then # BOOT.BIN may be 1 or 2 level up
       cp $1/BOOT.BIN $FAT_MOUNT/
@@ -368,7 +368,7 @@ restoring_device_tree()
   echo -e "\nRestoring device tree..."
   if [[ "$1" == *"zynq-"* ]]; then
     device_tree_name="devicetree.dtb"
-  elif [[ "$1" == *"zynqmp"* ]]; then
+  elif [[ "$1" == *"zynqmp"* ]] || [[ "$1" == *"versal"* ]]; then
     device_tree_name="system.dtb"
   elif [[ "$1" == *"arria10"* ]]; then
     device_tree_name="socfpga_arria10_socdk_sdmmc.dtb"
@@ -395,6 +395,7 @@ restoring_image()
   echo -e "\nRestoring image..."
   zynq_image="$FAT_MOUNT/zynq-common/uImage"
   zynqmp_image="$FAT_MOUNT/zynqmp-common/Image"
+  versal_image="$FAT_MOUNT/versal-common/Image"
   # A10SOC and C5SOC images paths depend on release
   if [[ "$new_release" == "2019_r1" ]] || [[ "$new_release" == "2019_r2" ]]; then
     a10soc_image="$FAT_MOUNT/socfpga_arria10-common/zImage"
@@ -409,6 +410,8 @@ restoring_image()
     image=$zynq_image
   elif [[ "$1" == *"zynqmp"* ]]; then
     image=$zynqmp_image
+  elif [[ "$1" == *"versal"* ]]; then
+    image=$versal_image
   elif [[ "$1" == *"arria10"* ]]; then
     image=$a10soc_image
   elif [[ "$1" == *"de10"* ]]; then
