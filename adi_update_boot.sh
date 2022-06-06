@@ -30,10 +30,10 @@ elif [ "$1" = "2019_R1" -o "$1" = "2019_r1" ]; then
   RELEASE="2019_r1"
   RPI_BRANCH="rpi-4.9.y"
 elif [ "$1" = "2019_R2" -o "$1" = "2019_r2" ]; then
-  release="2019_r2"
+  RELEASE="2019_r2"
   RPI_BRANCH="rpi-5.4.y"
 elif [ "$1" = "2021_R1" -o "$1" = "2021_r1" ]; then
-  release="2021_r1"
+  RELEASE="2021_r1"
   RPI_BRANCH="rpi-5.10.y"
 fi
 
