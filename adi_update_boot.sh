@@ -1,4 +1,5 @@
 #!/bin/bash
+shopt -s extglob # activate extended pattern matching
 
 ### Set global variables
 REPO="linux_image_ADI-scripts"
@@ -537,8 +538,9 @@ else
   echo -e "Current configuration: $CURRENT_CONFIG\n"
 fi
 
-### Replace whole boot partition
-echo -e "\nNext step will delete whole content of boot partition and will copy new boot files !!!"
+### Replace files on boot partition
+default_files="fixup*.dat|start*.elf|bootcode.bin|cmdline.txt|config.txt|LICENCE.*|COPYING.linux|issue.txt"
+echo -e "\n\nATTENTION!\nNext step will delete files from /boot. Make sure you backup modified files on another partition (rootfs for example) before proceeding next!!!\n"
 while true
   do
     read -r -p 'Are you sure you want to continue? (y/n) ' answer
@@ -549,9 +551,10 @@ while true
         ;;
       y)
         ### Remove boot partition
-        echo "Removing boot partition files..."
-        rm -rf $FAT_MOUNT/*
-
+        echo "Removing boot files from /boot..."
+        cd "$FAT_MOUNT" || exit 1
+        rm -rf !($default_files)
+        cd -
         ### Extract new files
         echo -e "\nExtracting files from $ARCHIVE_NAME in boot partition... be patient!"
         tar -C $FAT_MOUNT -xzf ./$ARCHIVE_NAME --no-same-owner --checkpoint=.1000
