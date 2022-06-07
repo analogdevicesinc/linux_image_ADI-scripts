@@ -503,7 +503,7 @@ write_preloader()
       if [[ "$1" == *"arria10"* ]]; then
         preloader="u-boot-splx4.sfp"
       elif [[ "$1" == *"cyclone5"* ]]; then
-        preloader="preloader_bootloader.bin"
+        preloader="u-boot-with-spl.bin"
       fi
     fi
     if [ -e "$1/$preloader" ]; then
