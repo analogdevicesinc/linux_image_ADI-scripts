@@ -555,7 +555,7 @@ extracted_rpi_files_size=$(echo $(gzip -l $RPI_BOOT_ARCHIVE_NAME) | cut -d' ' -f
 cd $FAT_MOUNT
 # Next line replace '|' with space in variable 'default_files', run 'du -cs' on the list of files then cut the total size from command output
 kuiper_rpi_files_size=$(echo $(du -cs $(echo $default_files | sed 's/|/ /g')) | rev | cut -d' ' -f'2' | rev)
-cd -
+cd - 2>&1 >/dev/null
 
 # Computing required size by adding all previous values plus a buffer of 100 MB
 required_space=$(( $extracted_boot_files_size + $extracted_rpi_files_size + $kuiper_rpi_files_size + 104857600 ))
@@ -586,7 +586,7 @@ while true
         echo "Removing boot files from /boot..."
         cd "$FAT_MOUNT" || exit 1
         rm -rf !($default_files)
-        cd -
+        cd - 2>&1 >/dev/null
         ### Extract new files
         echo -e "\nExtracting files from $ARCHIVE_NAME in boot partition... be patient!"
         tar -C $FAT_MOUNT -xzf ./$ARCHIVE_NAME --no-same-owner --checkpoint=.1000
