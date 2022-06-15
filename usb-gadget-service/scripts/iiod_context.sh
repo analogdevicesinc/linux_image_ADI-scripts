@@ -139,4 +139,23 @@ replace_or_add hw_serial "${SERIAL}"
 replace_or_add unique_id "${UNIQUE_ID}"
 replace_or_add dtoverlay "${OVERLAY}"
 
+EXTRA_EEPROM_BOARDS="EVAL-CN0511-RPIZ"
+EXTRA_EEPROM_FILE="/sys/devices/platform/soc/fe804000.i2c/i2c-1/1-0051/eeprom"
+CAN_READ_EXTRA_EEPROM=0
+
+if echo "$EXTRA_EEPROM_BOARDS" | grep -w -q "$NAME"; then
+	CAN_READ_EXTRA_EEPROM=1
+fi
+
+if [ "$CAN_READ_EXTRA_EEPROM" = "1" -a -f "$EXTRA_EEPROM_FILE" ]; then
+	while read -r LINE; do
+		IFS='=' read -r KEY VALUE <<-EOF
+		$LINE
+		EOF
+		if [ -n "$KEY" -a -n "$VALUE" ]; then
+			replace_or_add "$KEY" "$VALUE"
+		fi
+	done < "$EXTRA_EEPROM_FILE"
+fi
+
 exit 0
