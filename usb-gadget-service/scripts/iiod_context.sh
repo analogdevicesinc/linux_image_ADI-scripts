@@ -83,10 +83,6 @@ remove() {
 	if [ ! -f ${INI_FILE} ] ; then
 		return
 	fi
-	if ! grep -q $1 ${INI_FILE} ; then
-		return
-	fi
-	rep=$(grep -e "^$1=" ${INI_FILE})
 	sed -i "/^${1}=/d" ${INI_FILE}
 }
 
@@ -99,8 +95,8 @@ replace_or_add() {
 		remove $1
 		return
 	fi
-	if grep -q $1 ${INI_FILE} ; then
-		sed -i -e "/$1/c $1=$2" ${INI_FILE}
+	if grep -q "^$1=" ${INI_FILE} ; then
+		sed -i -e "/^$1=/c $1=$2" ${INI_FILE}
 	else
 		echo "$1=$2" >> ${INI_FILE}
 	fi
