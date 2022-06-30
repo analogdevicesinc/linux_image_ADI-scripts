@@ -23,6 +23,7 @@ md5_self=`md5sum $0`
 BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	libiio:origin/master \
 	libad9361-iio:origin/master \
+	libad9166-iio:origin/master \
 	iio-oscilloscope:origin/master \
 	fru_tools:origin/master \
 	iio-fm-radio:origin/master \
@@ -64,6 +65,7 @@ BUILDS_2019_R2="linux_image_ADI-scripts:origin/master \
 BUILDS_2021_R1="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2021_R1 \
 	libad9361-iio:origin/2021_R1 \
+	libad9166-iio:origin/master \
 	iio-oscilloscope:origin/2021_R1\
 	fru_tools:origin/2021_R1 \
 	iio-fm-radio:origin/master \
@@ -373,6 +375,12 @@ do
 	  rm -rf build
 
 	  # Same as above
+	  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+	  cd build
+  elif [ $REPO = "libad9166-iio" ]
+  then
+	  rm -rf build
+
 	  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
 	  cd build
   elif [ $REPO = "thttpd" ]
