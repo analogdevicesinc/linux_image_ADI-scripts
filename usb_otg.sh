@@ -25,18 +25,20 @@ check_platform() {
 	fi
 
 	if $(is_compatible "xlnx,zynq-7000"); then
-		echo "USB_OTG_Supported=Yes"
 		fdtget -p /boot/devicetree.dtb /axi > /dev/null 2>&1 && USB="/axi/usb@e0002000" || USB="/amba/usb@e0002000"
 		DTB="/boot/devicetree.dtb"
 	elif $(is_compatible "xlnx,zynqmp"); then
-		echo "USB_OTG_Supported=Yes"
 		fdtget -p /boot/devicetree.dtb /axi > /dev/null 2>&1 && USB="/axi/usb0@ff9d0000/dwc3@fe200000" || USB="/amba/usb0@ff9d0000/dwc3@fe200000"
 		DTB="/boot/system.dtb"
+	elif $(is_compatible "altr,socfpga-cyclone5"); then
+		USB="/soc/usb@ffb40000"
+		DTB="/boot/socfpga.dtb"
 	else
 		# All other platform are not supported
-		echo "USB_OTG_Supported=No"
+		echo "USB OtG Supported=No"
 		exit 1
 	fi
+	echo "USB OtG Supported=Yes"
 }
 
 show_status() {
