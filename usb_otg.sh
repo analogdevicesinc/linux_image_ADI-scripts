@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2021 Analog Devices, Inc. All Rights Reserved.
+# Copyright (c) 2021-22 Analog Devices, Inc. All Rights Reserved.
 # This software is proprietary to Analog Devices, Inc. and its licensors.
 # By using this software you agree to the terms of the associated
 # Analog Devices Software License Agreement.
@@ -40,7 +40,7 @@ check_platform() {
 }
 
 show_status() {
-	echo "USB_OTG_Status=" $(fdtget -t s $DTB $USB dr_mode)
+	echo "USB dr_mode=" $(fdtget --default "Not Specified: per usb/generic.txt dr_mode should default to otg" --type s $DTB $USB dr_mode)
 }
 
 case "$1" in
@@ -56,13 +56,19 @@ disable)
 	show_status
 	;;
 
+delete_dr_mode)
+	check_platform
+	fdtput -d $DTB $USB dr_mode
+	show_status
+	;;
+
 status)
 	check_platform
 	show_status
 	;;
 
 *)
-	echo "Usage: $0 {enable|disable|status}"
+	echo "Usage: $0 {enable|disable|delete_dr_mode|status}"
 	exit 1
 	;;
 esac
