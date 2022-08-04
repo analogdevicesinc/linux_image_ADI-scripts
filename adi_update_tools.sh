@@ -69,6 +69,7 @@ BUILDS_2021_R1="linux_image_ADI-scripts:origin/master \
 	iio-oscilloscope:origin/2021_R1\
 	fru_tools:origin/2021_R1 \
 	iio-fm-radio:origin/master \
+	wiki-scripts:origin/master \
 	jesd-eye-scan-gtk:origin/2021_R1 \
 	diagnostic_report:origin/master \
 	colorimeter:origin/2021_R1"
@@ -317,9 +318,6 @@ do
       ./adi_update_tools.sh $@
       exit
     fi
-  elif [ $REPO = "iio-cmdsrv" ]
-  then
-    cd ./server
   elif [ $REPO = "libiio" ]
   then
     # Just in case an old version is still under /usr/local
@@ -383,9 +381,6 @@ do
 
 	  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
 	  cd build
-  elif [ $REPO = "thttpd" ]
-  then
-    ./configure
   elif [ $REPO = "mathworks_tools" ]
   then
     cd ./motor_control/linux_utils/
