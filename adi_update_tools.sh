@@ -379,7 +379,8 @@ do
   then
 	  rm -rf build
 
-	  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF -Bbuild -H.
+	  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_MAKEFILE=OFF \
+		-DPYTHON_BINDINGS=ON -Bbuild -H.
 	  cd build
   elif [ $REPO = "mathworks_tools" ]
   then
