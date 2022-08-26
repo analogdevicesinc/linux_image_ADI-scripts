@@ -24,5 +24,10 @@ if __name__ == '__main__':
 	STINGRAY_POWER_PATH = f'{SYSTEMD_PATH}/stingray_power.py'
 	STINGRAY_V1_0_MODEL = 'Stingray ZynqMP ZCU102 Rev1.0'
 
+	ZED_POWER_PATH = f'{SYSTEMD_PATH}/zed_power.py'
+	ZED_MODEL = 'Xilinx Zynq ZED'
+
 	if model == STINGRAY_V1_0_MODEL:
 		run_py_script(STINGRAY_POWER_PATH, [sys.argv[1]])
+	elif model == ZED_MODEL:
+		run_py_script(ZED_POWER_PATH, [sys.argv[1]])
