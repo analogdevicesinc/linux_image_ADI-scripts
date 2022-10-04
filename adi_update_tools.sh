@@ -86,6 +86,21 @@ BUILDS_2021_R2="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/master \
 	colorimeter:origin/2021_R2"
 
+# Define file where to save git info
+VERSION="/ADI_repos_git_info.txt"
+[ -f $VERSION ] && rm -rf $VERSION
+touch $VERSION
+
+write_git_info()
+{
+   local git_link="https://github.com/analogdevicesinc/$1"
+   local git_branch=$2
+   echo "Repo   : $git_link" >> $VERSION
+   echo "Branch : $git_branch"	>> $VERSION
+   echo "Git_sha: $(git rev-parse --short HEAD)\n" >> $VERSION
+}
+
+
 do_build ()
 {
   local prj=$1
@@ -146,6 +161,8 @@ rfsom_box ()
 	  cd ./rfsom-box-gui
 	fi
 
+	write_git_info "rfsom-box-gui" "master"
+
 	if [ ! -d ./build_packrf ] ; then
 		mkdir ./build_packrf
 	fi
@@ -202,6 +219,9 @@ rfsom_box ()
 	#install plutosdr-scripts
 	git clone https://github.com/analogdevicesinc/plutosdr_scripts
 	cd plutosdr_scripts
+
+	write_git_info "plutosdr_scripts" "master"
+
 	make
 	cp cal_ad9361 /usr/local/bin
 
@@ -273,17 +293,16 @@ do
     make uninstall 2>/dev/null
     git fetch
     git checkout -f $BRANCH 2>/dev/null
-    cd ..
   else
     echo "\n *** Cloning $REPO/$BRANCH ***"
     git clone https://github.com/analogdevicesinc/$REPO.git || continue
     cd ./$REPO
     git checkout $BRANCH || continue
-    cd ..
   fi
 
+  write_git_info "$REPO" "$BRANCH"
+
   echo "\n *** Building $REPO ***"
-  cd ./$REPO
 
 # Handle some specialties here
   if [ $REPO = "linux_image_ADI-scripts" ]
