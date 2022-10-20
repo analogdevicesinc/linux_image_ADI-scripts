@@ -10,7 +10,7 @@ RPI_SPATH="cse/linux_rpi"
 ARCHIVE_NAME="latest_boot_partition.tar.gz"
 
 # Whenever 'latest' and 'previous' are updated, need to update also conditions from next if
-LATEST_RELEASE="2019_r2"
+LATEST_RELEASE="2021_r2"
 RELEASE=$LATEST_RELEASE
 LATEST_RPI_BRANCH="rpi-5.10.y"
 RPI_BRANCH=$LATEST_RPI_BRANCH
@@ -35,6 +35,9 @@ elif [ "$1" = "2019_R2" -o "$1" = "2019_r2" ]; then
   RPI_BRANCH="rpi-5.4.y"
 elif [ "$1" = "2021_R1" -o "$1" = "2021_r1" ]; then
   RELEASE="2021_r1"
+  RPI_BRANCH="rpi-5.10.y"
+elif [ "$1" = "2021_R2" -o "$1" = "2021_r2" ]; then
+  RELEASE="2021_r2"
   RPI_BRANCH="rpi-5.10.y"
 fi
 
@@ -154,7 +157,7 @@ new_release=$(echo $new_release | tr '[:upper:]' '[:lower:]')
 if [ "$current_release" != "$new_release" ]; then
   # Check if files fit on boot partition (for older release including 2019-R2 there is 1 GB, newer ones have 2 GB)
   boot_part_size=$(df -k $FAT_MOUNT | awk '/[0-9]%/{print $(NF-4)}' | sed 's/G//')
-  if [[ "$new_release" =~ *"2021_r1"* ]] || [[ "$new_release" =~ *"master"* ]]; then
+  if [[ "$new_release" =~ *"2021_r1"* ]] || [[ "$new_release" =~ *"2021_r2"* ]] || [[ "$new_release" =~ *"master"* ]]; then
     if [[ $boot_part_size -lt 1250000 ]]; then
       echo -e "\nWarning! You want to update boot files from a newer release: $new_release (current release: $current_release)"
       echo "But newer releases have the size of boot files more than 1 GB (the size of boot partition used in older releases),"
