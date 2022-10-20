@@ -74,6 +74,18 @@ BUILDS_2021_R1="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/master \
 	colorimeter:origin/2021_R1"
 
+BUILDS_2021_R2="linux_image_ADI-scripts:origin/master \
+	libiio:origin/2021_R2 \
+	libad9361-iio:origin/2021_R2 \
+	libad9166-iio:origin/master \
+	iio-oscilloscope:origin/2021_R2\
+	fru_tools:origin/master \
+	iio-fm-radio:origin/master \
+	wiki-scripts:origin/master \
+	jesd-eye-scan-gtk:origin/master \
+	diagnostic_report:origin/master \
+	colorimeter:origin/2021_R2"
+
 do_build ()
 {
   local prj=$1
@@ -221,11 +233,14 @@ then
 elif [ "$1" = "2021_R1" ]
 then
   BUILDS=$BUILDS_2021_R1
-elif [ -n "$1" ]
+elif [ "$1" = "2021_R2" ]
+then
+  BUILDS=$BUILDS_2021_R2
+elif[ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2021_R1
+  BUILDS=$BUILDS_2021_R2
 fi
 
 for i in $BUILDS
