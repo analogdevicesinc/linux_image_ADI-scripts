@@ -384,6 +384,8 @@ class Stingray:
 		os.popen('echo -n "spi1.4" > /sys/bus/spi/drivers/adar1000/unbind').read()
 		os.popen('echo -n "spi1.4" > /sys/bus/spi/drivers/adar1000/bind').read()
 
+		os.popen('systemctl restart iiod').read()
+
 	def powerup(self, enable_5v=True, **kwargs):
 		# Get any keywords that were given
 		pa_off = kwargs.get('pa_off', -2.5)
