@@ -241,19 +241,19 @@ rfsom_box ()
 }
 
 # Allow selective builds by default build the latest release branches
-if [ "$1" = "dev" ]
+if [[ "$1" =~ "dev" ]] || [[ "$1" = "master" ]]
 then
   BUILDS=$BUILDS_DEV
-elif [ "$1" = "2019_R1" ]
+elif [[ "$1" = "2019_R1" ]] || [[ "$1" = "2019_r1" ]]
 then
   BUILDS=$BUILDS_2019_R1
-elif [ "$1" = "2019_R2" ]
+elif [[ "$1" = "2019_R2" ]] || [[ "$1" = "2019_r2" ]]
 then
   BUILDS=$BUILDS_2019_R2
-elif [ "$1" = "2021_R1" ]
+elif [[ "$1" = "2021_R1" ]] || [[ "$1" = "2021_r1" ]]
 then
   BUILDS=$BUILDS_2021_R1
-elif [ "$1" = "2021_R2" ]
+elif [[ "$1" = "2021_R2" ]] || [[ "$1" = "2021_r2" ]]
 then
   BUILDS=$BUILDS_2021_R2
 elif [ -n "$1" ]
