@@ -1,0 +1,23 @@
+trigger:
+- master
+
+pr:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  fetchDepth: 1
+  clean: true
+
+- script: |
+    make
+    sudo make install
+  displayName: 'Run make and make install'
+
+- script: |
+    bash CI/file_check.sh Makefile
+    bash CI/file_check.sh usb-gadget-service/install_gt.sh
+  displayName: 'Check existing files'
