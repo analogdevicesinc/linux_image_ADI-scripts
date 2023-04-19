@@ -20,10 +20,10 @@ SELF=$0
 #some systems have null in the device tree, so replace those with spaces
 #some systems include non-printable chars, or color codes so also remove those.
 sanitize_str() {
-	echo "$@" |  tr '\0' ' ' | sed -e 's/ $//g' -e 's/\x1b\[[0-9;]*m//g' | tr -cd '[:print:]\n'
+	echo "$@" |  tr '\0' ' ' | sed -e 's/ $//g' -e 's/\\x1b\[[0-9;]*m//g' | tr -cd '[:print:]\n'
 }
 sanitize() {
-	cat $1 | tr '\0' ' ' | sed -e 's/ $//g' -e 's/\x1b\[[0-9;]*m//g' | tr -cd '[:print:]\n'
+	cat $1 | tr '\0' ' ' | sed -e 's/ $//g' -e 's/\\x1b\[[0-9;]*m//g' | tr -cd '[:print:]\n'
 }
 
 #run on x86 and ARM
