@@ -99,7 +99,7 @@ fi
 ### Download new descriptor file
 rm $FILE 2>/dev/null
 echo -e "\nCheck latest available version..."
-wget "$SERVER/$SPATH/$RELEASE/$FILE"
+wget --no-check-certificate "$SERVER/$SPATH/$RELEASE/$FILE"
 if [ $? -ne 0 ]; then
   echo -e "\nDownloading $SERVER/$SPATH/$RELEASE/$FILE failed - Aborting."  1>&2
   umount $FAT_MOUNT
@@ -204,7 +204,7 @@ fi
 ### Download new boot files archive and check md5sum
 echo -e "\nStart downloading $ARCHIVE_NAME ..."
 rm -rf $ARCHIVE_NAME
-wget -nc $new_url
+wget --no-check-certificate -nc $new_url
 if [ $? -ne 0 ]; then
   echo "Download failed - aborting" 1>&2
   rm -f $FILE
@@ -224,7 +224,7 @@ fi
 ### Download RPI boot files (kernels and modules) and check md5
 
 rm -rf $RPI_FILE
-wget "$SERVER/$RPI_SPATH/$RPI_BRANCH/$RPI_FILE"
+wget --no-check-certificate "$SERVER/$RPI_SPATH/$RPI_BRANCH/$RPI_FILE"
 if [ $? -ne 0 ]; then
   echo -e "\nDownloading $SERVER/$RPI_SPATH/$RPI_BRANCH/$RPI_FILE failed - Aborting."  1>&2
   umount $FAT_MOUNT
@@ -245,7 +245,7 @@ rpi_boot_key=$(sed -n 5p $RPI_FILE | cut -d'=' -f2)
 RPI_MODULES_ARCHIVE_NAME="rpi_modules.tar.gz"
 echo -e "\nStart downloading $RPI_MODULES_ARCHIVE_NAME..."
 rm -rf $RPI_MODULES_ARCHIVE_NAME
-wget -nc $rpi_modules_url
+wget --no-check-certificate -nc $rpi_modules_url
 if [ $? -ne 0 ]; then
   echo "Download failed - aborting" 1>&2
   rm -rf $FILE $RPI_FILE $RPI_MODULES_ARCHIVE_NAME
@@ -264,7 +264,7 @@ fi
 RPI_BOOT_ARCHIVE_NAME="rpi_latest_boot.tar.gz"
 echo -e "\nStart downloading $RPI_BOOT_ARCHIVE_NAME..."
 rm -rf $RPI_BOOT_ARCHIVE_NAME
-wget -nc $rpi_boot_url
+wget --no-check-certificate -nc $rpi_boot_url
 if [ $? -ne 0 ]; then
   echo "Download failed - aborting" 1>&2
   rm -rf $FILE $RPI_FILE $RPI_BOOT_ARCHIVE_NAME
@@ -454,7 +454,7 @@ restoring_extra_files()
     if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
       echo -e "\nRestoring extlinux/extlinux.conf (specific to cyclone5 projects starting with 2021_r1 release)..."
       if [ -e "$1/extlinux.conf" ]; then
-        mkdir $FAT_MOUNT/extlinux;
+        mkdir -p $FAT_MOUNT/extlinux;
         cp $1/extlinux.conf $FAT_MOUNT/extlinux/
       else
         echo "Warning! extlinux.conf cannot be restored."
@@ -478,7 +478,7 @@ restoring_extra_files()
       echo "u-boot.img restored."
       echo -e "\nRestoring extlinux/extlinux.conf (specific to cyclone5 projects starting with 2021_r1 release)..."
       if [ -e "$1/extlinux.conf" ]; then
-        mkdir $FAT_MOUNT/extlinux;
+        mkdir -p $FAT_MOUNT/extlinux;
         cp $1/extlinux.conf $FAT_MOUNT/extlinux/
       else
         echo "Warning! extlinux.conf cannot be restored."
