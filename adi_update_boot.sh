@@ -436,56 +436,55 @@ restoring_image()
   echo -e "Image restored."
 }
 
+restoring_u-boot_file()
+{
+  if [[ "$1" == *"u-boot.img" ]]; then
+    echo -e "\nRestoring u-boot.img (specific to arria10soc projects starting with 2021_r1 release)..."
+    FILE="u-boot.img"
+  else
+    echo -e "\nRestoring u-boot.scr (specific to cyclone5 projects)..."
+    FILE="u-boot.scr"
+  fi
+  if [ -e $1 ]; then
+    cp $1 $FAT_MOUNT/
+  else
+    echo "Warning! $FILE cannot be restored."
+    echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
+    exit 1
+  fi
+  echo "$FILE restored."
+}
+
+restoring_extlinux()
+{
+  echo -e "\nRestoring extlinux/extlinux.conf (specific to cyclone5 and arria10soc projects starting with 2021_r1 release)..."
+  if [ -e "$1/extlinux.conf" ]; then
+    mkdir -p $FAT_MOUNT/extlinux;
+    cp $1/extlinux.conf $FAT_MOUNT/extlinux/
+  else
+    echo "Warning! extlinux.conf cannot be restored."
+    echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
+    exit 1
+  fi
+  echo "extlinux.conf restored."
+}
+
 ### Define "restoring_extra_files" method - used for exceptions
 restoring_extra_files()
 {
   if [[ "$1" == *"cyclone5"* ]]; then
-    echo -e "\nRestoring u-boot.scr (specific to cyclone5 projects)..."
-    if [ -e "$1/u-boot.scr" ]; then
-      cp "$1/u-boot.scr" $FAT_MOUNT/
-    else
-      echo "Warning! u-boot.scr cannot be restored."
-      echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
-      exit 1
-    fi
-    echo "u-boot.scr restored."
+    restoring_u-boot_file "$1/u-boot.scr"
     # Restore config depending on release, in master and starting with 2021_R1
     # there is a different boot flow (starting with Quartus Pro 20.1)
     if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
-      echo -e "\nRestoring extlinux/extlinux.conf (specific to cyclone5 projects starting with 2021_r1 release)..."
-      if [ -e "$1/extlinux.conf" ]; then
-        mkdir -p $FAT_MOUNT/extlinux;
-        cp $1/extlinux.conf $FAT_MOUNT/extlinux/
-      else
-        echo "Warning! extlinux.conf cannot be restored."
-        echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
-        exit 1
-      fi
-      echo "extlinux.conf restored."
+      restoring_extlinux $1
     fi
   elif [[ "$1" == *"arria10"* ]]; then
     # Restore config depending on release, in master and starting with 2021_R1
     # there is a different boot flow (starting with Quartus Pro 20.1)
     if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
-      echo -e "\nRestoring u-boot.img (specific to arria10soc projects starting with 2021_r1 release)..."
-      if [ -e "$1/u-boot.img" ]; then
-        cp $1/u-boot.img $FAT_MOUNT/
-      else
-        echo "Warning! u-boot.img cannot be restored."
-        echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
-        exit 1
-      fi
-      echo "u-boot.img restored."
-      echo -e "\nRestoring extlinux/extlinux.conf (specific to cyclone5 projects starting with 2021_r1 release)..."
-      if [ -e "$1/extlinux.conf" ]; then
-        mkdir -p $FAT_MOUNT/extlinux;
-        cp $1/extlinux.conf $FAT_MOUNT/extlinux/
-      else
-        echo "Warning! extlinux.conf cannot be restored."
-        echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
-        exit 1
-      fi
-      echo "extlinux.conf restored."
+      restoring_u-boot_file "$1/u-boot.img"
+      restoring_extlinux $1
     fi
   fi
 }
