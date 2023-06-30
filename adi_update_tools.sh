@@ -32,6 +32,18 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	wiki-scripts:origin/master \
 	colorimeter:origin/master"
 
+BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/master \
+	libiio:origin/next_stable \
+	libad9361-iio:origin/next_stable \
+	libad9166-iio:origin/next_stable \
+	iio-oscilloscope:origin/next_stable \
+	fru_tools:origin/master \
+	iio-fm-radio:origin/master \
+	jesd-eye-scan-gtk:origin/master \
+	diagnostic_report:origin/master \
+	wiki-scripts:origin/master \
+	colorimeter:origin/master"
+
 BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2018_R2 \
 	libad9361-iio:origin/master \
@@ -256,6 +268,9 @@ then
 elif [[ "$1" = "2021_R2" ]] || [[ "$1" = "2021_r2" ]]
 then
   BUILDS=$BUILDS_2021_R2
+elif [[ "$1" = "NEXT_STABLE" ]] || [[ "$1" = "next_stable" ]]
+then
+  BUILDS=$BUILDS_NEXT_STABLE
 elif [ -n "$1" ]
 then
   BUILDS=$1
