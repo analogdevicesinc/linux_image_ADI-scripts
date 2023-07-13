@@ -328,7 +328,7 @@ do
       echo ./adi_update_tools.sh script is the same, continuing
       # Now we are sure we are using the latest, make sure the pre-reqs
       # are installed. If someone reports an error, fix the list.
-      apt-get -y install libgtk2.0-dev libgtkdatabox-dev libmatio-dev \
+      apt-get -y install libgtk2.0-dev libmatio-dev \
         libfftw3-dev libxml2 libxml2-dev bison flex libavahi-common-dev \
         libavahi-client-dev libcurl4-openssl-dev libjansson-dev cmake libaio-dev ncurses-dev \
         libserialport-dev libcdk5-dev
