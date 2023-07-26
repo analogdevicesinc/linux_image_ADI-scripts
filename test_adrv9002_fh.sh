@@ -143,19 +143,25 @@ do_gpios_export() {
 	local g=0
 	local gpio=0
 	local rx1_en=0
+	# let's dynamically get the gpios offset based on the platform as this already proved
+	# it can change between versions.
+	local off=0
+
 
 	# gpio's as defined in ADI devicetrees/reference designs
 	if [[ ${model} =~ "ZynqMP" ]]; then
+		off=$(cat /sys/kernel/debug/gpio | grep zynqmp_gpio | grep -Eo '[0-9]+-[0-9]+' | cut -d"-" -f1)
 		# hop_en will use dgpio2
-		hop_en=112
-		dgpio_3=113
-		rx1_en=126
+		hop_en=$((${off} + 112))
+		dgpio_3=$((${off} + 113))
+		rx1_en=$((${off} + 126))
 	elif [[ ${model} =~ "Xilinx Zynq" ]]; then
+		off=$(cat /sys/kernel/debug/gpio | grep zynq_gpio | grep -Eo '[0-9]+-[0-9]+' | cut -d"-" -f1)
 		# zynq (also applies to ZED) platforms have a 906 offset from the value defined
 		# in the devicetree
-		hop_en=$((906 + 88))
-		dgpio_3=$((906 + 89))
-		rx1_en=$((906 + 102))
+		hop_en=$((${off} + 88))
+		dgpio_3=$((${off} + 89))
+		rx1_en=$((${off} + 102))
 	else
 		error "Unknown System: \"${model}\""
 	fi
