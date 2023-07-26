@@ -139,7 +139,7 @@ do_set_gpio_idx() {
 }
 
 do_gpios_export() {
-	local model=$(cat /sys/firmware/devicetree/base/model)
+	local model=$(tr -d \\0 </sys/firmware/devicetree/base/model)
 	local g=0
 	local gpio=0
 	local rx1_en=0
