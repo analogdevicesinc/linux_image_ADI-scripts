@@ -33,10 +33,10 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	colorimeter:origin/master"
 
 BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/master \
-	libiio:origin/next_stable \
-	libad9361-iio:origin/next_stable \
-	libad9166-iio:origin/next_stable \
-	iio-oscilloscope:origin/next_stable \
+	libiio:origin/b6028fd \
+	libad9361-iio:origin/master \
+	libad9166-iio:origin/master \
+	iio-oscilloscope:origin/master \
 	fru_tools:origin/master \
 	iio-fm-radio:origin/master \
 	jesd-eye-scan-gtk:origin/master \
