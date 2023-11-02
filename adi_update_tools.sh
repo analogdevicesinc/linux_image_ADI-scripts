@@ -61,10 +61,10 @@ BUILDS_2021_R2="linux_image_ADI-scripts:origin/main \
 	libad9361-iio:origin/2021_R2 \
 	libad9166-iio:origin/main \
 	iio-oscilloscope:origin/2021_R2\
-	fru_tools:origin/main \
+	fru_tools:origin/2021_R2 \
 	iio-fm-radio:origin/main \
 	wiki-scripts:origin/main \
-	jesd-eye-scan-gtk:origin/main \
+	jesd-eye-scan-gtk:origin/2021_R2 \
 	diagnostic_report:origin/main \
 	colorimeter:origin/2021_R2"
 
