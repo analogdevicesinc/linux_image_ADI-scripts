@@ -44,36 +44,6 @@ BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/main \
 	wiki-scripts:origin/main \
 	colorimeter:origin/main"
 
-BUILDS_2018_R2="linux_image_ADI-scripts:origin/main \
-	libiio:origin/2018_R2 \
-	libad9361-iio:origin/main \
-	iio-oscilloscope:origin/2018_R2\
-	fru_tools:origin/2018_R2 \
-	iio-fm-radio:origin/2015_R2 \
-	jesd-eye-scan-gtk:origin/2018_R2 \
-	diagnostic_report:origin/main \
-	colorimeter:origin/2018_R2"
-
-BUILDS_2019_R1="linux_image_ADI-scripts:origin/main \
-	libiio:origin/2019_R1 \
-	libad9361-iio:origin/main \
-	iio-oscilloscope:origin/2019_R1\
-	fru_tools:origin/2019_R1 \
-	iio-fm-radio:origin/2015_R2 \
-	jesd-eye-scan-gtk:origin/2019_R1 \
-	diagnostic_report:origin/main \
-	colorimeter:origin/2019_R1"
-
-BUILDS_2019_R2="linux_image_ADI-scripts:origin/main \
-	libiio:origin/2019_R2 \
-	libad9361-iio:origin/2019_R2 \
-	iio-oscilloscope:origin/2019_R2\
-	fru_tools:origin/2019_R2 \
-	iio-fm-radio:origin/2015_R2 \
-	jesd-eye-scan-gtk:origin/2019_R2 \
-	diagnostic_report:origin/main \
-	colorimeter:origin/2019_R2"
-
 BUILDS_2021_R1="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2021_R1 \
 	libad9361-iio:origin/2021_R1 \
@@ -269,12 +239,12 @@ rfsom_box ()
 if [[ "$1" =~ "dev" ]] || [[ "$1" = "main" ]]
 then
   BUILDS=$BUILDS_DEV
-elif [[ "$1" = "2019_R1" ]] || [[ "$1" = "2019_r1" ]]
+elif [[ "$1" = "2018_R2" ]] || [[ "$1" = "2018_r2" ]] || \
+     [[ "$1" = "2019_R1" ]] || [[ "$1" = "2019_r1" ]] || \
+     [[ "$1" = "2019_R2" ]] || [[ "$1" = "2019_r2" ]]
 then
-  BUILDS=$BUILDS_2019_R1
-elif [[ "$1" = "2019_R2" ]] || [[ "$1" = "2019_r2" ]]
-then
-  BUILDS=$BUILDS_2019_R2
+  echo "Only last two releases are supported for update."
+  exit 1
 elif [[ "$1" = "2021_R1" ]] || [[ "$1" = "2021_r1" ]]
 then
   BUILDS=$BUILDS_2021_R1
