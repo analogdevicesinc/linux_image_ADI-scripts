@@ -21,47 +21,47 @@ md5_self=`md5sum $0`
 # repository:branch:make_target
 
 BUILDS_DEV="linux_image_ADI-scripts:origin/master \
-	libiio:origin/master \
-	libad9361-iio:origin/master \
-	libad9166-iio:origin/master \
-	iio-oscilloscope:origin/master \
-	fru_tools:origin/master \
-	iio-fm-radio:origin/master \
-	jesd-eye-scan-gtk:origin/master \
-	diagnostic_report:origin/master \
-	wiki-scripts:origin/master \
-	colorimeter:origin/master"
+	libiio:origin/main \
+	libad9361-iio:origin/main \
+	libad9166-iio:origin/main \
+	iio-oscilloscope:origin/main \
+	fru_tools:origin/main \
+	iio-fm-radio:origin/main \
+	jesd-eye-scan-gtk:origin/main \
+	diagnostic_report:origin/main \
+	wiki-scripts:origin/main \
+	colorimeter:origin/main"
 
 BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/master \
 	libiio:origin/next_stable \
 	libad9361-iio:origin/next_stable \
 	libad9166-iio:origin/next_stable \
 	iio-oscilloscope:origin/next_stable \
-	fru_tools:origin/master \
-	iio-fm-radio:origin/master \
-	jesd-eye-scan-gtk:origin/master \
-	diagnostic_report:origin/master \
-	wiki-scripts:origin/master \
-	colorimeter:origin/master"
+	fru_tools:origin/main \
+	iio-fm-radio:origin/main \
+	jesd-eye-scan-gtk:origin/main \
+	diagnostic_report:origin/main \
+	wiki-scripts:origin/main \
+	colorimeter:origin/main"
 
 BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2018_R2 \
-	libad9361-iio:origin/master \
+	libad9361-iio:origin/main \
 	iio-oscilloscope:origin/2018_R2\
 	fru_tools:origin/2018_R2 \
 	iio-fm-radio:origin/2015_R2 \
 	jesd-eye-scan-gtk:origin/2018_R2 \
-	diagnostic_report:origin/master \
+	diagnostic_report:origin/main \
 	colorimeter:origin/2018_R2"
 
 BUILDS_2019_R1="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2019_R1 \
-	libad9361-iio:origin/master \
+	libad9361-iio:origin/main \
 	iio-oscilloscope:origin/2019_R1\
 	fru_tools:origin/2019_R1 \
 	iio-fm-radio:origin/2015_R2 \
 	jesd-eye-scan-gtk:origin/2019_R1 \
-	diagnostic_report:origin/master \
+	diagnostic_report:origin/main \
 	colorimeter:origin/2019_R1"
 
 BUILDS_2019_R2="linux_image_ADI-scripts:origin/master \
@@ -71,31 +71,31 @@ BUILDS_2019_R2="linux_image_ADI-scripts:origin/master \
 	fru_tools:origin/2019_R2 \
 	iio-fm-radio:origin/2015_R2 \
 	jesd-eye-scan-gtk:origin/2019_R2 \
-	diagnostic_report:origin/master \
+	diagnostic_report:origin/main \
 	colorimeter:origin/2019_R2"
 
 BUILDS_2021_R1="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2021_R1 \
 	libad9361-iio:origin/2021_R1 \
-	libad9166-iio:origin/master \
+	libad9166-iio:origin/main \
 	iio-oscilloscope:origin/2021_R1\
 	fru_tools:origin/2021_R1 \
-	iio-fm-radio:origin/master \
-	wiki-scripts:origin/master \
+	iio-fm-radio:origin/main \
+	wiki-scripts:origin/main \
 	jesd-eye-scan-gtk:origin/2021_R1 \
-	diagnostic_report:origin/master \
+	diagnostic_report:origin/main \
 	colorimeter:origin/2021_R1"
 
 BUILDS_2021_R2="linux_image_ADI-scripts:origin/master \
 	libiio:origin/2021_R2 \
 	libad9361-iio:origin/2021_R2 \
-	libad9166-iio:origin/master \
+	libad9166-iio:origin/main \
 	iio-oscilloscope:origin/2021_R2\
-	fru_tools:origin/master \
-	iio-fm-radio:origin/master \
-	wiki-scripts:origin/master \
-	jesd-eye-scan-gtk:origin/master \
-	diagnostic_report:origin/master \
+	fru_tools:origin/main \
+	iio-fm-radio:origin/main \
+	wiki-scripts:origin/main \
+	jesd-eye-scan-gtk:origin/main \
+	diagnostic_report:origin/main \
 	colorimeter:origin/2021_R2"
 
 # Define file where to save git info
@@ -253,7 +253,7 @@ rfsom_box ()
 }
 
 # Allow selective builds by default build the latest release branches
-if [[ "$1" =~ "dev" ]] || [[ "$1" = "master" ]]
+if [[ "$1" =~ "dev" ]] || [[ "$1" = "main" ]]
 then
   BUILDS=$BUILDS_DEV
 elif [[ "$1" = "2019_R1" ]] || [[ "$1" = "2019_r1" ]]
@@ -284,11 +284,11 @@ do
   BRANCH=`echo $i | cut -s -d':' -f2`
   TARGET=`echo $i | cut -s -d':' -f3`
 
-# selective build without branch? use master
+# selective build without branch? use main
   if [ -z $BRANCH ]
   then
     echo HERE
-    BRANCH=origin/master
+    BRANCH=origin/main
     TARGET=""
   fi
 
