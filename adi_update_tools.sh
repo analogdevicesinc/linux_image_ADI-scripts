@@ -20,7 +20,7 @@ md5_self=`md5sum $0`
 # scripts ...
 # repository:branch:make_target
 
-BUILDS_DEV="linux_image_ADI-scripts:origin/master \
+BUILDS_DEV="linux_image_ADI-scripts:origin/main \
 	libiio:origin/main \
 	libad9361-iio:origin/main \
 	libad9166-iio:origin/main \
@@ -32,7 +32,7 @@ BUILDS_DEV="linux_image_ADI-scripts:origin/master \
 	wiki-scripts:origin/main \
 	colorimeter:origin/main"
 
-BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/master \
+BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/main \
 	libiio:origin/next_stable \
 	libad9361-iio:origin/next_stable \
 	libad9166-iio:origin/next_stable \
@@ -44,7 +44,7 @@ BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/master \
 	wiki-scripts:origin/main \
 	colorimeter:origin/main"
 
-BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
+BUILDS_2018_R2="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2018_R2 \
 	libad9361-iio:origin/main \
 	iio-oscilloscope:origin/2018_R2\
@@ -54,7 +54,7 @@ BUILDS_2018_R2="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/main \
 	colorimeter:origin/2018_R2"
 
-BUILDS_2019_R1="linux_image_ADI-scripts:origin/master \
+BUILDS_2019_R1="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2019_R1 \
 	libad9361-iio:origin/main \
 	iio-oscilloscope:origin/2019_R1\
@@ -64,7 +64,7 @@ BUILDS_2019_R1="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/main \
 	colorimeter:origin/2019_R1"
 
-BUILDS_2019_R2="linux_image_ADI-scripts:origin/master \
+BUILDS_2019_R2="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2019_R2 \
 	libad9361-iio:origin/2019_R2 \
 	iio-oscilloscope:origin/2019_R2\
@@ -74,7 +74,7 @@ BUILDS_2019_R2="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/main \
 	colorimeter:origin/2019_R2"
 
-BUILDS_2021_R1="linux_image_ADI-scripts:origin/master \
+BUILDS_2021_R1="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2021_R1 \
 	libad9361-iio:origin/2021_R1 \
 	libad9166-iio:origin/main \
@@ -86,7 +86,7 @@ BUILDS_2021_R1="linux_image_ADI-scripts:origin/master \
 	diagnostic_report:origin/main \
 	colorimeter:origin/2021_R1"
 
-BUILDS_2021_R2="linux_image_ADI-scripts:origin/master \
+BUILDS_2021_R2="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2021_R2 \
 	libad9361-iio:origin/2021_R2 \
 	libad9166-iio:origin/main \
