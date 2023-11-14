@@ -10,7 +10,7 @@ RPI_SPATH="cse/linux_rpi"
 ARCHIVE_NAME="latest_boot_partition.tar.gz"
 
 # Whenever 'latest' and 'previous' are updated, need to update also conditions from next if
-LATEST_RELEASE="2021_r2"
+LATEST_RELEASE="2022_r2"
 RELEASE=$LATEST_RELEASE
 LATEST_RPI_BRANCH="rpi-5.15.y"
 RPI_BRANCH=$LATEST_RPI_BRANCH
@@ -39,6 +39,9 @@ elif [ "$1" = "2021_R1" -o "$1" = "2021_r1" ]; then
 elif [ "$1" = "2021_R2" -o "$1" = "2021_r2" ]; then
   RELEASE="2021_r2"
   RPI_BRANCH="rpi-5.10.y"
+elif [ "$1" = "2022_R2" -o "$1" = "2022_r2" ]; then
+  RELEASE="2022_r2"
+  RPI_BRANCH="rpi-5.15.y"
 fi
 
 ### Verify if current script is latest version
