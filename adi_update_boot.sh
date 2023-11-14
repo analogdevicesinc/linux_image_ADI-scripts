@@ -21,18 +21,12 @@ RPI_FILE="rpi_archives_properties.txt"
 if [ "$1" = "help" -o "$1" = "-h" ]; then
   echo "This script can be called with a parameter to select the release:"
   echo "  There can be used 'dev'(or 'master' or 'main') for boot files from main,"
-  echo "  or a specific release (for example '2019_R2') for specific boot files."
+  echo "  or a specific release (for example '2022_R2') for specific boot files."
   echo "  By default will use latest released version (right now being $LATEST_RELEASE)."
   exit 0
 elif [ "$1" = "dev"  -o "$1" = "master" -o "$1" =  "main" ]; then
   RELEASE="main"
   RPI_BRANCH="rpi-6.1.y"
-elif [ "$1" = "2019_R1" -o "$1" = "2019_r1" ]; then
-  RELEASE="2019_r1"
-  RPI_BRANCH="rpi-4.9.y"
-elif [ "$1" = "2019_R2" -o "$1" = "2019_r2" ]; then
-  RELEASE="2019_r2"
-  RPI_BRANCH="rpi-5.4.y"
 elif [ "$1" = "2021_R1" -o "$1" = "2021_r1" ]; then
   RELEASE="2021_r1"
   RPI_BRANCH="rpi-5.10.y"
@@ -158,19 +152,6 @@ echo -e "Release: $current_release\n"
 current_release=$(echo $current_release | tr '[:upper:]' '[:lower:]')
 new_release=$(echo $new_release | tr '[:upper:]' '[:lower:]')
 if [ "$current_release" != "$new_release" ]; then
-  # Check if files fit on boot partition (for older release including 2019-R2 there is 1 GB, newer ones have 2 GB)
-  boot_part_size=$(df -k $FAT_MOUNT | awk '/[0-9]%/{print $(NF-4)}' | sed 's/G//')
-  if [[ "$new_release" =~ *"2021_r1"* ]] || [[ "$new_release" =~ *"2021_r2"* ]] || [[ "$new_release" =~ *"main"* ]]; then
-    if [[ $boot_part_size -lt 1250000 ]]; then
-      echo -e "\nWarning! You want to update boot files from a newer release: $new_release (current release: $current_release)"
-      echo "But newer releases have the size of boot files more than 1 GB (the size of boot partition used in older releases),"
-      echo "so boot files wont fit on boot partition."
-      echo -e "\nPlease update whole SD card by following steps from http://wiki.analog.com/resources/tools-software/linux-software/zynq_images"
-      rm $FILE
-      umount $FAT_MOUNT
-      exit 0
-    fi
-  fi
   echo -e "\nWarning! You want to update boot files from a different release: $new_release (current release: $current_release)"
   echo "In this case there may appear compatibility issues with root file system."
   while true
@@ -335,24 +316,12 @@ restoring_boot_bin()
     fi
   elif [[ "$1" == *"arria10"* ]]; then
     echo -e "\nRestoring socfpga_arria10_socdk.rbf/fit_spl_fpga.itb..."
-    # Restore config depending on release, in main and starting with 2021_R1
-    # there is a different boot flow (starting with Quartus Pro 20.1)
-    if [ "$new_release" == "2019_r1" -o "$new_release" == "2019_r2" ]; then
-      if [ -e $1/socfpga_arria10_socdk.rbf ]; then
-        cp $1/socfpga_arria10_socdk.rbf $FAT_MOUNT/
-      else
-        echo "Warning! socfpga_arria10_socdk.rbf cannot be restored. "
-        echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
-        exit 1
-      fi
-    else # new quartus boot flow
-      if [ -e $1/fit_spl_fpga.itb ]; then
-        cp $1/fit_spl_fpga.itb $FAT_MOUNT/
-      else
-        echo "Warning! fit_spl_fpga.itb (equivalent of rbf file for a10soc) cannot be restored. "
-        echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
-        exit 1
-      fi
+    if [ -e $1/fit_spl_fpga.itb ]; then
+      cp $1/fit_spl_fpga.itb $FAT_MOUNT/
+    else
+      echo "Warning! fit_spl_fpga.itb (equivalent of rbf file for a10soc) cannot be restored. "
+      echo "You will have to manually copy specific boot files in boot partition root (see boot partition Readme.txt)"
+      exit 1
     fi
     echo "socfpga_arria10_socdk.rbf/fit_spl_fpga.itb restored."
   elif [[ "$1" == *"cyclone5"* ]]; then
@@ -402,16 +371,9 @@ restoring_image()
   zynq_image="$FAT_MOUNT/zynq-common/uImage"
   zynqmp_image="$FAT_MOUNT/zynqmp-common/Image"
   versal_image="$FAT_MOUNT/versal-common/Image"
-  # A10SOC and C5SOC images paths depend on release
-  if [[ "$new_release" == "2019_r1" ]] || [[ "$new_release" == "2019_r2" ]]; then
-    a10soc_image="$FAT_MOUNT/socfpga_arria10-common/zImage"
-    c5soc_image="$FAT_MOUNT/socfpga_cyclone5_sockit_arradio/uImage"
-    de10nano_image="$FAT_MOUNT/socfpga_cyclone5_de10_nano_cn0540/zImage"
-  else
-    a10soc_image="$FAT_MOUNT/socfpga_arria10_common/zImage"
-    c5soc_image="$FAT_MOUNT/socfpga_cyclone5_common/zImage"
-    de10nano_image="$FAT_MOUNT/socfpga_cyclone5_common/zImage"
-  fi
+  a10soc_image="$FAT_MOUNT/socfpga_arria10_common/zImage"
+  c5soc_image="$FAT_MOUNT/socfpga_cyclone5_common/zImage"
+  de10nano_image="$FAT_MOUNT/socfpga_cyclone5_common/zImage"
   if [[ "$1" == *"zynq-"* ]]; then
     image=$zynq_image
   elif [[ "$1" == *"zynqmp"* ]]; then
@@ -477,18 +439,10 @@ restoring_extra_files()
 {
   if [[ "$1" == *"cyclone5"* ]]; then
     restoring_u-boot_file "$1/u-boot.scr"
-    # Restore config depending on release, in main and starting with 2021_R1
-    # there is a different boot flow (starting with Quartus Pro 20.1)
-    if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
-      restoring_extlinux $1
-    fi
+    restoring_extlinux $1
   elif [[ "$1" == *"arria10"* ]]; then
-    # Restore config depending on release, in main and starting with 2021_R1
-    # there is a different boot flow (starting with Quartus Pro 20.1)
-    if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
-      restoring_u-boot_file "$1/u-boot.img"
-      restoring_extlinux $1
-    fi
+    restoring_u-boot_file "$1/u-boot.img"
+    restoring_extlinux $1
   fi
 }
 
@@ -498,18 +452,10 @@ write_preloader()
   if [[ "$1" == *"arria10"* ]]||[[ "$1" == *"cyclone5"* ]]; then
     # Preloader name depends on carrier and release
     echo -e "\nWriting preloader..."
-    if [ "$new_release" == "2019_r1" ] || [ "$new_release" == "2019_r2" ]; then
-      if [[ "$1" == *"arria10"* ]]; then
-        preloader="preloader_bootloader.bin"
-      elif [[ "$1" == *"cyclone5"* ]]; then
-        preloader="preloader_bootloader.img"
-      fi
-    else
-      if [[ "$1" == *"arria10"* ]]; then
-        preloader="u-boot-splx4.sfp"
-      elif [[ "$1" == *"cyclone5"* ]]; then
-        preloader="u-boot-with-spl.bin"
-      fi
+    if [[ "$1" == *"arria10"* ]]; then
+      preloader="u-boot-splx4.sfp"
+    elif [[ "$1" == *"cyclone5"* ]]; then
+      preloader="u-boot-with-spl.bin"
     fi
     if [ -e "$1/$preloader" ]; then
       cp $1/$preloader .
