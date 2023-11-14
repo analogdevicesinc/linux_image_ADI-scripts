@@ -3,7 +3,7 @@ shopt -s extglob # activate extended pattern matching
 
 ### Set global variables
 REPO="linux_image_ADI-scripts"
-BRANCH="origin/master"
+BRANCH="origin/main"
 SERVER="http://swdownloads.analog.com"
 SPATH="cse/boot_partition_files"
 RPI_SPATH="cse/linux_rpi"
@@ -12,7 +12,7 @@ ARCHIVE_NAME="latest_boot_partition.tar.gz"
 # Whenever 'latest' and 'previous' are updated, need to update also conditions from next if
 LATEST_RELEASE="2021_r2"
 RELEASE=$LATEST_RELEASE
-LATEST_RPI_BRANCH="rpi-5.10.y"
+LATEST_RPI_BRANCH="rpi-5.15.y"
 RPI_BRANCH=$LATEST_RPI_BRANCH
 FILE="latest_boot.txt"
 RPI_FILE="rpi_archives_properties.txt"
@@ -20,13 +20,13 @@ RPI_FILE="rpi_archives_properties.txt"
 ### Allow selective builds. By default use the latest release
 if [ "$1" = "help" -o "$1" = "-h" ]; then
   echo "This script can be called with a parameter to select the release:"
-  echo "  There can be used 'dev'(or 'master') for boot files from master,"
+  echo "  There can be used 'dev'(or 'master' or 'main') for boot files from main,"
   echo "  or a specific release (for example '2019_R2') for specific boot files."
   echo "  By default will use latest released version (right now being $LATEST_RELEASE)."
   exit 0
-elif [ "$1" = "dev"  -o "$1" = "master" ]; then
-  RELEASE="master"
-  RPI_BRANCH="rpi-5.10.y"
+elif [ "$1" = "dev"  -o "$1" = "master" -o "$1" =  "main" ]; then
+  RELEASE="main"
+  RPI_BRANCH="rpi-6.1.y"
 elif [ "$1" = "2019_R1" -o "$1" = "2019_r1" ]; then
   RELEASE="2019_r1"
   RPI_BRANCH="rpi-4.9.y"
@@ -157,7 +157,7 @@ new_release=$(echo $new_release | tr '[:upper:]' '[:lower:]')
 if [ "$current_release" != "$new_release" ]; then
   # Check if files fit on boot partition (for older release including 2019-R2 there is 1 GB, newer ones have 2 GB)
   boot_part_size=$(df -k $FAT_MOUNT | awk '/[0-9]%/{print $(NF-4)}' | sed 's/G//')
-  if [[ "$new_release" =~ *"2021_r1"* ]] || [[ "$new_release" =~ *"2021_r2"* ]] || [[ "$new_release" =~ *"master"* ]]; then
+  if [[ "$new_release" =~ *"2021_r1"* ]] || [[ "$new_release" =~ *"2021_r2"* ]] || [[ "$new_release" =~ *"main"* ]]; then
     if [[ $boot_part_size -lt 1250000 ]]; then
       echo -e "\nWarning! You want to update boot files from a newer release: $new_release (current release: $current_release)"
       echo "But newer releases have the size of boot files more than 1 GB (the size of boot partition used in older releases),"
@@ -332,7 +332,7 @@ restoring_boot_bin()
     fi
   elif [[ "$1" == *"arria10"* ]]; then
     echo -e "\nRestoring socfpga_arria10_socdk.rbf/fit_spl_fpga.itb..."
-    # Restore config depending on release, in master and starting with 2021_R1
+    # Restore config depending on release, in main and starting with 2021_R1
     # there is a different boot flow (starting with Quartus Pro 20.1)
     if [ "$new_release" == "2019_r1" -o "$new_release" == "2019_r2" ]; then
       if [ -e $1/socfpga_arria10_socdk.rbf ]; then
@@ -474,13 +474,13 @@ restoring_extra_files()
 {
   if [[ "$1" == *"cyclone5"* ]]; then
     restoring_u-boot_file "$1/u-boot.scr"
-    # Restore config depending on release, in master and starting with 2021_R1
+    # Restore config depending on release, in main and starting with 2021_R1
     # there is a different boot flow (starting with Quartus Pro 20.1)
     if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
       restoring_extlinux $1
     fi
   elif [[ "$1" == *"arria10"* ]]; then
-    # Restore config depending on release, in master and starting with 2021_R1
+    # Restore config depending on release, in main and starting with 2021_R1
     # there is a different boot flow (starting with Quartus Pro 20.1)
     if [ "$new_release" != "2019_r1" ] && [ "$new_release" != "2019_r2" ]; then
       restoring_u-boot_file "$1/u-boot.img"
