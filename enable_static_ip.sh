@@ -45,5 +45,5 @@ else
 		netmask 255.255.255.0
 	EOF
 
-	service network-manager restart
+	service NetworkManager restart
 fi
