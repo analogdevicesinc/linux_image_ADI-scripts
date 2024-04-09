@@ -34,5 +34,5 @@ else
 	# enable DHCP via NetworkManager (assumes the config file hasn't been touched much)
 	sed -i 's/^managed=true/managed=false/' /etc/NetworkManager/NetworkManager.conf
 
-	service network-manager restart
+	service NetworkManager restart
 fi
