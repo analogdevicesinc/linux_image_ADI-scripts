@@ -10,7 +10,6 @@ install:
 
 	install -D -m 0644 ./lightdm_timeout.conf /etc/systemd/system/lightdm.service.d/timeout.conf
 
-	systemctl daemon-reload
 	systemctl enable adi-power.service
 
 	/bin/sh usb-gadget-service/install_gt.sh
