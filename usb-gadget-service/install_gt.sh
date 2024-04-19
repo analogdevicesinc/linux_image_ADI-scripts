@@ -59,8 +59,4 @@ install -D -m 0744 scripts/usb_gadget.sh /usr/local/bin/
 
 install -D -m 0644 udev/99-udc.rules /etc/udev/rules.d/
 
-systemctl daemon-reload
 systemctl enable iiod_context_attr.service gt.service dev-iio_ffs.mount iiod_ffs.service gt-start.service gt.target
-
-udevadm control --reload-rules
-udevadm trigger
