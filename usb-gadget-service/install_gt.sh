@@ -5,7 +5,7 @@ fi
 
 SCRIPT_PATH=$(dirname $(readlink -f $0))
 
-apt-get -y install libconfig-dev
+apt-get -y install autoconf libtool libconfig-dev
 
 cd /usr/local/src
 
