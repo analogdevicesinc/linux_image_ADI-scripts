@@ -42,7 +42,7 @@ BUILDS_NEXT_STABLE="linux_image_ADI-scripts:origin/main \
 	jesd-eye-scan-gtk:origin/main \
 	diagnostic_report:origin/main \
 	wiki-scripts:origin/main \
-	colorimeter:origin/main"
+	colorimeter:origin/2023_R2"
 
 BUILDS_2021_R1="linux_image_ADI-scripts:origin/main \
 	libiio:origin/2021_R1 \
