@@ -10,6 +10,10 @@ install:
 
 	install -D -m 0644 ./lightdm_timeout.conf /etc/systemd/system/lightdm.service.d/timeout.conf
 
+	install -D -m 0644 ./jupiter_scripts/fan-control.service /etc/systemd/system/fan-control.service
+	install -D -m 0744 ./jupiter_scripts/fan-control /usr/bin/fan-control
+
 	systemctl enable adi-power.service
+	systemctl enable fan-control.service
 
 	/bin/sh usb-gadget-service/install_gt.sh

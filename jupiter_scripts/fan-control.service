@@ -1,0 +1,9 @@
+[Unit]
+Description=fan-control
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c 'grep -i -e "Jupiter SDR" /sys/firmware/devicetree/base/model && /usr/bin/fan-control'
+
+[Install]
+WantedBy=multi-user.target
