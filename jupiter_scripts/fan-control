@@ -1,0 +1,81 @@
+#!/bin/bash
+
+GPIO_CHIP=334
+FAN_CTL=145
+USER_LED=14
+SLEEP_INTERVAL=1
+
+TEMP_LOW=73000
+TEMP_HIGH=78000
+TEMP_POWEROFF=80000
+
+gpio_export() {
+  if [ ! -d /sys/class/gpio/gpio$(expr $GPIO_CHIP + $FAN_CTL) ]; then
+    echo $(expr $GPIO_CHIP + $FAN_CTL) > /sys/class/gpio/export
+    echo "out" > /sys/class/gpio/gpio$(expr $GPIO_CHIP + $FAN_CTL)/direction
+    echo $(expr $GPIO_CHIP + $USER_LED) > /sys/class/gpio/export
+    echo "out" > /sys/class/gpio/gpio$(expr $GPIO_CHIP + $USER_LED)/direction
+  fi
+}
+
+fan_low() {
+  echo "0" > /sys/class/gpio/gpio$(expr $GPIO_CHIP + $FAN_CTL)/value
+}
+
+fan_high() {
+  echo "1" > /sys/class/gpio/gpio$(expr $GPIO_CHIP + $FAN_CTL)/value
+}
+
+led_toggle() {
+  if [ $(cat /sys/class/gpio/gpio$(expr $GPIO_CHIP + $USER_LED)/value) -eq "1" ]; then
+    echo "0" > /sys/class/gpio/gpio$(expr $GPIO_CHIP + $USER_LED)/value
+  else
+    echo "1" > /sys/class/gpio/gpio$(expr $GPIO_CHIP + $USER_LED)/value
+  fi
+}
+
+temp() {
+  echo $(iio_attr -c adrv9002-phy temp0 input)
+}
+
+last_five=()
+
+daemon() {
+  while :; do
+    led_toggle
+    current_temp=$(temp)
+
+    last_five=("${last_five[@]:1}")
+    last_five+=("$current_temp")
+
+    average=0
+    for i in ${last_five[@]}; do
+      let average+=$i
+    done
+    average=$(expr $average / 5)
+
+    if [[ $average -ge $TEMP_POWEROFF ]]; then
+      poweroff
+    fi
+
+    if [[ $average -le $TEMP_LOW ]]; then
+      fan_low
+    fi
+    if [[ $average -ge $TEMP_HIGH ]]; then
+      fan_high
+    fi
+
+    sleep $SLEEP_INTERVAL
+  done
+}
+
+last_five=()
+last_five+=("$(temp)")
+last_five+=("$(temp)")
+last_five+=("$(temp)")
+last_five+=("$(temp)")
+last_five+=("$(temp)")
+
+gpio_export
+
+daemon
