@@ -146,15 +146,20 @@ do_gpios_export() {
 	# let's dynamically get the gpios offset based on the platform as this already proved
 	# it can change between versions.
 	local off=0
-
+	local jupiter=n
+	local port_en_sign="+"
 
 	# gpio's as defined in ADI devicetrees/reference designs
-	if [[ ${model} =~ "ZynqMP" ]]; then
+	if  [[  ${model} =~ "ZynqMP" ||  ${model} =~ "Jupiter SDR" ]]; then
 		off=$(cat /sys/kernel/debug/gpio | grep zynqmp_gpio | grep -Eo '[0-9]+-[0-9]+' | cut -d"-" -f1)
 		# hop_en will use dgpio2
 		hop_en=$((${off} + 112))
 		dgpio_3=$((${off} + 113))
-		rx1_en=$((${off} + 126))
+		[[ ${model} =~ "ZynqMP" ]] && rx1_en=$((${off} + 126)) || {
+			rx1_en=$((${off} + 125))
+			jupiter=y
+			port_en_sign="-"
+		}
 	elif [[ ${model} =~ "Xilinx Zynq" ]]; then
 		off=$(cat /sys/kernel/debug/gpio | grep zynq_gpio | grep -Eo '[0-9]+-[0-9]+' | cut -d"-" -f1)
 		# zynq (also applies to ZED) platforms have a 906 offset from the value defined
@@ -172,15 +177,15 @@ do_gpios_export() {
 			port_en=${rx1_en}
 		else
 			# tx1
-			port_en=$((${rx1_en} + 2))
+			port_en=$((${rx1_en} ${port_en_sign} 2))
 		fi
 	else
 		if [[ ${rx} == "true" ]]; then
 			# rx2
-			port_en=$((${rx1_en} + 1))
+			port_en=$((${rx1_en} ${port_en_sign} 1))
 		else
 			# tx2
-			port_en=$((${rx1_en} + 3))
+			port_en=$((${rx1_en} ${port_en_sign} 3))
 		fi
 	fi
 
