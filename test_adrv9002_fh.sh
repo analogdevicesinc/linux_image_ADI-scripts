@@ -35,6 +35,8 @@ port_en=0
 verbose="n"
 # number of times we loop through the hopping tables
 n_run=5
+# false if we can't export the enable pins and the driver is in control of those
+export_en_pin=y
 
 usage() {
 	printf "Usage: $0 [options] TABLE_A [TABLE_B]
@@ -192,8 +194,14 @@ do_gpios_export() {
 	# export the enable pin for the used port and make sure it's output low
 	[[ ! -e /sys/class/gpio/gpio${port_en} ]] && { \
 		debug "Export GPIO: ${port_en}"
-		echo ${port_en} > "/sys/class/gpio/export"
-		echo low > "/sys/class/gpio/gpio${port_en}/direction"
+		echo ${port_en} > "/sys/class/gpio/export" 2>/dev/null && {
+			echo low > "/sys/class/gpio/gpio${port_en}/direction"
+		} || {
+			# We could redirect stderr to a file and look for "Device or resource busy". But,
+			# meh, not going with that. Just assume that in case of error we can control the pin
+			# over the device ensm interface. If we can't, the script will fail later on anyways.
+			export_en_pin="n"
+		}
 	}
 
 	# export hop pin
@@ -221,8 +229,11 @@ do_gpios_unexport() {
 	local g=0
 	local gpio=0
 
-	debug "Unexporting GPIOS: ${port_en}, ${hop_en}"
-	echo ${port_en} > "/sys/class/gpio/unexport"
+	debug "Unexporting GPIOS: ${hop_en}"
+	[[ ${export_en_pin} == "y" ]] && {
+		debug "Unexporting GPIOS: ${port_en}"
+		echo ${port_en} > "/sys/class/gpio/unexport"
+	}
 	echo ${hop_en} > "/sys/class/gpio/unexport"
 
 	for ((g=0; g<${tbl_ngpio}; g++)); do
@@ -302,11 +313,27 @@ do_tbl_hop() {
 	for ((i=0; i<${1}; i++)); do
 		do_set_gpio_idx ${i}
 		# the table index get's fetched by the device when we assert the port pin
-		echo 1 > "/sys/class/gpio/gpio${port_en}/value"
+		[[ ${export_en_pin} == "y" ]] && {
+			echo 1 > "/sys/class/gpio/gpio${port_en}/value"
+		} || {
+			if [[ ${rx} == "true" ]]; then
+				iio_attr -c ${dev_name} -i voltage$((${hop} - 1)) ensm_mode rf_enabled >/dev/null
+			else
+				iio_attr -c ${dev_name} -o voltage$((${hop} - 1)) ensm_mode rf_enabled >/dev/null
+			fi
+		}
 		# trigger the hop signal. the frame should start on the next hop edge
 		echo 1 > "/sys/class/gpio/gpio${hop_en}/value"
 		sleep 0.1
-		echo 0 > "/sys/class/gpio/gpio${port_en}/value"
+		[[ ${export_en_pin} == "y" ]] && {
+			echo 0 > "/sys/class/gpio/gpio${port_en}/value"
+		} || {
+			if [[ ${rx} == "true" ]]; then
+				iio_attr -c ${dev_name} -i voltage$((${hop} - 1)) ensm_mode primed >/dev/null
+			else
+				iio_attr -c ${dev_name} -o voltage$((${hop} - 1)) ensm_mode primed >/dev/null
+			fi
+		}
 		echo 0 > "/sys/class/gpio/gpio${hop_en}/value"
 	done
 }
