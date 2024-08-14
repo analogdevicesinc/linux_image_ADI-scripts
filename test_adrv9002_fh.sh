@@ -290,7 +290,7 @@ do_dev_init() {
 	else
 		[[ ${fh} == 0 ]] && error "Frequency hopping not enabled and profile not given..."
 		info "Initializing the device..."
-		iio_attr -D ${dev_name} initialize 1 1>/dev/null
+		iio_attr -D ${dev_name} initialize 1 >/dev/null 2>&1
 	fi
 
 	return 0
