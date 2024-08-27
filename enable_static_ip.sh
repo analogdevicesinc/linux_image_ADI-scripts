@@ -45,5 +45,5 @@ else
 		netmask 255.255.255.0
 	EOF
 
-	service NetworkManager restart
+	systemctl restart NetworkManager
 fi
