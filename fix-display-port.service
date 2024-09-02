@@ -1,0 +1,9 @@
+[Unit]
+Description=Fix X11 for Display Port
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash "fix_x11.sh"
+
+[Install]
+WantedBy=multi-user.target
