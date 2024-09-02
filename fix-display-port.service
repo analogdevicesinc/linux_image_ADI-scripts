@@ -1,9 +1,9 @@
 [Unit]
-Description=Fix X11 for Display Port
+Description=Fix DP audio and X11
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash "fix_x11.sh"
+ExecStart=/bin/bash -c "fix_x11.sh; fix_DP_audio.sh"
 
 [Install]
 WantedBy=multi-user.target
