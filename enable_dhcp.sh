@@ -35,4 +35,5 @@ else
 	sed -i 's/^managed=true/managed=false/' /etc/NetworkManager/NetworkManager.conf
 
 	systemctl restart NetworkManager
+	systemctl restart networking
 fi

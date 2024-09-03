@@ -46,4 +46,5 @@ else
 	EOF
 
 	systemctl restart NetworkManager
+	systemctl restart networking
 fi
