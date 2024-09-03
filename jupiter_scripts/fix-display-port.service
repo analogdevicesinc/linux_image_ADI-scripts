@@ -1,9 +1,0 @@
-[Unit]
-Description=Fix DP audio and X11 for Jupiter
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c "fix_x11.sh; fix_DP_audio.sh"
-
-[Install]
-WantedBy=multi-user.target
