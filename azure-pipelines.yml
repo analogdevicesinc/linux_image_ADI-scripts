@@ -1,10 +1,12 @@
 trigger:
 - master
 - main
+- kuiper2.0
 
 pr:
 - master
 - main
+- kuiper2.0
 
 pool:
   vmImage: ubuntu-latest
