@@ -28,7 +28,7 @@ check_platform() {
 		fdtget -p /boot/devicetree.dtb /axi > /dev/null 2>&1 && USB="/axi/usb@e0002000" || USB="/amba/usb@e0002000"
 		DTB="/boot/devicetree.dtb"
 	elif $(is_compatible "xlnx,zynqmp"); then
-		fdtget -p /boot/devicetree.dtb /axi > /dev/null 2>&1 && USB="/axi/usb0@ff9d0000/dwc3@fe200000" || USB="/amba/usb0@ff9d0000/dwc3@fe200000"
+		fdtget -p /boot/system.dtb /axi > /dev/null 2>&1 && USB="/axi/usb@ff9d0000/usb@fe200000" || USB="/amba/usb@ff9d0000/usb@fe200000"
 		DTB="/boot/system.dtb"
 	elif $(is_compatible "altr,socfpga-cyclone5"); then
 		USB="/soc/usb@ffb40000"
