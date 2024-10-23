@@ -80,6 +80,17 @@ BUILDS_2022_R2="linux_image_ADI-scripts:origin/main \
 	diagnostic_report:origin/main \
 	colorimeter:origin/2022_R2"
 
+BUILDS_2023_R2="linux_image_ADI-scripts:origin/main \
+	libiio:origin/2023_R2 \
+	libad9361-iio:origin/2023_R2 \
+	libad9166-iio:origin/2023_R2 \
+	iio-oscilloscope:origin/2023_R2\
+	fru_tools:origin/2023_R2 \
+	iio-fm-radio:origin/main \
+	wiki-scripts:origin/main \
+	jesd-eye-scan-gtk:origin/2023_R2 \
+	diagnostic_report:origin/main \
+	colorimeter:origin/2023_R2"
 
 # Define file where to save git info
 VERSION="/ADI_repos_git_info.txt"
@@ -254,6 +265,9 @@ then
 elif [[ "$1" = "2022_R2" ]] || [[ "$1" = "2022_r2" ]]
 then
   BUILDS=$BUILDS_2022_R2
+elif [[ "$1" = "2023_R2" ]] || [[ "$1" = "2023_r2" ]]
+then
+  BUILDS=$BUILDS_2023_R2
 elif [[ "$1" = "NEXT_STABLE" ]] || [[ "$1" = "next_stable" ]]
 then
   BUILDS=$BUILDS_NEXT_STABLE
@@ -261,7 +275,7 @@ elif [ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2021_R2
+  BUILDS=$BUILDS_2022_R2
 fi
 
 for i in $BUILDS

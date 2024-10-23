@@ -36,6 +36,9 @@ elif [ "$1" = "2021_R2" -o "$1" = "2021_r2" ]; then
 elif [ "$1" = "2022_R2" -o "$1" = "2022_r2" ]; then
   RELEASE="2022_r2"
   RPI_BRANCH="rpi-5.15.y"
+elif [ "$1" = "2023_R2" -o "$1" = "2023_r2" ]; then
+  RELEASE="2023_r2"
+  RPI_BRANCH="rpi-6.1.y"
 fi
 
 ### Verify if current script is latest version
