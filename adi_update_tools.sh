@@ -275,7 +275,7 @@ elif [ -n "$1" ]
 then
   BUILDS=$1
 else
-  BUILDS=$BUILDS_2022_R2
+  BUILDS=$BUILDS_2023_R2
 fi
 
 for i in $BUILDS
