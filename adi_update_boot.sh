@@ -10,9 +10,9 @@ RPI_SPATH="cse/linux_rpi"
 ARCHIVE_NAME="latest_boot_partition.tar.gz"
 
 # Whenever 'latest' and 'previous' are updated, need to update also conditions from next if
-LATEST_RELEASE="2022_r2"
+LATEST_RELEASE="2023_r2"
 RELEASE=$LATEST_RELEASE
-LATEST_RPI_BRANCH="rpi-5.15.y"
+LATEST_RPI_BRANCH="rpi-6.1.y"
 RPI_BRANCH=$LATEST_RPI_BRANCH
 FILE="latest_boot.txt"
 RPI_FILE="rpi_archives_properties.txt"
