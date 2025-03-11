@@ -7,7 +7,7 @@ SLEEP_INTERVAL=1
 
 TEMP_LOW=73000
 TEMP_HIGH=78000
-TEMP_POWEROFF=80000
+TEMP_POWEROFF=100000
 
 gpio_export() {
   if [ ! -d /sys/class/gpio/gpio$(expr $GPIO_CHIP + $FAN_CTL) ]; then
