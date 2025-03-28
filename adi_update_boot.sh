@@ -539,8 +539,8 @@ while true
         ### Remove boot partition
         echo "Removing boot files from /boot..."
         cd "$FAT_MOUNT" || exit 1
-        rm -f !($default_files)
-        rm -r ./overlays/*.dtbo
+        rm -rf !($default_files)
+        rm -rf ./overlays/*.dtbo
         cd - 2>&1 >/dev/null
         ### Extract new files
         echo -e "\nExtracting files from $ARCHIVE_NAME in boot partition... be patient!"
