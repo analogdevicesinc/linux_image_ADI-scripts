@@ -23,28 +23,19 @@ fi
 
 echo "Enabling the static IP address ${IP_ADDR} on ${ETH_DEV}"
 
-if grep -qi kuiper "/etc/os-release"; then
-	cat <<-EOF > /etc/dhcpcd.conf
-		interface ${ETH_DEV}
-		static ip_address=${IP_ADDR}/24
-	EOF
-	systemctl daemon-reload
-	systemctl restart dhcpcd.service
-else
-	# disable NetworkManager (assumes the config file hasn't been touched much)
-	sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
+# disable NetworkManager (assumes the config file hasn't been touched much)
+sed -i 's/^managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
 
-	# set up loopback and add static IP config for ${ETH_DEV} (defaults to eth0)
-	cat <<-EOF > /etc/network/interfaces
-		auto lo
-		iface lo inet loopback
+# set up loopback and add static IP config for ${ETH_DEV} (defaults to eth0)
+cat <<-EOF > /etc/network/interfaces
+	auto lo
+	iface lo inet loopback
 
-		auto ${ETH_DEV}
-		iface ${ETH_DEV} inet static
-		address ${IP_ADDR}
-		netmask 255.255.255.0
-	EOF
+	auto ${ETH_DEV}
+	iface ${ETH_DEV} inet static
+	address ${IP_ADDR}
+	netmask 255.255.255.0
+EOF
 
-	systemctl restart NetworkManager
-	systemctl restart networking
-fi
+systemctl restart NetworkManager
+systemctl restart networking

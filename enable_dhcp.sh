@@ -16,24 +16,17 @@ if [[ ${UID} -ne 0 ]]; then
 	exit 1
 fi
 
-if grep -qi kuiper "/etc/os-release"; then
-	cat <<-EOF > /etc/dhcpcd.conf
-		hostname
-	EOF
-	systemctl daemon-reload
-	systemctl restart dhcpcd.service
-else
-	echo "Re-enabling DHCP via NetworkManager for all network interfaces"
 
-	cat <<-EOF > /etc/network/interfaces
-		# interfaces(5) file used by ifup(8) and ifdown(8)
-		# Include files from /etc/network/interfaces.d:
-		source-directory /etc/network/interfaces.d
-	EOF
+echo "Re-enabling DHCP via NetworkManager for all network interfaces"
 
-	# enable DHCP via NetworkManager (assumes the config file hasn't been touched much)
-	sed -i 's/^managed=true/managed=false/' /etc/NetworkManager/NetworkManager.conf
+cat <<-EOF > /etc/network/interfaces
+	# interfaces(5) file used by ifup(8) and ifdown(8)
+	# Include files from /etc/network/interfaces.d:
+	source-directory /etc/network/interfaces.d
+EOF
 
-	systemctl restart NetworkManager
-	systemctl restart networking
-fi
+# enable DHCP via NetworkManager (assumes the config file hasn't been touched much)
+sed -i 's/^managed=true/managed=false/' /etc/NetworkManager/NetworkManager.conf
+
+systemctl restart NetworkManager
+systemctl restart networking
