@@ -11,9 +11,9 @@ After=sys-kernel-config.mount network.target
 
 [Service]
 EnvironmentFile=-/etc/default/usb_gadget
-ExecStart=/usr/local/bin/gt load -o $GT_DEFAULT_SCHEME adi_usb_gadget
+ExecStart=@PREFIX@/bin/gt load -o $GT_DEFAULT_SCHEME adi_usb_gadget
 RemainAfterExit=yes
-ExecStop=/usr/local/bin/gt rm -rf adi_usb_gadget
+ExecStop=@PREFIX@/bin/gt rm -rf adi_usb_gadget
 Type=oneshot
 
 [Install]
