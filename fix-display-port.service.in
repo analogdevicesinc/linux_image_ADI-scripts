@@ -3,7 +3,7 @@ Description=Fix DP audio and X11
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c "fix_x11.sh; fix_DP_audio.sh"
+ExecStart=/bin/bash -c "@PREFIX@/bin/fix_x11.sh; @PREFIX@/bin/fix_DP_audio.sh"
 
 [Install]
 WantedBy=multi-user.target
