@@ -1,0 +1,19 @@
+#!/bin/bash -e
+
+if [ "$1" = "configure" ]; then
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl enable adi-power.service || true
+        systemctl enable fan-control.service || true
+        systemctl enable fix-display-port.service || true
+        systemctl enable gt.service || true
+        systemctl enable gt-start.service || true
+        systemctl enable gt.target || true
+        systemctl enable iiod_ffs.service || true
+        systemctl enable iiod_context_attr.service || true
+        systemctl enable dev-iio_ffs.mount || true
+
+        systemctl daemon-reload || true
+    fi
+fi
+
+exit 0

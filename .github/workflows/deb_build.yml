@@ -1,0 +1,73 @@
+name: Build debian package for Linux ADI-scripts
+
+on:
+  push:
+    branches:
+      - kuiper2.0
+      - '20[1-9][0-9]_R[1-9]'
+  pull_request:
+    branches:
+      - kuiper2.0
+      - '20[1-9][0-9]_R[1-9]'
+env:
+  APP_NAME: linux_image_ADI-scripts
+
+jobs:
+  build_debian_package:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v6
+        with:
+          path: ${{env.APP_NAME}}
+      - name: Get version from file
+        run: |
+          VERSION=$(cat "${{env.APP_NAME}}/packaging/VERSION" 2>/dev/null | tr -d '[:space:]')
+          # Regex to match semantic versioning (from semver.org)
+          # Regex will match valid version number https://regex101.com/r/K8FvXg/1
+          regex='^((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?)$'
+          if ! [[ "$VERSION" =~ $regex ]]; then
+            echo "WARNING: Invalid or missing version '$VERSION', falling back to 0.0.1"
+            VERSION="0.0.1"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential devscripts debhelper gettext
+      - name: Build debian package
+        run: |
+          "${{env.APP_NAME}}/packaging/build-adi-scripts-deb.sh" "${{github.head_ref}}" "${{env.VERSION}}" "${{env.APP_NAME}}"
+      - name: Upload debian artifacts to github
+        if: success() && env.PACKAGE_NAME != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{env.PACKAGE_NAME}}-${{env.VERSION}}-ubuntu
+          path: |
+            ${{env.PACKAGE_NAME}}_*.deb
+            ${{env.PACKAGE_NAME}}*.dsc
+            ${{env.PACKAGE_NAME}}*.debian.tar.xz
+            ${{env.PACKAGE_NAME}}*.orig.tar.gz
+          if-no-files-found: error
+      - name: Authenticate with Cloudsmith via OIDC
+        if: success() && github.event_name == 'push' && env.PACKAGE_NAME != ''
+        uses: cloudsmith-io/cloudsmith-cli-action@v2.0.2
+        with:
+          oidc-namespace: adi
+          oidc-service-slug: ${{ secrets.CLOUDSMITH_SERVICE_SLUG }}
+      
+      - name: Upload debian package to Cloudsmith
+        if: success() && env.CLOUDSMITH_API_KEY != ''
+        run: |
+          pip install cloudsmith-cli
+          for f in ${{env.PACKAGE_NAME}}*.dsc ${{env.PACKAGE_NAME}}*.orig.tar.gz ${{env.PACKAGE_NAME}}*.debian.tar.xz; do
+            [ -f "$f" ] || continue
+            cloudsmith push raw -SW --republish adi/kuiper-internal "$f" 
+          done
+          cloudsmith push deb -SW --republish "adi/kuiper-internal/debian/trixie" ${{env.PACKAGE_NAME}}_*.deb
+
+
+
+

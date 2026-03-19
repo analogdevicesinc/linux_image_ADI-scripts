@@ -1,0 +1,13 @@
+Source: ${PACKAGE}
+Section: utils
+Priority: optional
+Maintainer: Engineerzone <https://ez.analog.com/sw-interface-tools>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/analogdevicesinc/linux_image_ADI-scripts
+
+Package: ${PACKAGE}
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, bash, wget, systemd, gt (>= 1.0)
+Description: ADI Linux system configuration and test scripts
+ This package contains shell scripts for configuring and testing Analog Devices hardware on Linux systems, including power management, USB gadget configuration, and various device test scripts.
