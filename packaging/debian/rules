@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+# Package variables - will be set by environment from build script
+PACKAGE ?= adi-scripts
+VERSION ?= 1.0.0
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	# Nothing to clean - no build artifacts
+	:
+
+override_dh_auto_configure:
+	# No configuration needed
+	:
+
+override_dh_auto_build:
+	# Nothing to build - shell scripts only
+	:
+
+override_dh_auto_install:
+	# Use upstream Makefile with DESTDIR and PREFIX support
+	# Makefile installs all files: scripts, services, USB gadget files, configs
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/$(PACKAGE) PREFIX=/usr
+
+override_dh_auto_test:
+	# Skip tests
+	:

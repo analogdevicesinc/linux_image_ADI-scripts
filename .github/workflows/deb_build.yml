@@ -1,0 +1,53 @@
+name: Build Debian Package
+
+on:
+  push:
+    branches: [kuiper2.0]
+  pull_request:
+    branches: [kuiper2.0]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version'
+        required: false
+
+env:
+  PACKAGE: adi-scripts
+  VERSION: ${{ github.event.inputs.version || '1.0.0' }}
+  SOURCE_DIR: adi-scripts-${{ github.event.inputs.version || '1.0.0' }}
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          path: ${{ env.SOURCE_DIR }}
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential devscripts debhelper
+
+      - name: Build package
+        run: ${{ env.SOURCE_DIR }}/packaging/build-adi-scripts-deb.sh "${{ env.SOURCE_DIR }}" "${{ github.ref_name }}" "${{ env.VERSION }}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.SOURCE_DIR }}-deb
+          path: |
+            output/${{ env.PACKAGE }}_${{ env.VERSION }}.orig.tar.gz
+            output/${{ env.PACKAGE }}_${{ env.VERSION }}-1.dsc
+            output/${{ env.PACKAGE }}_${{ env.VERSION }}-1_all.deb
+
+      - name: Add build artifacts to summary
+        run: |
+          echo "## Debian Package Build" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|" >> $GITHUB_STEP_SUMMARY
+          for f in output/*.dsc output/*.deb output/*.orig.tar.gz; do
+            size=$(du -h "$f" | cut -f1)
+            echo "| $(basename "$f") | ${size} |" >> $GITHUB_STEP_SUMMARY
+          done
