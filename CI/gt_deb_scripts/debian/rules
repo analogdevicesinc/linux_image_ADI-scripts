@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+PACKAGE ?= gt
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Configure with cmake, install to /usr
+	cd source && cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_MANUAL_PAGE=off .
+
+override_dh_auto_build:
+	# Build gt
+	cd source && $(MAKE)
+
+override_dh_auto_install:
+	# Install using upstream cmake with DESTDIR
+	cd source && $(MAKE) install DESTDIR=$(CURDIR)/debian/$(PACKAGE)
+
+override_dh_auto_test:
+	# Skip tests
+	:

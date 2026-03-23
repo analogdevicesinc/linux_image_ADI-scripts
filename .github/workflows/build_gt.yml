@@ -1,0 +1,106 @@
+name: Build GT
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build debian'
+        required: true
+        default: '1.0.0'
+      cloudsmith_upload:
+        description: 'Upload the built debian package to Cloudsmith'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  PACKAGE_NAME: gt
+  APP_NAME: gt-${{ github.event.inputs.version }}
+  DEB_SCRIPT_LOCATION: repo-scripts
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker_image: arm64v8/debian:trixie
+            distro: debian13
+            architecture: arm64
+            platform_flag: ""
+          - docker_image: arm32v7/debian:trixie
+            distro: debian13
+            architecture: armhf
+            platform_flag: "--platform linux/arm/v7"
+
+    steps:
+      - name: Download GT source code
+        uses: actions/checkout@v6
+        with:
+          repository: linux-usb-gadgets/gt
+          path: ${{env.APP_NAME}}
+      
+      - name: Checkout gt scripts
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: CI/gt_deb_scripts
+          sparse-checkout-cone-mode: false
+          path: repo-scripts
+        
+      - name: Move gt_deb_scripts to workspace root
+        run: |
+          mv repo-scripts/CI/gt_deb_scripts $GITHUB_WORKSPACE/gt_deb_scripts
+          rm -rf repo-scripts
+
+      - name: Start persistent container
+        run: |
+          docker run -d \
+              ${{matrix.platform_flag}} \
+              --name ${{matrix.distro}}-${{matrix.architecture}} \
+              -v "$GITHUB_WORKSPACE/${{env.APP_NAME}}:/workspace/${{env.APP_NAME}}" \
+              -v "$GITHUB_WORKSPACE/gt_deb_scripts:/workspace/gt_deb_scripts" \
+              -w /workspace \
+              ${{matrix.docker_image}} tail -f /dev/null
+
+      - name: Install dependencies
+        run: |
+          docker exec ${{matrix.distro}}-${{matrix.architecture}} sh -c "apt-get update && apt-get install -y debhelper devscripts build-essential wget cmake libusbgx-dev libconfig-dev libglib2.0-dev gettext-base"
+
+      - name: Build GT
+        run: |
+          docker exec ${{matrix.distro}}-${{matrix.architecture}} sh -c "gt_deb_scripts/build-gt-deb.sh ${{env.PACKAGE_NAME}} ${{github.event.inputs.version}} ${{matrix.architecture}}"
+
+      - name: Copy debian artifacts from container to host
+        run: |
+          docker cp ${{matrix.distro}}-${{matrix.architecture}}:/workspace/. ./artifacts/
+          ls -la ./artifacts/
+
+      - name: Upload GT debian package
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APP_NAME }}-${{ matrix.architecture }}
+          path: |
+            artifacts/${{ env.PACKAGE_NAME }}*.deb
+            artifacts/${{ env.PACKAGE_NAME }}*.dsc
+            artifacts/${{ env.PACKAGE_NAME }}*.debian.tar.xz
+            artifacts/${{ env.PACKAGE_NAME }}*.orig.tar.gz
+          if-no-files-found: error
+      
+      - name: Authenticate with Cloudsmith via OIDC
+        if: success() && github.event.inputs.cloudsmith_upload == 'true'
+        uses: cloudsmith-io/cloudsmith-cli-action@v2.0.2
+        with:
+          oidc-namespace: adi
+          oidc-service-slug: ${{ secrets.CLOUDSMITH_SERVICE_SLUG }}
+      
+      - name: Upload debian package to Cloudsmith
+        if: success() && github.event.inputs.cloudsmith_upload == 'true' && env.CLOUDSMITH_API_KEY != ''
+        working-directory: ./artifacts
+        run: |
+          pip install --break-system-packages cloudsmith-cli
+          for f in ${{env.PACKAGE_NAME}}*.dsc ${{env.PACKAGE_NAME}}*.orig.tar.gz ${{env.PACKAGE_NAME}}*.debian.tar.xz; do
+            [ -f "$f" ] || continue
+            cloudsmith push raw -SW --republish adi/kuiper-internal "$f" 
+          done
+          cloudsmith push deb -SW --republish "adi/kuiper-internal/debian/trixie" ${{env.PACKAGE_NAME}}_*.deb
