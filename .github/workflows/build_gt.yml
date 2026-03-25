@@ -18,6 +18,9 @@ env:
   APP_NAME: gt-${{ github.event.inputs.version }}
   DEB_SCRIPT_LOCATION: repo-scripts
 
+permissions: 
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04-arm
