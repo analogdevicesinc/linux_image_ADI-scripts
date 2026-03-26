@@ -122,7 +122,7 @@ class GPIOS:
 	PWR_UP_DOWN_PIN = 5
 
 	def get_device(self, dev_label):
-		devices = os.popen('grep "" /sys/bus/iio/devices/iio\:device*/label').read()
+		devices = os.popen('grep "" /sys/bus/iio/devices/iio:device*/label').read()
 		devices = devices.split(sep="\n")
 		for line in devices:
 			if dev_label in line:
@@ -283,7 +283,7 @@ class Stingray:
 
 		# If Rev.A, there's no way to check on the rails directly, we have to rely on SPI readback
 		if self._revision == 'A':
-			devices = os.popen('grep "" /sys/bus/iio/devices/iio\:device*/name').read()
+			devices = os.popen('grep "" /sys/bus/iio/devices/iio:device*/name').read()
 			devices = devices.split(sep="\n")
 			for line in devices:
 				if 'adar1000' in line:
@@ -306,7 +306,7 @@ class Stingray:
 			return bool(self.partially_powered() & self._ltc.p5v_enable() & self._ltc.p5v_power_good())
 
 	def get_devices(self):
-		devices = os.popen('grep "" /sys/bus/iio/devices/iio\:device*/name').read()
+		devices = os.popen('grep "" /sys/bus/iio/devices/iio:device*/name').read()
 		devices = devices.split(sep="\n")
 		for line in devices:
 			if 'adar1000' in line:
