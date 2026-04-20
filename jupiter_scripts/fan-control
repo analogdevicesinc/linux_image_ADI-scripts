@@ -45,6 +45,15 @@ daemon() {
     led_toggle
     current_temp=$(temp)
 
+    if [[ $current_temp -ge 65247000 ]]; then
+      profile_load_status=$(iio_attr -d adrv9002-phy  profile_config)
+      if [[ $profile_load_status ==  "No profile loaded..." ]]; then
+        profile_status="FAILED"
+      else
+        profile_status="OK"
+      fi
+    fi
+
     last_five=("${last_five[@]:1}")
     last_five+=("$current_temp")
 
@@ -54,7 +63,7 @@ daemon() {
     done
     average=$(expr $average / 5)
 
-    if [[ $average -ge $TEMP_POWEROFF ]]; then
+    if [[ $average -ge $TEMP_POWEROFF ]] && [[ $profile_status != "FAILED" ]]; then
       poweroff
     fi
 
