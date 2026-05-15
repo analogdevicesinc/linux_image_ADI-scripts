@@ -18,7 +18,7 @@ Description:
 Arguments:
   eval-board            Name of the project
   carrier               Carrier board name
-  bootloader-dev        Bootloader device (default: /dev/mmcblk0p3)
+  bootloader-dev        Bootloader device (default: /dev/mmcblkXp3)
 
 Options:
   -b, --boot-partition PATH     Path to boot partition (default: /boot)
@@ -101,7 +101,9 @@ fi
 
 ADI_EVAL_BOARD=${1}
 CARRIER=${2}
-BOOTLOADER_DEV=${3:-"/dev/mmcblk0p3"}
+
+BOOT_DISK="/dev/$(lsblk -no pkname "$(readlink -f /dev/disk/by-label/BOOT)")"
+BOOTLOADER_DEV=${3:-"${BOOT_DISK}p3"}
 
 if [[ ! -z "${ADI_EVAL_BOARD}"  && ! -z "${CARRIER}" ]]; then
 
