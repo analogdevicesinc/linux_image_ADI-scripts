@@ -137,7 +137,20 @@ replace_or_add dtoverlay "${OVERLAY}"
 
 EXTRA_EEPROM_BOARDS="EVAL-CN0511-RPIZ"
 EXTRA_EEPROM_FILE="/sys/devices/platform/soc/fe804000.i2c/i2c-1/1-0051/eeprom"
+EXTRA_EEPROM_KEYS="/etc/libiio_eeprom_keys"
 CAN_READ_EXTRA_EEPROM=0
+
+# Remove stale EEPROM-sourced keys from a previous boot.
+# A persistent key list is used because after a board swap the old EEPROM is
+# physically absent, so its keys cannot be rediscovered by re-reading hardware.
+if [ -f "$EXTRA_EEPROM_KEYS" ]; then
+	while read -r KEY; do
+		if [ -n "$KEY" ]; then
+			remove "$KEY"
+		fi
+	done < "$EXTRA_EEPROM_KEYS"
+	rm -f "$EXTRA_EEPROM_KEYS"
+fi
 
 if echo "$EXTRA_EEPROM_BOARDS" | grep -w -q "$NAME"; then
 	CAN_READ_EXTRA_EEPROM=1
@@ -150,6 +163,7 @@ if [ "$CAN_READ_EXTRA_EEPROM" = "1" -a -f "$EXTRA_EEPROM_FILE" ]; then
 		EOF
 		if [ -n "$KEY" -a -n "$VALUE" ]; then
 			replace_or_add "$KEY" "$VALUE"
+			echo "$KEY" >> "$EXTRA_EEPROM_KEYS"
 		fi
 	done < "$EXTRA_EEPROM_FILE"
 fi
