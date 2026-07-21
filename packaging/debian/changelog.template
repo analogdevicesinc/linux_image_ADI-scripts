@@ -2,4 +2,4 @@ ${PACKAGE} (${VERSION}-1) stable; urgency=medium
 
   * ${CHANGELOG_ENTRY}
 
- -- Engineerzone <https://ez.analog.com/sw-interface-tools>  ${DATE}
+ -- EngineerZone <https://ez.analog.com/sw-interface-tools/>  ${DATE}
