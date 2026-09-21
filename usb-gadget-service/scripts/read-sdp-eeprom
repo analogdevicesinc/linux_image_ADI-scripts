@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+"""
+ADI SDP hardware board information read and parse module
+
+Based on:
+https://github.com/analogdevicesinc/precision-converters-library/blob/3cd2cd98f9c2acce9d8cbd695239fd613003074f/board_info/board_info.c
+"""
+
+import struct
+import sys
+
+DATA_MAX_LEN = 256
+LEGACY_BOARD_ID_LEN = 18
+HEADER_LEN = 10
+HEADER_ID_LEN = 6
+HEADER_DATA_LEN_INDEX = 8
+RECORD_FOOTER_LEN = 3
+
+try:
+    eeprom_path = sys.argv[1]
+except IndexError:
+    print(f"usage: {sys.argv[0]} <eeprom path>", file=sys.stderr)
+    exit(1)
+
+debug = "--debug" in sys.argv
+
+with open(eeprom_path, "rb") as f:
+    header = f.read(HEADER_LEN)
+
+    if header[:HEADER_ID_LEN] != b"ADISDP":
+        print(f"Bad header '{header}'", file=sys.stderr)
+        exit(1)
+
+    data_len = header[HEADER_DATA_LEN_INDEX] - HEADER_LEN
+    
+    if data_len > DATA_MAX_LEN:
+        print(f"Unexpected data len: {data_len}", file=sys.stderr)
+        exit(1)
+
+    data = f.read(data_len)
+
+    if debug:
+        print(f"data: {data}")
+
+board = {}
+index = 0
+
+while index < data_len:
+    rec_type, rec_len = struct.unpack_from("<BH", data, index)
+    rec_data = data[index + 3 : index + rec_len]
+    index += rec_len
+
+    if debug:
+        print(f"type: 0x{rec_type:02X}")
+        print(rec_data)
+
+    if rec_type == 0x01:
+        # Hardware ID for legacy EVBs
+        board["id"] = f"{rec_data[1]:02X}{rec_data[0]:02X}{rec_data[3]:02X}{rec_data[2]:02X}{rec_data[7]:02X}{rec_data[6]:02X}{rec_data[5]:02X}{rec_data[4]:02X}"
+    elif rec_type == 0x02:
+        # EVB name info
+        board["name"] = rec_data.decode()
+    elif rec_type in [0x03, 0x04, 0x05, 0x0D, 0x0F]:
+        # Valid but unused record types
+        pass
+    elif rec_type == 0x0E:
+        # SAP code ID
+        board["id"] = rec_data.decode()
+    else:
+        print(f"Invalid record: 0x{rec_type:02X}", file=sys.stderr)
+        exit(1)
+
+for k, v in board.items():
+    print(f"{k}: {v}")
+

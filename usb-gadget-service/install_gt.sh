@@ -55,6 +55,7 @@ install -D -m 0644 schemes/iio_ncm.scheme /usr/local/etc/gt/adi/
 install -D -m 0644 schemes/iio_acmx2_rndis.scheme /usr/local/etc/gt/adi/
 
 install -D -m 0744 scripts/iiod_context.sh /usr/local/bin/
+install -D -m 0744 scripts/read-sdp-eeprom /usr/local/bin/
 install -D -m 0744 scripts/usb_gadget.sh /usr/local/bin/
 
 install -D -m 0644 udev/99-udc.rules /etc/udev/rules.d/

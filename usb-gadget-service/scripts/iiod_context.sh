@@ -59,6 +59,18 @@ if [ "$?" = "0" ] ; then
 	done
 fi
 
+# If this is a SDP/ARDZ board, capture the data
+if [ -z "$BOARD" ]; then
+	for f in $(find /sys/ -name eeprom); do
+		sdp_board_info=$(read-sdp-eeprom $f 2>/dev/null)
+		if [ -n "$sdp_board_info" ]; then
+			BOARD=$(echo "$sdp_board_info" | grep "^name:" | cut -d':' -f2 | sed 's/^[[:space:]]*//')
+			SERIAL=$(echo "$sdp_board_info" | grep "^id:" | cut -d':' -f2 | sed 's/^[[:space:]]*//')
+			VENDOR="Analog Devices"
+		fi
+	done
+fi
+
 # If you are a Raspberry Pi HAT, add that
 if [ -d "/sys/firmware/devicetree/base/hat" ] ; then
 	BOARD=$(sanitize "/sys/firmware/devicetree/base/hat/product_id")
