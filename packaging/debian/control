@@ -1,13 +1,13 @@
-Source: ${PACKAGE}
+Source: gt
 Section: utils
 Priority: optional
-Maintainer: Engineerzone <https://ez.analog.com/sw-interface-tools>
+Maintainer: EngineerZone <linux@analog.com>
 Build-Depends: debhelper-compat (= 13), cmake, libusbgx-dev, libconfig-dev, libglib2.0-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/linux-usb-gadgets/gt
 
-Package: ${PACKAGE}
-Architecture: ${ARCHITECTURE}
+Package: gt
+Architecture: @ARCHITECTURE@
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: USB Gadget Tool - command-line configuration tool
  Command-line tool for configuring USB gadgets on Linux systems using the configFS interface. 
