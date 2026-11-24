@@ -5,9 +5,8 @@ set -eo pipefail
 # Env: ARCHITECTURE, CONTAINER, CI_VERSION, VERSION_SUFFIX, PACKAGE_NAME,
 #      CONTROL_PATH (default packaging/debian), ARTIFACTS_DIR (amd64/arm64:
 #      output of the deb action),
-#      OUTPUT_PREFIX (default PACKAGE_NAME), GITHUB_ENV
+#      GITHUB_ENV
 CONTROL_PATH="${CONTROL_PATH:-packaging/debian}"
-OUTPUT_PREFIX="${OUTPUT_PREFIX:-$PACKAGE_NAME}"
 # Packages may be Architecture: all, so match any architecture in the filename
 DEB_GLOB="${PACKAGE_NAME}_${CI_VERSION}-1${VERSION_SUFFIX}_*.deb"
 
@@ -57,8 +56,14 @@ if [[ "$ARCHITECTURE" == 'armhf' ]]; then
 else
     os_release=$(cat /etc/os-release)
 fi
-version_id=$(echo "$os_release" | grep "^VERSION_ID" | cut -d "=" -f2 | tr -d '"' || true)
-# Debian testing (forky) has no VERSION_ID - fall back to the codename
-[[ -z "$version_id" ]] && version_id=$(echo "$os_release" | grep "^VERSION_CODENAME" | cut -d "=" -f2 | tr -d '"')
 
-echo "DEBIAN_ARTIFACT=${OUTPUT_PREFIX}-deb-${ARCHITECTURE}-${distro_tag}-${version_id}" >> "$GITHUB_ENV"
+version_id=$(echo "$os_release" | grep "^VERSION_ID" | cut -d "=" -f2 | tr -d '"' || true)
+
+# Cloudsmith distribution (e.g. debian/trixie, ubuntu/noble) comes from the os-release of the build system
+distribution_id=$(echo "$os_release" | grep "^ID=" | cut -d "=" -f2 | tr -d '"' || true)
+distribution_codename=$(echo "$os_release" | grep "^VERSION_CODENAME" | cut -d "=" -f2 | tr -d '"' || true)
+# Debian testing (forky) has no VERSION_ID - fall back to the codename
+[[ -z "$version_id" ]] && version_id=$(echo "$os_release" | grep "^VERSION_CODENAME" | cut -d "=" -f2 | tr -d '"') || true
+
+echo "DEBIAN_ARTIFACT=${PACKAGE_NAME}-deb-${ARCHITECTURE}-${distro_tag}-${version_id}" >> "$GITHUB_ENV"
+echo "DISTRIBUTION_NAME=${distribution_id}/${distribution_codename}" >> "$GITHUB_ENV"

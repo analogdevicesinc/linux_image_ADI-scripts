@@ -1,7 +1,7 @@
 Source: gt
 Section: utils
 Priority: optional
-Maintainer: EngineerZone <linux@analog.com>
+Maintainer: Analog Devices Maintainers <linux@analog.com>
 Build-Depends: debhelper-compat (= 13), cmake, libusbgx-dev, libconfig-dev, libglib2.0-dev
 Standards-Version: 4.6.2
 Homepage: https://github.com/linux-usb-gadgets/gt

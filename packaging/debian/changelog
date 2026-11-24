@@ -2,4 +2,4 @@ adi-scripts (@VERSION@) UNRELEASED; urgency=medium
 
   * Automated package build.
 
- -- EngineerZone <https://ez.analog.com/sw-interface-tools/>  @DATE@
+ -- Analog Devices Maintainers <linux@analog.com>  @DATE@

@@ -19,10 +19,6 @@ on:
       - kuiper2.0
       - '20[1-9][0-9]_R[1-9]'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   identify-version:
     runs-on: ubuntu-latest
@@ -40,11 +36,20 @@ jobs:
       env:
         VERSION_FILE: packaging/VERSION_GT
         CLOUDSMITH_PREFIX: gt
-  build-linux:
+  build-gt:
     strategy:
       fail-fast: false
       matrix:
         include:
+          - architecture: amd64
+            runs-on: ubuntu-24.04
+            version-suffix: +Ubuntu24.04
+            # Ubuntu 24.04 ships libusbgx 0.2.0, which lacks the inquiry_string
+            # attribute gt uses from bcf9525 on - build the commit before it
+            gt-ref: 7f9c45d98425a27444e49606ce3cf375e6164e8e
+          - architecture: amd64
+            runs-on: ubuntu-26.04
+            version-suffix: +Ubuntu26.04
           - architecture: arm64
             runs-on: ubuntu-26.04-arm
             container: docker.cloudsmith.io/adi/containers/kuiper_basic_64:latest
@@ -77,12 +82,12 @@ jobs:
       VERSION_SUFFIX: ${{ matrix.version-suffix }}
       PACKAGE_NAME: gt
       CONTROL_PATH: packaging/debian
-      OUTPUT_PREFIX: gt
     steps:
       - name: Download GT source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
         with:
           repository: linux-usb-gadgets/gt
+          ref: ${{ matrix.gt-ref }}
       - name: Checkout packaging and CI scripts
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
         with:
@@ -137,3 +142,9 @@ jobs:
           repo-scripts/.github/scripts/upload-to-cloudsmith.sh
         env:
           WORKSPACE: ${{ github.workspace }}
+  adi-scripts-build:
+    needs: [build-gt, identify-version]
+    uses: ./.github/workflows/build-linux-image-adi-scripts.yaml
+    with:
+      gt-version: ${{ needs.identify-version.outputs.ci-version }}
+    secrets: inherit

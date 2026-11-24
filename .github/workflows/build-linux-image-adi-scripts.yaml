@@ -5,19 +5,12 @@ permissions:
   id-token: write
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-      - kuiper2.0
-      - '20[1-9][0-9]_R[1-9]'
-    tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - main
-      - kuiper2.0
-      - '20[1-9][0-9]_R[1-9]'
+  workflow_call:
+    inputs:
+      gt-version:
+        description: 'Gt debian version'
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -41,6 +34,7 @@ jobs:
         VERSION_FILE: packaging/VERSION
         CLOUDSMITH_PREFIX: adi-scripts
   build-linux:
+    needs: identify-version
     strategy:
       fail-fast: false
       matrix:
@@ -51,8 +45,25 @@ jobs:
           - architecture: amd64
             runs-on: ubuntu-26.04
             version-suffix: +Ubuntu26.04
+          - architecture: arm64
+            runs-on: ubuntu-26.04-arm
+            container: docker.cloudsmith.io/adi/containers/kuiper_basic_64:latest
+            version-suffix: +Debian13
+          - architecture: armhf
+            runs-on: ubuntu-26.04-arm
+            container: docker.cloudsmith.io/adi/containers/kuiper_basic_32:latest
+            platform: linux/arm/v7
+            version-suffix: +Debian13
+          - architecture: arm64
+            runs-on: ubuntu-26.04-arm
+            container: debian:forky
+            version-suffix: +Debian14
+          - architecture: armhf
+            runs-on: ubuntu-26.04-arm
+            container: debian:forky
+            platform: linux/arm/v7
+            version-suffix: +Debian14
     runs-on: ${{ matrix.runs-on }}
-    needs: identify-version
     container: ${{ matrix.architecture == 'arm64' && matrix.container || '' }}
     env:
       ARCHITECTURE: ${{ matrix.architecture }}
@@ -62,13 +73,35 @@ jobs:
       CLOUDSMITH_VERSION: ${{ needs.identify-version.outputs.cloudsmith-version }}
       CLOUDSMITH_ORG: ${{ secrets.CLOUDSMITH_ORG }}
       CLOUDSMITH_REPO: ${{ secrets.CLOUDSMITH_REPO }}
+      CLOUDSMITH_USER: ${{ secrets.CLOUDSMITH_SVC }}
       VERSION_SUFFIX: ${{ matrix.version-suffix }}
       PACKAGE_NAME: adi-scripts
       CONTROL_PATH: packaging/debian
       OUTPUT_PREFIX: adi-scripts
+      GT_DEBIAN_VERSION: ${{ inputs.gt-version }}-1${{ matrix.version-suffix }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
+      # The cloudsmith action installer needs curl or wget, which the arm runner image / job container may not ship
+      - name: Install cloudsmith action prerequisites
+        shell: bash
+        run: |
+          # jq is required by the action's export-auth-token
+          if (command -v curl >/dev/null 2>&1 || command -v wget >/dev/null 2>&1) && command -v jq >/dev/null 2>&1; then
+            echo "curl/wget and jq already available"
+            exit 0
+          fi
+          [[ "$(id -u)" == "0" ]] && SUDO="" || SUDO="sudo"
+          ${SUDO} apt-get update
+          ${SUDO} apt-get install -y curl ca-certificates jq
+      # Needed for installing gt from the private repo, regardless of publishing
+      - name: Setup cloudsmith
+        uses: cloudsmith-io/cloudsmith-cli-action@92b1383b22bbd36d804b858f273abcdf4d349f6b    # v3
+        with:
+          oidc-namespace: ${{ secrets.CLOUDSMITH_ORG }}
+          oidc-service-slug: ${{ secrets.CLOUDSMITH_SVC }}
+          # Exports the OIDC token as CLOUDSMITH_API_KEY (and CLOUDSMITH_USERNAME=token) for the gt repo setup
+          export-auth-token: true
       - name: Install deps
         shell: sh
         run: |
@@ -99,12 +132,6 @@ jobs:
           path: |
             artifacts/
           if-no-files-found: error
-      - name: Setup cloudsmith
-        if: ${{ env.CLOUDSMITH_VERSION != '' }}
-        uses: cloudsmith-io/cloudsmith-cli-action@92b1383b22bbd36d804b858f273abcdf4d349f6b    # v3
-        with:
-          oidc-namespace: ${{ secrets.CLOUDSMITH_ORG }}
-          oidc-service-slug: ${{ secrets.CLOUDSMITH_SVC }}
       - name: Push to cloudsmith
         if: ${{ env.CLOUDSMITH_VERSION != '' }}
         shell: bash
