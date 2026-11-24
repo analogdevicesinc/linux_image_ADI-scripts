@@ -1,0 +1,5 @@
+gt (@VERSION@) UNRELEASED; urgency=low
+
+  * Automated package build.
+
+ -- EngineerZone <linux@analog.com>  @DATE@

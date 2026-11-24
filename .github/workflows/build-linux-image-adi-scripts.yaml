@@ -1,19 +1,27 @@
 name: Build debian package for Linux ADI-scripts
 
+permissions:
+  contents: read
+  id-token: write
+
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
       - kuiper2.0
       - '20[1-9][0-9]_R[1-9]'
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
       - kuiper2.0
       - '20[1-9][0-9]_R[1-9]'
 
-permissions:
-  id-token: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   identify-version:
@@ -29,7 +37,10 @@ jobs:
       shell: bash
       run: |
         .github/scripts/identify-version.sh
-  build-debian-package:
+      env:
+        VERSION_FILE: packaging/VERSION
+        CLOUDSMITH_PREFIX: adi-scripts
+  build-linux:
     strategy:
       fail-fast: false
       matrix:
@@ -42,65 +53,62 @@ jobs:
             version-suffix: +Ubuntu26.04
     runs-on: ${{ matrix.runs-on }}
     needs: identify-version
+    container: ${{ matrix.architecture == 'arm64' && matrix.container || '' }}
     env:
       ARCHITECTURE: ${{ matrix.architecture }}
+      CONTAINER: ${{ matrix.container }}
+      PLATFORM: ${{ matrix.platform }}
       CI_VERSION: ${{ needs.identify-version.outputs.ci-version }}
       CLOUDSMITH_VERSION: ${{ needs.identify-version.outputs.cloudsmith-version }}
       CLOUDSMITH_ORG: ${{ secrets.CLOUDSMITH_ORG }}
       CLOUDSMITH_REPO: ${{ secrets.CLOUDSMITH_REPO }}
       VERSION_SUFFIX: ${{ matrix.version-suffix }}
       PACKAGE_NAME: adi-scripts
-      APP_NAME: linux_image_ADI-scripts
+      CONTROL_PATH: packaging/debian
+      OUTPUT_PREFIX: adi-scripts
     steps:
-      - name: Checkout code repository
+      - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
-        with:
-          path: ${{env.APP_NAME}}
-      - name: Install dependencies
+      - name: Install deps
+        shell: sh
         run: |
-          sudo apt update
-          sudo apt install -y build-essential devscripts debhelper gettext
-      - name: Create debian package 
+          .github/scripts/install-deps-linux.sh
+      # This shared-action is compatible only with amd64/arm64 - armhf is built in install-app.sh
+      - name: Create debian package - amd64/arm64
+        if: ${{ matrix.architecture == 'amd64' || matrix.architecture == 'arm64' }}
         id: build_deb
-        uses: analogdevicesinc/shared-actions/deb-generator-action@deb-generator-action-v1.0.0
+        uses: analogdevicesinc/shared-actions/deb-generator-action@main
         with:
           working-directory: .
           ignore-path: |
             packaging
-          control-path: 'packaging/debian'
+          control-path: packaging/debian
           version: ${{ env.CI_VERSION }}
           version-suffix: ${{ env.VERSION_SUFFIX }}
+      # Also debian creation for armhf architecture
       - name: Install and verify application
         shell: sh
         run: |
-          sudo apt-get install -y "${{ env.ARTIFACTS_DIR }}/${PACKAGE_NAME}_${CI_VERSION}-1${VERSION_SUFFIX}_${ARCHITECTURE}.deb"
-          version_id=$(grep "^VERSION_ID" /etc/os-release | cut -d "=" -f2 | tr -d '"' || true)
-          echo "ADI_SCRIPTS_DEBIAN=${PACKAGE_NAME}-deb-${ARCHITECTURE}-${distro_tag}-${version_id}" >> $GITHUB_ENV
+          .github/scripts/install-app.sh
         env:
-          ARTIFACTS_DIR: ${{ steps.build_deb.outputs.artifact-dir }}
+          ARTIFACTS_DIR: ${{ steps.build_deb.outputs.artifact-dir || '' }}
       - name: Upload debian artifacts to github
-        if: success() && env.PACKAGE_NAME != ''
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9    #v7
         with:
-          name: ${{ env.ADI_SCRIPTS_DEBIAN }}
+          name: ${{ env.DEBIAN_ARTIFACT }}
           path: |
-            ${{ env.ARTIFACTS_DIR }}/${{env.PACKAGE_NAME}}_*.deb
-            ${{ env.ARTIFACTS_DIR }}/${{env.PACKAGE_NAME}}*.dsc
-            ${{ env.ARTIFACTS_DIR }}/${{env.PACKAGE_NAME}}*.debian.tar.xz
-            ${{ env.ARTIFACTS_DIR }}/${{env.PACKAGE_NAME}}*.orig.tar.gz
+            artifacts/
           if-no-files-found: error
-      - name: Authenticate with Cloudsmith via OIDC
-        if: success() && env.CLOUDSMITH_UPLOAD == 'true'
+      - name: Setup cloudsmith
+        if: ${{ env.CLOUDSMITH_VERSION != '' }}
         uses: cloudsmith-io/cloudsmith-cli-action@92b1383b22bbd36d804b858f273abcdf4d349f6b    # v3
         with:
-          oidc-namespace: adi
-          oidc-service-slug: ${{ secrets.CLOUDSMITH_SERVICE_SLUG }}
-      - name: Upload debian package to Cloudsmith
-        if: success() && env.CLOUDSMITH_UPLOAD == 'true' && env.CLOUDSMITH_API_KEY != ''
-        working-directory: ${{ env.ARTIFACTS_DIR }}/
+          oidc-namespace: ${{ secrets.CLOUDSMITH_ORG }}
+          oidc-service-slug: ${{ secrets.CLOUDSMITH_SVC }}
+      - name: Push to cloudsmith
+        if: ${{ env.CLOUDSMITH_VERSION != '' }}
+        shell: bash
         run: |
-          for f in ${{ env.PACKAGE_NAME }}*.dsc ${{ env.PACKAGE_NAME }}*.orig.tar.gz ${{ env.PACKAGE_NAME }}*.debian.tar.xz; do
-          [ -f "$f" ] || continue
-            cloudsmith push raw -SW --republish ${{ env.CLOUDSMITH_REPO }} "$f" 
-          done
-          cloudsmith push deb -SW --republish "${{ env.CLOUDSMITH_REPO }}/debian/trixie" ${{env.PACKAGE_NAME}}_*.deb
+          .github/scripts/upload-to-cloudsmith.sh
+        env:
+          WORKSPACE: ${{ github.workspace }}

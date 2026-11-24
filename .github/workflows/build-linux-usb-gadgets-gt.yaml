@@ -1,109 +1,139 @@
-name: Build GT
+name: Build debian package for GT (linux-usb-gadgets)
+
+permissions:
+  contents: read
+  id-token: write
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to build debian'
-        required: true
-        default: '1.0.0'
-      cloudsmith_upload:
-        description: 'Upload the built debian package to Cloudsmith'
-        required: true
-        type: boolean
-        default: false
+  push:
+    branches:
+      - main
+      - kuiper2.0
+      - '20[1-9][0-9]_R[1-9]'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - kuiper2.0
+      - '20[1-9][0-9]_R[1-9]'
 
-env:
-  PACKAGE_NAME: gt
-  APP_NAME: gt-${{ github.event.inputs.version }}
-  DEB_SCRIPT_LOCATION: repo-scripts
-
-permissions: 
-  id-token: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04-arm
+  identify-version:
+    runs-on: ubuntu-latest
+    outputs:
+      ci-version: ${{ steps.set_version.outputs.ci-version }}
+      cloudsmith-version: ${{ steps.set_version.outputs.cloudsmith-version }}
+    steps:
+    - name: Checkout code repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
+    - name: Set app version
+      id: set_version
+      shell: bash
+      run: |
+        .github/scripts/identify-version.sh
+      env:
+        VERSION_FILE: packaging/VERSION_GT
+        CLOUDSMITH_PREFIX: gt
+  build-linux:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - docker_image: arm64v8/debian:trixie
-            distro: debian13
-            architecture: arm64
-            platform_flag: ""
-          - docker_image: arm32v7/debian:trixie
-            distro: debian13
-            architecture: armhf
-            platform_flag: "--platform linux/arm/v7"
-
+          - architecture: arm64
+            runs-on: ubuntu-26.04-arm
+            container: docker.cloudsmith.io/adi/containers/kuiper_basic_64:latest
+            version-suffix: +Debian13
+          - architecture: armhf
+            runs-on: ubuntu-26.04-arm
+            container: docker.cloudsmith.io/adi/containers/kuiper_basic_32:latest
+            platform: linux/arm/v7
+            version-suffix: +Debian13
+          - architecture: arm64
+            runs-on: ubuntu-26.04-arm
+            container: debian:forky
+            version-suffix: +Debian14
+          - architecture: armhf
+            runs-on: ubuntu-26.04-arm
+            container: debian:forky
+            platform: linux/arm/v7
+            version-suffix: +Debian14
+    runs-on: ${{ matrix.runs-on }}
+    needs: identify-version
+    container: ${{ matrix.architecture == 'arm64' && matrix.container || '' }}
+    env:
+      ARCHITECTURE: ${{ matrix.architecture }}
+      CONTAINER: ${{ matrix.container }}
+      PLATFORM: ${{ matrix.platform }}
+      CI_VERSION: ${{ needs.identify-version.outputs.ci-version }}
+      CLOUDSMITH_VERSION: ${{ needs.identify-version.outputs.cloudsmith-version }}
+      CLOUDSMITH_ORG: ${{ secrets.CLOUDSMITH_ORG }}
+      CLOUDSMITH_REPO: ${{ secrets.CLOUDSMITH_REPO }}
+      VERSION_SUFFIX: ${{ matrix.version-suffix }}
+      PACKAGE_NAME: gt
+      CONTROL_PATH: packaging/debian
+      OUTPUT_PREFIX: gt
     steps:
       - name: Download GT source code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
         with:
           repository: linux-usb-gadgets/gt
-          path: ${{env.APP_NAME}}
-      
-      - name: Checkout gt scripts
-        uses: actions/checkout@v6
+      - name: Checkout packaging and CI scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7
         with:
-          sparse-checkout: CI/gt_deb_scripts
-          sparse-checkout-cone-mode: false
           path: repo-scripts
-        
-      - name: Move gt_deb_scripts to workspace root
+      - name: Add debian packaging to GT source tree
+        # Upstream gt ships a packaging/ dir with only the RPM files, so merge
+        # our debian files into it instead of replacing it.
+        shell: bash
         run: |
-          mv repo-scripts/CI/gt_deb_scripts $GITHUB_WORKSPACE/gt_deb_scripts
-          rm -rf repo-scripts
-
-      - name: Start persistent container
+          mkdir -p packaging
+          cp -r repo-scripts/packaging/debian_gt packaging/debian
+      - name: Install deps
+        shell: sh
         run: |
-          docker run -d \
-              ${{matrix.platform_flag}} \
-              --name ${{matrix.distro}}-${{matrix.architecture}} \
-              -v "$GITHUB_WORKSPACE/${{env.APP_NAME}}:/workspace/${{env.APP_NAME}}" \
-              -v "$GITHUB_WORKSPACE/gt_deb_scripts:/workspace/gt_deb_scripts" \
-              -w /workspace \
-              ${{matrix.docker_image}} tail -f /dev/null
-
-      - name: Install dependencies
-        run: |
-          docker exec ${{matrix.distro}}-${{matrix.architecture}} sh -c "apt-get update && apt-get install -y debhelper devscripts build-essential wget cmake libusbgx-dev libconfig-dev libglib2.0-dev gettext-base"
-
-      - name: Build GT
-        run: |
-          docker exec ${{matrix.distro}}-${{matrix.architecture}} sh -c "gt_deb_scripts/build-gt-deb.sh ${{env.PACKAGE_NAME}} ${{github.event.inputs.version}} ${{matrix.architecture}}"
-
-      - name: Copy debian artifacts from container to host
-        run: |
-          docker cp ${{matrix.distro}}-${{matrix.architecture}}:/workspace/. ./artifacts/
-          ls -la ./artifacts/
-
-      - name: Upload GT debian package
-        uses: actions/upload-artifact@v7
+          repo-scripts/.github/scripts/install-deps-linux.sh
+      # This shared-action is compatible only with amd64/arm64 - armhf is built in install-app.sh
+      - name: Create debian package - amd64/arm64
+        if: ${{ matrix.architecture == 'amd64' || matrix.architecture == 'arm64' }}
+        id: build_deb
+        uses: analogdevicesinc/shared-actions/deb-generator-action@main
         with:
-          name: ${{ env.APP_NAME }}-${{ matrix.architecture }}
+          working-directory: .
+          ignore-path: |
+            packaging
+          control-path: packaging/debian
+          version: ${{ env.CI_VERSION }}
+          version-suffix: ${{ env.VERSION_SUFFIX }}
+      # Also debian creation for armhf architecture
+      - name: Install and verify application
+        shell: sh
+        run: |
+          repo-scripts/.github/scripts/install-app.sh
+        env:
+          ARTIFACTS_DIR: ${{ steps.build_deb.outputs.artifact-dir || '' }}
+      - name: Upload debian artifacts to github
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9    #v7
+        with:
+          name: ${{ env.DEBIAN_ARTIFACT }}
           path: |
-            artifacts/${{ env.PACKAGE_NAME }}*.deb
-            artifacts/${{ env.PACKAGE_NAME }}*.dsc
-            artifacts/${{ env.PACKAGE_NAME }}*.debian.tar.xz
-            artifacts/${{ env.PACKAGE_NAME }}*.orig.tar.gz
+            artifacts/
           if-no-files-found: error
-      
-      - name: Authenticate with Cloudsmith via OIDC
-        if: success() && github.event.inputs.cloudsmith_upload == 'true'
-        uses: cloudsmith-io/cloudsmith-cli-action@v2.0.2
+      - name: Setup cloudsmith
+        if: ${{ env.CLOUDSMITH_VERSION != '' }}
+        uses: cloudsmith-io/cloudsmith-cli-action@92b1383b22bbd36d804b858f273abcdf4d349f6b    # v3
         with:
-          oidc-namespace: adi
-          oidc-service-slug: ${{ secrets.CLOUDSMITH_SERVICE_SLUG }}
-      
-      - name: Upload debian package to Cloudsmith
-        if: success() && github.event.inputs.cloudsmith_upload == 'true' && env.CLOUDSMITH_API_KEY != ''
-        working-directory: ./artifacts
+          oidc-namespace: ${{ secrets.CLOUDSMITH_ORG }}
+          oidc-service-slug: ${{ secrets.CLOUDSMITH_SVC }}
+      - name: Push to cloudsmith
+        if: ${{ env.CLOUDSMITH_VERSION != '' }}
+        shell: bash
         run: |
-          pip install --break-system-packages cloudsmith-cli
-          for f in ${{env.PACKAGE_NAME}}*.dsc ${{env.PACKAGE_NAME}}*.orig.tar.gz ${{env.PACKAGE_NAME}}*.debian.tar.xz; do
-            [ -f "$f" ] || continue
-            cloudsmith push raw -SW --republish adi/kuiper-internal "$f" 
-          done
-          cloudsmith push deb -SW --republish "adi/kuiper-internal/debian/trixie" ${{env.PACKAGE_NAME}}_*.deb
+          repo-scripts/.github/scripts/upload-to-cloudsmith.sh
+        env:
+          WORKSPACE: ${{ github.workspace }}

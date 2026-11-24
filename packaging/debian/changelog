@@ -1,5 +1,5 @@
-gt (@VERSION@) UNRELEASED; urgency=low
+adi-scripts (@VERSION@) UNRELEASED; urgency=medium
 
   * Automated package build.
 
- -- EngineerZone <linux@analog.com>  @DATE@
+ -- EngineerZone <https://ez.analog.com/sw-interface-tools/>  @DATE@

@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-PACKAGE ?= adi-scripts
+PACKAGE = adi-scripts
 
 export DH_VERBOSE = 1
 
