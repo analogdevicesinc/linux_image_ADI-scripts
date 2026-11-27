@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl disable adi-power.service 2>/dev/null || true
+        systemctl disable fan-control.service 2>/dev/null || true
+        systemctl disable fix-display-port.service 2>/dev/null || true
+        systemctl disable gt.service 2>/dev/null || true
+        systemctl disable gt-start.service 2>/dev/null || true
+        systemctl disable gt.target 2>/dev/null || true
+        systemctl disable iiod_ffs.service 2>/dev/null || true
+        systemctl disable iiod_context_attr.service 2>/dev/null || true
+        systemctl disable dev-iio_ffs.mount 2>/dev/null || true
+
+        systemctl stop adi-power.service 2>/dev/null || true
+        systemctl stop fan-control.service 2>/dev/null || true
+        systemctl stop fix-display-port.service 2>/dev/null || true
+        systemctl stop gt.service 2>/dev/null || true
+        systemctl stop gt-start.service 2>/dev/null || true
+        systemctl stop gt.target 2>/dev/null || true
+        systemctl stop iiod_ffs.service 2>/dev/null || true
+        systemctl stop iiod_context_attr.service 2>/dev/null || true
+        systemctl stop dev-iio_ffs.mount 2>/dev/null || true
+
+        systemctl daemon-reload || true
+    fi
+fi
+
+exit 0
